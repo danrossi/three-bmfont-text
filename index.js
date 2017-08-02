@@ -122,3 +122,5 @@ TextGeometry.prototype.computeBoundingBox = function () {
   }
   utils.computeBox(positions, bbox)
 }
+
+window.createTextGeometry = createTextGeometry;
