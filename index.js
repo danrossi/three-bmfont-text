@@ -9,9 +9,7 @@ var utils = require('./lib/utils')
 
 var Base = THREE.BufferGeometry
 
-module.exports = function createTextGeometry (opt) {
-  return new TextGeometry(opt)
-}
+
 
 function TextGeometry (opt) {
   Base.call(this)
@@ -123,4 +121,4 @@ TextGeometry.prototype.computeBoundingBox = function () {
   utils.computeBox(positions, bbox)
 }
 
-window.createTextGeometry = createTextGeometry;
+module.exports = TextGeometry;

@@ -40,8 +40,8 @@
   },
   "scripts": {
     "build": "browserify test/test-shader.js -t glslify | uglifyjs -cm > test/bundle.js",
-    "build-debug": "browserify index.js > test/bundle-debug.js",
-    "build-lib": "browserify index.js | uglifyjs -cm > test/three-bmfont-text.min.js",
+    "build-debug": "browserify main.js > test/bundle-debug.js",
+    "build-lib": "browserify main.js | uglifyjs -cm > test/three-bmfont-text.min.js",
     "start": "budo test/test-shader.js:bundle.js --dir test --live -- -t glslify",
     "start-test": "budo test/test.js:bundle.js --dir test --live -- -t glslify",
     "test-2d": "budo test/test-2d.js:bundle.js --dir test --live",

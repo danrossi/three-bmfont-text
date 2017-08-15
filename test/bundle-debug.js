@@ -10,9 +10,7 @@ var utils = require('./lib/utils')
 
 var Base = THREE.BufferGeometry
 
-module.exports = function createTextGeometry (opt) {
-  return new TextGeometry(opt)
-}
+
 
 function TextGeometry (opt) {
   Base.call(this)
@@ -124,7 +122,124 @@ TextGeometry.prototype.computeBoundingBox = function () {
   utils.computeBox(positions, bbox)
 }
 
-},{"./lib/utils":2,"./lib/vertices":3,"inherits":8,"layout-bmfont-text":10,"object-assign":11,"quad-indices":12,"three-buffer-vertex-data":13}],2:[function(require,module,exports){
+module.exports = TextGeometry;
+
+},{"./lib/utils":3,"./lib/vertices":4,"inherits":10,"layout-bmfont-text":12,"object-assign":13,"quad-indices":14,"three-buffer-vertex-data":15}],2:[function(require,module,exports){
+var msdf = require('../shaders/msdf');
+var sdf = require('../shaders/sdf');
+var TextGeometry = require('../index');
+
+function TextBitmap ( config, renderer ) {
+
+  this.config = config;
+  config.color = config.color || '#fff';
+  config.lineHeight = config.lineHeight ? config.font.common.lineHeight + config.lineHeight : config.font.common.lineHeight;
+  config.scale = config.origFontSize && config.fontSize ? config.fontSize / config.origFontSize : config.scale;
+  config.type = config.type || "msdf";
+  //console.log(TextGeometry);
+
+  var geometry = this.geometry = new TextGeometry( config ); // text-bm-font
+
+  //geometry.center();
+
+  var texture;
+
+  if (config.texture) {
+      texture = config.texture;
+      //console.log("texture", texture);
+      this.initTexture(texture, renderer);
+  } else {
+    var self = this;
+    var textureLoader = new THREE.TextureLoader();
+      texture = textureLoader.load(config.imagePath, function(){
+       self.initTexture(texture, renderer); 
+    });
+
+  }
+
+  var shader = config.type == "sdf" ? sdf : msdf;
+
+  var material = new THREE.RawShaderMaterial(shader({
+      side: THREE.DoubleSide,
+      transparent: true,
+      depthTest: false,
+      map: texture,
+      //depthWrite: false,
+      color: config.color
+    }));
+
+  var mesh = this.mesh = new THREE.Mesh( geometry, material );
+  var group = this.group = new THREE.Group();
+
+  mesh.renderOrder = 1;
+
+  mesh.rotation.x = Math.PI;
+
+  var boxGeo = new THREE.BoxGeometry(1,1,1);
+  var boxMat = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+    transparent: true,
+    opacity: config.showHitBox ? 1 : 0,
+    wireframe: true
+  });
+  var hitBox = this.hitBox = new THREE.Mesh( boxGeo, boxMat );
+  hitBox.mesh = mesh;
+
+  this.update();
+
+  var s = config.scale || 1;
+  group.scale.set( s, s, s );
+
+  group.add( mesh );
+  group.add( hitBox );
+
+}
+
+TextBitmap.prototype.initTexture = function(texture, renderer) {
+  texture.needsUpdate = true;
+  texture.minFilter = THREE.LinearMipMapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true;
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+}
+
+TextBitmap.prototype.update = function(){
+
+  var geometry = this.geometry;
+  var mesh = this.mesh;
+
+  geometry.update( this.config );
+
+  // centering
+  geometry.computeBoundingBox();
+  mesh.position.x = - geometry.layout.width / 2;
+  mesh.position.y = - ( geometry.boundingBox.max.y - geometry.boundingBox.min.y ) / 2; // valign center
+  this.hitBox.scale.set( geometry.layout.width, geometry.layout.height, 1 );
+  // mesh.position.y = - ( geometry.boundingBox.max.y - geometry.boundingBox.min.y ); // valign top
+  // this.hitBox.position.y = - geometry.layout.height / 2; // valign top
+
+  this.height = geometry.layout.height * this.config.scale; // for html-like flow / positioning
+}
+
+Object.defineProperty(TextBitmap.prototype, 'text', {
+
+  get: function() {
+    return this.config.text;
+  },
+
+  set: function(s) {
+
+    this.config.text = s;
+    this.update();
+
+    return this;
+
+  }
+
+});
+
+module.exports = TextBitmap;
+},{"../index":1,"../shaders/msdf":18,"../shaders/sdf":19}],3:[function(require,module,exports){
 var itemSize = 2
 var box = { min: [0, 0], max: [0, 0] }
 
@@ -164,7 +279,7 @@ module.exports.computeSphere = function (positions, output) {
   output.radius = length / 2
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 module.exports.pages = function pages (glyphs) {
   var pages = new Float32Array(glyphs.length * 4 * 1)
   var i = 0
@@ -243,7 +358,26 @@ module.exports.positions = function positions (glyphs) {
   return positions
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
+var TextGeometry = require('./index');
+var TextBitmap = require('./lib/textbitmap');
+
+function createTextGeometry (opt) {
+  return new TextGeometry(opt);
+}
+
+function createTextBitmap (config, renderer) {
+  return new TextBitmap(config, renderer);
+}
+
+module.exports.createTextGeometry = createTextGeometry;
+module.exports.createTextBitmap = createTextBitmap;
+
+window.createTextGeometry = createTextGeometry;
+window.createTextBitmap = createTextBitmap;
+ 
+
+},{"./index":1,"./lib/textbitmap":2}],6:[function(require,module,exports){
 var str = Object.prototype.toString
 
 module.exports = anArray
@@ -256,13 +390,13 @@ function anArray(arr) {
   )
 }
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = function numtype(num, def) {
 	return typeof num === 'number'
 		? num 
 		: (typeof def === 'number' ? def : 0)
 }
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function(dtype) {
   switch (dtype) {
     case 'int8':
@@ -288,7 +422,7 @@ module.exports = function(dtype) {
   }
 }
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*eslint new-cap:0*/
 var dtype = require('dtype')
 module.exports = flattenVertexData
@@ -335,7 +469,7 @@ function flattenVertexData (data, output, offset) {
   return output
 }
 
-},{"dtype":6}],8:[function(require,module,exports){
+},{"dtype":8}],10:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -360,7 +494,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -383,7 +517,7 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var wordWrap = require('word-wrapper')
 var xtend = require('xtend')
 var number = require('as-number')
@@ -683,7 +817,7 @@ function findChar (array, value, start) {
   }
   return -1
 }
-},{"as-number":5,"word-wrapper":14,"xtend":15}],11:[function(require,module,exports){
+},{"as-number":7,"word-wrapper":16,"xtend":17}],13:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -775,7 +909,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var dtype = require('dtype')
 var anArray = require('an-array')
 var isBuffer = require('is-buffer')
@@ -818,7 +952,7 @@ module.exports = function createQuadElements(array, opt) {
     }
     return indices
 }
-},{"an-array":4,"dtype":6,"is-buffer":9}],13:[function(require,module,exports){
+},{"an-array":6,"dtype":8,"is-buffer":11}],15:[function(require,module,exports){
 var flatten = require('flatten-vertex-data')
 var warned = false;
 
@@ -918,7 +1052,7 @@ function rebuildAttribute (attrib, data, itemSize) {
   return false
 }
 
-},{"flatten-vertex-data":7}],14:[function(require,module,exports){
+},{"flatten-vertex-data":9}],16:[function(require,module,exports){
 var newline = /\n/
 var newlineChar = '\n'
 var whitespace = /\s/
@@ -1046,7 +1180,7 @@ function monospace(text, start, end, width) {
         end: start+glyphs
     }
 }
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1067,4 +1201,130 @@ function extend() {
     return target
 }
 
-},{}]},{},[1]);
+},{}],18:[function(require,module,exports){
+var assign = require('object-assign');
+
+module.exports = function createMSDFShader (opt) {
+  opt = opt || {};
+  var opacity = typeof opt.opacity === 'number' ? opt.opacity : 1;
+  var alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
+  var precision = opt.precision || 'highp';
+  var color = opt.color;
+  var map = opt.map;
+
+  // remove to satisfy r73
+  delete opt.map;
+  delete opt.color;
+  delete opt.precision;
+  delete opt.opacity;
+
+  return assign({
+    uniforms: {
+      opacity: { type: 'f', value: opacity },
+      map: { type: 't', value: map || new THREE.Texture() },
+      color: { type: 'c', value: new THREE.Color(color) }
+    },
+    vertexShader: [
+      'attribute vec2 uv;',
+      'attribute vec4 position;',
+      'uniform mat4 projectionMatrix;',
+      'uniform mat4 modelViewMatrix;',
+      'varying vec2 vUv;',
+      'void main() {',
+      'vUv = uv;',
+      'gl_Position = projectionMatrix * modelViewMatrix * position;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      '#ifdef GL_OES_standard_derivatives',
+      '#extension GL_OES_standard_derivatives : enable',
+      '#endif',
+      'precision ' + precision + ' float;',
+      'uniform float opacity;',
+      'uniform vec3 color;',
+      'uniform sampler2D map;',
+      'varying vec2 vUv;',
+
+      'float median(float r, float g, float b) {',
+      '  return max(min(r, g), min(max(r, g), b));',
+      '}',
+
+      'void main() {',
+      '  vec3 sample = texture2D(map, vUv).rgb;',
+      '  float sigDist = median(sample.r, sample.g, sample.b) - 0.5;',
+      '  float alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);',
+      '  gl_FragColor = vec4(color.xyz, alpha * opacity);',
+      alphaTest === 0
+        ? ''
+        : '  if (gl_FragColor.a < ' + alphaTest + ') discard;',
+      '}'
+    ].join('\n')
+  }, opt);
+};
+
+},{"object-assign":13}],19:[function(require,module,exports){
+var assign = require('object-assign')
+
+module.exports = function createSDFShader (opt) {
+  opt = opt || {}
+  var opacity = typeof opt.opacity === 'number' ? opt.opacity : 1
+  var alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001
+  var precision = opt.precision || 'highp'
+  var color = opt.color
+  var map = opt.map
+
+  // remove to satisfy r73
+  delete opt.map
+  delete opt.color
+  delete opt.precision
+  delete opt.opacity
+
+  return assign({
+    uniforms: {
+      opacity: { type: 'f', value: opacity },
+      map: { type: 't', value: map || new THREE.Texture() },
+      color: { type: 'c', value: new THREE.Color(color) }
+    },
+    vertexShader: [
+      'attribute vec2 uv;',
+      'attribute vec4 position;',
+      'uniform mat4 projectionMatrix;',
+      'uniform mat4 modelViewMatrix;',
+      'varying vec2 vUv;',
+      'void main() {',
+      'vUv = uv;',
+      'gl_Position = projectionMatrix * modelViewMatrix * position;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      '#ifdef GL_OES_standard_derivatives',
+      '#extension GL_OES_standard_derivatives : enable',
+      '#endif',
+      'precision ' + precision + ' float;',
+      'uniform float opacity;',
+      'uniform vec3 color;',
+      'uniform sampler2D map;',
+      'varying vec2 vUv;',
+
+      'float aastep(float value) {',
+      '  #ifdef GL_OES_standard_derivatives',
+      '    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;',
+      '  #else',
+      '    float afwidth = (1.0 / 32.0) * (1.4142135623730951 / (2.0 * gl_FragCoord.w));',
+      '  #endif',
+      '  return smoothstep(0.5 - afwidth, 0.5 + afwidth, value);',
+      '}',
+
+      'void main() {',
+      '  vec4 texColor = texture2D(map, vUv);',
+      '  float alpha = aastep(texColor.a);',
+      '  gl_FragColor = vec4(color, opacity * alpha);',
+      alphaTest === 0
+        ? ''
+        : '  if (gl_FragColor.a < ' + alphaTest + ') discard;',
+      '}'
+    ].join('\n')
+  }, opt)
+}
+
+},{"object-assign":13}]},{},[5]);
