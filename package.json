@@ -36,10 +36,15 @@
     "three": "^0.86.0",
     "three-orbit-viewer": "^69.2.9",
     "three-vignette-background": "^1.0.2",
-    "uglify-js": "^2.4.17"
+    "uglify-js": "^2.4.17",
+    "rollup": "^0.45.2",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "^8.1.0",
+    "rollup-plugin-uglify": "^2.0.1"
   },
   "scripts": {
-    "build": "browserify test/test-shader.js -t glslify | uglifyjs -cm > test/bundle.js",
+    "build": "rollup -c",
+    "build2": "browserify test/test-shader.js -t glslify | uglifyjs -cm > test/bundle.js",
     "build-debug": "browserify main.js > test/bundle-debug.js",
     "build-lib": "browserify main.js | uglifyjs -cm > test/three-bmfont-text.min.js",
     "start": "budo test/test-shader.js:bundle.js --dir test --live -- -t glslify",

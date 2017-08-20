@@ -1,11 +1,11 @@
-var createLayout = require('layout-bmfont-text')
-var inherits = require('inherits')
-var createIndices = require('quad-indices')
-var buffer = require('three-buffer-vertex-data')
-var assign = require('object-assign')
+import createLayout from 'layout-bmfont-text';
+import inherits from 'inherits';
+import createIndices from 'quad-indices';
+import buffer 'three-buffer-vertex-data';
+import assign = 'object-assign';
 
-var vertices = require('./lib/vertices')
-var utils = require('./lib/utils')
+import vertices = './lib/vertices';
+import Utils = './lib/Utils';
 
 var Base = THREE.BufferGeometry
 
