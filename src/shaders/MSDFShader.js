@@ -32,6 +32,7 @@ export default class MSDFShader extends BaseShader {
   }
 }
 
+/*
 export function createShader(opt) {
-  return MSDFShader.createShader(MSDFShader, opt);
-};
+  return MSDFShader.createShader(opt);
+};*/

@@ -1,11 +1,11 @@
 export default class Vertices {
 
-	pages(glyph, pages) {
+	static pages(glyph, pages) {
 		const id = glyph.page || 0;
 	 	pages.push(...[id, id, id, id]);
 	}
 
-	uvs(glyph, uvs, font, flipY) {
+	static uvs(glyph, uvs, font, flipY) {
 
 		const bw = (glyph.x + glyph.width),
 	    bh = (glyph.y + glyph.height),
@@ -15,7 +15,7 @@ export default class Vertices {
 	    u0 = glyph.x / texWidth,
 	    u1 = bw / texWidth;
 
-	    let v1 = bitmap.y / texHeight,
+	    let v1 = glyph.y / texHeight,
 	    v0 = bh / texHeight;
 
 	    if (flipY) {
@@ -41,7 +41,7 @@ export default class Vertices {
 
 	}
 
-	positions(glyph, positions, tx, ty) {
+	static positions(glyph, positions, tx, ty) {
 
 		const x = tx + glyph.xoffset,
 		y = ty + glyph.yoffset,

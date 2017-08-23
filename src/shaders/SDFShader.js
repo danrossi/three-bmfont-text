@@ -36,7 +36,7 @@ export default class SDFShader extends BaseShader {
   }
 }
 
-
+/*
 export function createShader(opt) {
   return SDFShader.createShader(SDFShader, opt);
-};
+};*/

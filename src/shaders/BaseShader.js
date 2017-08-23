@@ -1,10 +1,12 @@
+import { Texture, Color } from 'three';
+
 export default class BaseShader {
 
 	static uniforms(map, color, opacity) {
 	    return {
 	      opacity: { type: 'f', value: opacity },
-	      map: { type: 't', value: map || new THREE.Texture() },
-	      color: { type: 'c', value: new THREE.Color(color) }
+	      map: { type: 't', value: map || new Texture() },
+	      color: { type: 'c', value: new Color(color) }
 	    };
 	}
 
@@ -22,13 +24,15 @@ export default class BaseShader {
 	    `;
 	}
 
-	discarOnAlphaTest(alphaTest) {
+	static discarOnAlphaTest(alphaTest) {
 		return (alphaTest > 0 ? ` if (gl_FragColor.a < ${alphaTest}) discard;` : "");
 	}
 
-	createShader(shader, opt) {
+	static createShader(opt) {
+
 	    opt = opt || {};
-	    const opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
+	    const shader = this,
+	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
 	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
 
 	    // remove to satisfy r73

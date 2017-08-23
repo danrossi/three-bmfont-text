@@ -65,13 +65,13 @@ export default class TextGeometryUtil {
 	  return output;
 	}*/
 	
-	computeBox(positions, output) {
+	static computeBox(positions, output) {
 	  bounds(positions);
 	  output.min.set(box.min[0], box.min[1], 0);
 	  output.max.set(box.max[0], box.max[1], 0);
 	}
 
-	computeSphere(positions, output) {
+	static computeSphere(positions, output) {
 	  bounds(positions);
 	  const minX = box.min[0],
 	  minY = box.min[1],

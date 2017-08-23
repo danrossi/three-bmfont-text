@@ -1,9 +1,11 @@
 import createIndices from 'quad-indices';
-import buffer from 'three-buffer-vertex-data';
+//import buffer from 'three-buffer-vertex-data';
+import BufferVertexData from './util/BufferVertexData';
 import Vertices from './layout/Vertices';
 import TextLayout from './layout/TextLayout';
 import TextGeometryUtil from './util/TextGeometryUtil';
-import { BufferGeometry } from 'three/build/three.modules'
+//import { BufferGeometry } from 'three/build/three.modules'
+import { BufferGeometry, Box3, Sphere } from 'three';
 
 export default class TextGeometry extends BufferGeometry {
 
@@ -19,7 +21,7 @@ export default class TextGeometry extends BufferGeometry {
   		//THREE.js already polyfills assign.
 		this._opt = Object.assign({}, opt);
 
-		this.boundingBox = new THREE.Box3();
+		this.boundingBox = new Box3();
 
 		// also do an initial setup...
   		if (opt) this.update(opt);
@@ -62,9 +64,9 @@ export default class TextGeometry extends BufferGeometry {
 	  });
 
 	  // update vertex data
-	  buffer.index(this, indices, 1, 'uint16');
-	  buffer.attr(this, 'position', this.layout.positions, 2);
-	  buffer.attr(this, 'uv', this.layout.uvs, 2);
+	  BufferVertexData.setIndex(this, indices, 1, 'uint16');
+	  BufferVertexData.setAttribute(this, 'position', this.layout.positions, 2);
+	 	BufferVertexData.setAttribute(this, 'uv', this.layout.uvs, 2);
 
 	  // update multipage data
 	  if (!opt.multipage && 'page' in this.attributes) {
@@ -80,7 +82,7 @@ export default class TextGeometry extends BufferGeometry {
 	computeBoundingSphere() {
 
 	  if (this.boundingSphere === null) {
-	    this.boundingSphere = new THREE.Sphere();
+	    this.boundingSphere = new Sphere();
 	  }
 
 	  const positions = this.attributes.position.array,

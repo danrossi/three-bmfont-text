@@ -21,7 +21,7 @@ export default class BasicShader extends BaseShader {
   }
 }
 
-
+/*
 export function createShader(opt) {
   return BasicShader.createShader(BasicShader, opt);
-};
+};*/

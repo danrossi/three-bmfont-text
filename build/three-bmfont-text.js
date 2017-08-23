@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var three_build_three_modules = require('three/build/three.modules');
+var three = require('three');
 
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -1010,6 +1010,7 @@ var TextGeometryUtil = function () {
 		return TextGeometryUtil;
 }();
 
+//import { BufferGeometry } from 'three/build/three.modules'
 var TextGeometry = function (_BufferGeometry) {
 	inherits(TextGeometry, _BufferGeometry);
 
@@ -1131,7 +1132,7 @@ var TextGeometry = function (_BufferGeometry) {
 		}
 	}]);
 	return TextGeometry;
-}(three_build_three_modules.BufferGeometry);
+}(three.BufferGeometry);
 
 var TextBitmap = function () {
   function TextBitmap(config, renderer) {

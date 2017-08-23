@@ -1,8 +1,5 @@
-
-var warned = false;
-
-module.exports.attr = setAttribute
-module.exports.index = setIndex
+import flatten from 'flatten-vertex-data';
+import { BufferAttribute } from 'three';
 
 export default class BufferVertexData {
 
@@ -22,86 +19,85 @@ export default class BufferVertexData {
       //else geometry.index = newAttrib
     //}
   }
-}
 
 
-setAttribute (geometry, key, data, itemSize, dtype) {
-  //if (typeof itemSize !== 'number') itemSize = 3
-  //if (typeof dtype !== 'string') dtype = 'float32'
-  
-  /*if (Array.isArray(data) &&
-    Array.isArray(data[0]) &&
-    data[0].length !== itemSize) {
-    throw new Error('Nested vertex array has unexpected size; expected ' +
-      itemSize + ' but found ' + data[0].length)
-  }*/
+  static updateAttribute (attrib, data, itemSize, dtype) {
+    data = data || []
+    if (!attrib || rebuildAttribute(attrib, data, itemSize)) {
+      // create a new array with desired type
+      data = flatten(data, dtype);
 
-  var attrib = geometry.getAttribute(key);
-  var newAttrib = updateAttribute(attrib, data, itemSize, dtype)
-  if (newAttrib) {
-    geometry.addAttribute(key, newAttrib)
-  }
-}
+      //var needsNewBuffer = attrib && typeof attrib.setArray !== 'function'
+      //if (!attrib || needsNewBuffer) {
+        // We are on an old version of ThreeJS which can't
+        // support growing / shrinking buffers, so we need
+        // to build a new buffer
+       /* if (needsNewBuffer && !warned) {
+          warned = true
+          console.warn([
+            'A WebGL buffer is being updated with a new size or itemSize, ',
+            'however this version of ThreeJS only supports fixed-size buffers.',
+            '\nThe old buffer may still be kept in memory.\n',
+            'To avoid memory leaks, it is recommended that you dispose ',
+            'your geometries and create new ones, or update to ThreeJS r82 or newer.\n',
+            'See here for discussion:\n',
+            'https://github.com/mrdoob/three.js/pull/9631'
+          ].join(''))
+        }*/
 
-function updateAttribute (attrib, data, itemSize, dtype) {
-  data = data || []
-  if (!attrib || rebuildAttribute(attrib, data, itemSize)) {
-    // create a new array with desired type
-    data = flatten(data, dtype)
+        // Build a new attribute
+       // attrib = new BufferAttribute(data, itemSize);
+     // }
+      if (!attrib) attrib = attrib = new BufferAttribute(data, itemSize);
 
-    var needsNewBuffer = attrib && typeof attrib.setArray !== 'function'
-    if (!attrib || needsNewBuffer) {
-      // We are on an old version of ThreeJS which can't
-      // support growing / shrinking buffers, so we need
-      // to build a new buffer
-      if (needsNewBuffer && !warned) {
-        warned = true
-        console.warn([
-          'A WebGL buffer is being updated with a new size or itemSize, ',
-          'however this version of ThreeJS only supports fixed-size buffers.',
-          '\nThe old buffer may still be kept in memory.\n',
-          'To avoid memory leaks, it is recommended that you dispose ',
-          'your geometries and create new ones, or update to ThreeJS r82 or newer.\n',
-          'See here for discussion:\n',
-          'https://github.com/mrdoob/three.js/pull/9631'
-        ].join(''))
-      }
+      attrib.itemSize = itemSize;
+      attrib.needsUpdate = true;
 
-      // Build a new attribute
-      attrib = new THREE.BufferAttribute(data, itemSize);
+      // New versions of ThreeJS suggest using setArray
+      // to change the data. It will use bufferData internally,
+      // so you can change the array size without any issues
+      //if (typeof attrib.setArray === 'function') {
+      // attrib.setArray(data)
+      //}
+      attrib.setArray(data);
+
+      return attrib;
+    } else {
+      // copy data into the existing array
+      flatten(data, attrib.array);
+      attrib.needsUpdate = true;
+      return null;
     }
-
-    attrib.itemSize = itemSize
-    attrib.needsUpdate = true
-
-    // New versions of ThreeJS suggest using setArray
-    // to change the data. It will use bufferData internally,
-    // so you can change the array size without any issues
-    if (typeof attrib.setArray === 'function') {
-      attrib.setArray(data)
-    }
-
-    return attrib
-  } else {
-    // copy data into the existing array
-    flatten(data, attrib.array)
-    attrib.needsUpdate = true
-    return null
   }
+
+  static setAttribute (geometry, key, data, itemSize, dtype) {
+    //if (typeof itemSize !== 'number') itemSize = 3
+    //if (typeof dtype !== 'string') dtype = 'float32'
+    
+    /*if (Array.isArray(data) &&
+      Array.isArray(data[0]) &&
+      data[0].length !== itemSize) {
+      throw new Error('Nested vertex array has unexpected size; expected ' +
+        itemSize + ' but found ' + data[0].length)
+    }*/
+
+    const attrib = geometry.getAttribute(key), 
+    newAttrib = BufferVertexData.updateAttribute(attrib, data, itemSize, dtype)
+    if (newAttrib) {
+      geometry.addAttribute(key, newAttrib)
+    }
+  }
+
 }
 
 // Test whether the attribute needs to be re-created,
 // returns false if we can re-use it as-is.
 function rebuildAttribute (attrib, data, itemSize) {
-  if (attrib.itemSize !== itemSize) return true
-  if (!attrib.array) return true
-  var attribLength = attrib.array.length
-  if (Array.isArray(data) && Array.isArray(data[0])) {
-    // [ [ x, y, z ] ]
-    return attribLength !== data.length * itemSize
-  } else {
-    // [ x, y, z ]
-    return attribLength !== data.length
-  }
-  return false
+  if (attrib.itemSize !== itemSize || !attrib.array) return true;
+  //if (!attrib.array) return true
+  const attribLength = attrib.array.length, 
+  hasLength = attribLength !== data.length,
+  hasData = Array.isArray(data) && Array.isArray(data[0]);
+
+  return hasData ? hasLength * itemSize : hasLength;
 }

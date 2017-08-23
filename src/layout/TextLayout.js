@@ -1,11 +1,12 @@
 import wordWrap from 'word-wrapper';
 import Vertices from './Vertices';
+import TextLayoutUtils from './TextLayoutUtils';
 
 export default class TextLayout {
 
   constructor(opt) {
       this._glyphs = [];
-      this._positons = [];
+      this._positions = [];
       this._uvs = [];
       this._pages = [];
 
@@ -30,10 +31,13 @@ export default class TextLayout {
     font = this.font,
     lines = wordWrap.lines(text, opt),
     minWidth = opt.width || 0,
+    lineHeight = this.lineHeight,
     letterSpacing = this.letterSpacing;
 
+    let pages = this._pages;
+
     //clear glyphs
-    glyphs.length = position.length = uvs.length = 0;
+    glyphs.length = positions.length = uvs.length = 0;
     pages = [0, 0, 0, 0];
 
     //get max line width
@@ -57,7 +61,9 @@ export default class TextLayout {
       let lastGlyph = null;
 
       //for each glyph in that line...
-      for (let i of TextLayoutUtils.range(start, end, 1)) {
+      //for (let i of TextLayoutUtils.range(start, end, 1)) {
+      for (let i = start; i < end; i++ ) {
+
 
         const glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
         
@@ -69,7 +75,7 @@ export default class TextLayout {
             //add visible glyphs determined by width and height
             if (glyph.width * glyph.height > 0) {
 
-              Vertices.positions(glyph, positions, tx, y);
+              Vertices.positions(glyph, positions, x, y);
               Vertices.uvs(glyph, uvs, this.font, this._opt.flipY);
               if (glyph.page) Vertices.positions(glyph, pages);
 
@@ -109,7 +115,7 @@ export default class TextLayout {
   }
 
   computeMetrics(text, start, end, width) {
-    const letterSpacing = this.letterSpacing;
+    const letterSpacing = this.letterSpacing,
     font = this.font;
 
     let curPen = 0,
@@ -126,7 +132,8 @@ export default class TextLayout {
       };
     }
 
-    for (let i of TextLayoutUtils.range(start, Math.min(text.length, end), 1)) {
+    for (let i = start; i < Math.min(text.length, end); i++ ) {
+    //for (let i of TextLayoutUtils.range(start, Math.min(text.length, end), 1)) {
 
       const glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
 
