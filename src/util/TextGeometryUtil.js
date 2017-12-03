@@ -64,6 +64,27 @@ export default class TextGeometryUtil {
 
 	  return output;
 	}*/
+
+
+	static createIndices(count) {
+    
+    	const numIndices = count * 6,
+    	indices = new Uint16Array(numIndices);
+
+    //var indices = new Uint16Array(indicesArray, 0, 6);
+    //var indices = new Uint16Array(numIndices);
+
+	    for (let i = 0, j = 0; i < numIndices; i += 6, j += 4) {
+	        indices[i + 0] = j + 0;
+	        indices[i + 1] = j + 1;
+	        indices[i + 2] = j + 2;
+	        indices[i + 3] = j + 0;
+	        indices[i + 4] = j + 2;
+	        indices[i + 5] = j + 3;
+	    }
+
+    	return indices;
+	}
 	
 	static computeBox(positions, output) {
 	  bounds(positions);

@@ -1,20 +1,24 @@
-import createIndices from 'quad-indices';
+//import createIndices from 'quad-indices';
 //import buffer from 'three-buffer-vertex-data';
-import BufferVertexData from './util/BufferVertexData';
-import Vertices from './layout/Vertices';
+//import BufferVertexData from './util/BufferVertexData';
+import * as vertices  from './vertices';
+//import Vertices from './layout/Vertices';
+import createLayout from 'layout-bmfont-text';
 import TextLayout from './layout/TextLayout';
 import TextGeometryUtil from './util/TextGeometryUtil';
 //import { BufferGeometry } from 'three/build/three.modules'
-import { BufferGeometry, Box3, Sphere } from 'three';
+import { BufferGeometry, Box3, Sphere, BufferAttribute, Float32BufferAttribute, Uint16BufferAttribute } from 'three';
+
+//import  * as utils from './utils';
 
 export default class TextGeometry extends BufferGeometry {
 
 	constructor(opt) {
 		super();
 
-		if (typeof opt === 'string') {
+		/*if (typeof opt === 'string') {
 			opt = { text: opt }
-		}
+		}*/
 
 		// use these as default values for any subsequent
   		// calls to update()
@@ -40,15 +44,20 @@ export default class TextGeometry extends BufferGeometry {
 	    throw new TypeError('must specify a { font } in options')
 	  }*/
 
-	  this.layout = new TextLayout(opt);
+	  //this.layout = new TextLayout(opt);
+
+	  this.layout = createLayout(opt);
+
+
+	  console.log(this.layout);
 
 	  // get vec2 texcoords
 	  const flipY = opt.flipY !== false,
 	  // the desired BMFont data
 	  font = opt.font,
 	  // determine texture size from font file
-	  //texWidth = font.common.scaleW,
-	  //texHeight = font.common.scaleH,
+	  texWidth = font.common.scaleW,
+	  texHeight = font.common.scaleH,
 	  glyphs = this.layout.glyphs;
 	  // get visible glyphs
 	 // glyphs = this.layout.glyphs.filter((glyph) => glyph.data.width * glyph.data.height > 0);
@@ -57,16 +66,79 @@ export default class TextGeometry extends BufferGeometry {
 	  // get common vertex data
 	  //const positions = Vertices.positions(glyphs),
 	  //uvs = Vertices.uvs(glyphs, texWidth, texHeight, flipY);
-	  const indices = createIndices({
+	 /* const indices = createIndices({
 	    clockwise: true,
 	    type: 'uint16',
 	    count: glyphs.length
-	  });
+	  });*/
+
+
+
+	  /*var positions = vertices.positions(glyphs);
+  	  var uvs = vertices.uvs
+  	  (glyphs, texWidth, texHeight, flipY);*/
+
+
+	  //	var positions = vertices.positions(glyphs);
+  	  //var uvs = vertices.uvs
+  	  //(glyphs, texWidth, texHeight, flipY);
+
+  	  const indices = TextGeometryUtil.createIndices(glyphs.length);
+
+  // update vertex data
+  //buffer.index(this, indices, 1, 'uint16')
+  //buffer.attr(this, 'position', positions, 2)
+  //buffer.attr(this, 'uv', uvs, 2)
+
+/*
+  console.log(positions);
+  console.log(uvs);
+  console.log(indices);
+*/
+
+//console.log(this.attributes.position);
+
+		//let positions = null,
+		//vertices = null;
 
 	  // update vertex data
-	  BufferVertexData.setIndex(this, indices, 1, 'uint16');
-	  BufferVertexData.setAttribute(this, 'position', this.layout.positions, 2);
-	 	BufferVertexData.setAttribute(this, 'uv', this.layout.uvs, 2);
+	  this.setIndex( new BufferAttribute( indices, 1 ) );
+	  //this.setIndex(  new Uint16BufferAttribute( indices, 1 ) );
+	  //this.addAttribute('index', new Uint16BufferAttribute( indices, 1 ));
+	  //this.setIndex(  TextGeometryUtil.createIndices(glyphs.length) );
+	  if (this.attributes.position) {
+	  	const newPos = vertices.positions(glyphs),
+	  	newUvs = vertices.uvs
+  	  (glyphs, null, texWidth, texHeight, flipY);
+	  	vertices.positions(glyphs, this.attributes.position.array);
+	  	vertices.uvs
+  	   (glyphs, this.attributes.uv.array, texWidth, texHeight, flipY);
+  	  	//this.attributes.position = new BufferAttribute( newPos, 2 );
+  	  	//this.attributes.uv = new BufferAttribute( newUvs, 2 );
+
+  	  	this.attributes.position.needsUpdate = true;
+  	  	this.attributes.uv.needsUpdate = true;
+	  } else {
+	  	const positions = vertices.positions(glyphs),
+	  	uvs = vertices.uvs
+  	  (glyphs, null, texWidth, texHeight, flipY);
+  	  //var uvs = vertices.uvs
+  	  //(glyphs, texWidth, texHeight, flipY);
+
+	  	this.addAttribute( 'position', new BufferAttribute( positions, 2 ));
+	  	this.addAttribute( 'uv', new BufferAttribute( uvs, 2 ));
+	  }
+	  
+	 
+	 // this.addAttribute( 'position', new Float32BufferAttribute( positions, 2 ) );
+	//this.addAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+	 // this.addAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+	  //BufferVertexData.setIndex(this, indices, 1, 'uint16');
+	  //BufferVertexData.setAttribute(this, 'position', positions, 2);
+	 //BufferVertexData.setAttribute(this, 'uv', uvs, 2);
+	  //BufferVertexData.setAttribute(this, 'position', this.layout.positions, 2);
+	 //BufferVertexData.setAttribute(this, 'uv', this.layout.uvs, 2);
 
 	  // update multipage data
 	  if (!opt.multipage && 'page' in this.attributes) {

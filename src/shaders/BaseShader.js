@@ -32,6 +32,9 @@ export default class BaseShader {
 
 	    opt = opt || {};
 	    const shader = this,
+	    color = opt.color,
+	    map = opt.map,
+	    precision = opt.precision,
 	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
 	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
 
@@ -42,9 +45,9 @@ export default class BaseShader {
 	    delete opt.opacity;
 
 	    return Object.assign({
-	      uniforms: shader.uniforms(opt.map, opt.color, opacity),
+	      uniforms: shader.uniforms(map, color, opacity),
 	      vertexShader: shader.vertexShader,
-	      fragmentShader: shader.fragmentShader(opt.precision, alphaTest)
+	      fragmentShader: shader.fragmentShader(precision, alphaTest)
 	    }, opt);
 	}
 }
