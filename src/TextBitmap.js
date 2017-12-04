@@ -1,6 +1,5 @@
 import MSDFShader from './shaders/MSDFShader';
 import BasicShader from './shaders/BasicShader';
-//import SDFShader from './shaders/SDFShader';
 import TextGeometry from './TextGeometry';
 //import { RawShaderMaterial, BoxBufferGeometry } from 'three';
 
@@ -10,7 +9,6 @@ export default class TextBitmap {
   constructor(config, renderer) {
     config.color = config.color || '#fff';
     config.lineHeight = config.lineHeight ? config.font.common.lineHeight + config.lineHeight : config.font.common.lineHeight;
-    //config.type = config.type || "msdf";
     this.config = config;
 
     this.init(config, renderer);
@@ -20,31 +18,10 @@ export default class TextBitmap {
 
     const geometry = this.geometry = new TextGeometry( config ); // text-bm-font
 
-    //geometry.center();
-
-    //let texture;
-
-    /*if (config.texture) {
-        texture = config.texture;
-        this.initTexture(texture, renderer);
-    } else {
-      const textureLoader = new THREE.TextureLoader();
-        texture = textureLoader.load(config.imagePath, () => {
-         this.initTexture(texture, renderer); 
-      });
-    }*/
-
     const texture = config.texture;
     this.initTexture(texture, renderer);
 
-    /*material = new THREE.RawShaderMaterial(sdfShader({
-        side: THREE.DoubleSide,
-        transparent: true,
-        depthTest: false,
-        map: texture,
-        //depthWrite: false,
-        color: config.color
-    })),*/
+
     const material = new THREE.RawShaderMaterial(MSDFShader.createShader({
         side: THREE.DoubleSide,
         transparent: true,

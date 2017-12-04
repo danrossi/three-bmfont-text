@@ -66,7 +66,7 @@ export default class TextGeometryUtil {
 	}*/
 
 
-	static createIndices(count) {
+	/*static createIndices(count) {
     
     	const numIndices = count * 6,
     	indices = new Uint16Array(numIndices);
@@ -87,7 +87,7 @@ export default class TextGeometryUtil {
 	    }
 
     	return indices;
-	}
+	}*/
 	
 	static computeBox(positions, output) {
 	  bounds(positions);
