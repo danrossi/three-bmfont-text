@@ -197,7 +197,13 @@ uiObject.position.z = -1
           showHitBox: true // for debugging
         }, renderer);
 
+     
      text.text = "Text Change";
+
+     setTimeout(function() {
+         text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+         
+     }, 5000);
 
 
       text.group.position.set( 0, 0, - 1);

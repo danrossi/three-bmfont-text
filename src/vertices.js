@@ -31,7 +31,7 @@ export function uvs (glyphs, currentUvs, texWidth, texHeight, flipY) {
     }
 
     // BL
-    uvs[i++] = u0
+    /*uvs[i++] = u0
     uvs[i++] = v1
     // TL
     uvs[i++] = u0
@@ -41,7 +41,22 @@ export function uvs (glyphs, currentUvs, texWidth, texHeight, flipY) {
     uvs[i++] = v0
     // BR
     uvs[i++] = u1
-    uvs[i++] = v1
+    uvs[i++] = v1*/
+
+    uvs[i+0] = u0
+    uvs[i+1] = v1
+    // TL
+    uvs[i+2] = u0
+    uvs[i+3] = v0
+    // TR
+    uvs[i+4] = u1
+    uvs[i+5] = v0
+    // BR
+    uvs[i+6] = u1
+    uvs[i+7] = v1
+
+    i+= 8;
+    
   })
   return uvs
 }
@@ -60,8 +75,24 @@ export function positions (glyphs, currentPositions) {
     var w = bitmap.width
     var h = bitmap.height
 
+    positions[i+0] = x
+    positions[i+1] = y
+    // TL
+    positions[i+2] = x
+    positions[i+3] = y + h
+    // TR
+    positions[i+4] = x + w
+    positions[i+5] = y + h
+    // BR
+    positions[i+6] = x + w
+    positions[i+7] = y
+
+    i+= 8;
+
+
+
     // BL
-    positions[i++] = x
+   /* positions[i++] = x
     positions[i++] = y
     // TL
     positions[i++] = x
@@ -71,7 +102,8 @@ export function positions (glyphs, currentPositions) {
     positions[i++] = y + h
     // BR
     positions[i++] = x + w
-    positions[i++] = y
+    positions[i++] = y*/
+
   })
   return positions
 }

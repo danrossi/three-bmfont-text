@@ -13,7 +13,7 @@ export default class TextLayout {
       this.update(opt);
   }
 
-  update(opt) {
+  update(opt, attributes) {
 
     opt.align = opt.align || "left";
 
@@ -24,21 +24,30 @@ export default class TextLayout {
     //if (!opt.font)
     //  throw new Error('must provide a valid bitmap font')
 
+    
+
     const glyphs = this._glyphs,
-    positions = this._positions,
-    uvs = this._uvs,
+    //positions = this._positions,
+    //uvs = this._uvs,
     text = opt.text || '',
     font = this.font,
     lines = wordWrap.lines(text, opt),
     minWidth = opt.width || 0,
     lineHeight = this.lineHeight,
-    letterSpacing = this.letterSpacing;
+    letterSpacing = this.letterSpacing,
+    positionIndex = 0,
+    uvIndex = 0;
 
     let pages = this._pages;
 
     //clear glyphs
-    glyphs.length = positions.length = uvs.length = 0;
+    glyphs.length = 0;
+    //glyphs.length = positions.length = uvs.length = 0;
     pages = [0, 0, 0, 0];
+
+    this._positions = attribute.position.array || new Float32Array(this.font.chars.length * 4 * 2);
+    this._uvs = attribute.uv.array || new Float32Array(this.font.chars.length * 4 * 2);
+
 
     //get max line width
     this._width = lines.reduce((prev, line) => Math.max(prev, line.width, minWidth), 0);
@@ -51,6 +60,8 @@ export default class TextLayout {
     y = -this._height;
       
     //layout each glyph
+
+     //new Float32Array(glyphs.length * 4 * 2)
 
     lines.forEach((line, lineIndex) => {
       const start = line.start,
@@ -75,9 +86,9 @@ export default class TextLayout {
             //add visible glyphs determined by width and height
             if (glyph.width * glyph.height > 0) {
 
-              Vertices.positions(glyph, positions, x, y);
-              Vertices.uvs(glyph, uvs, this.font, this._opt.flipY);
-              if (glyph.page) Vertices.positions(glyph, pages);
+              Vertices.positions(glyph, this._positions, positionIndex, x, y);
+              Vertices.uvs(glyph, this._uvs, uvIndex, this.font, this._opt.flipY);
+              if (glyph.page) Vertices.pages(glyph, pages);
 
               glyphs.push({
                 //position: [tx, y],
@@ -176,11 +187,13 @@ export default class TextLayout {
   }
 
   get positions() {
-    return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
+    return this._positions;
+    //return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
   }
 
   get uvs() {
-    return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
+    return this._uvs;
+    //return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
   }
 
   get font() {

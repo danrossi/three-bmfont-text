@@ -81,6 +81,9 @@ export default class TextGeometryUtil {
 	        indices[i + 3] = j + 0;
 	        indices[i + 4] = j + 2;
 	        indices[i + 5] = j + 3;
+
+	        //console.log(i);
+	        //console.log(j);
 	    }
 
     	return indices;

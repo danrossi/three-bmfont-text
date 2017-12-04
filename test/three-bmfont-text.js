@@ -46228,70 +46228,162 @@ var BasicShader = function (_BaseShader) {
   return BasicShader;
 }(BaseShader);
 
-function uvs(glyphs, currentUvs, texWidth, texHeight, flipY) {
-  var uvs = currentUvs || new Float32Array(glyphs.length * 4 * 2);
-  var i = 0;
-  glyphs.forEach(function (glyph) {
-    var bitmap = glyph.data;
-    var bw = bitmap.x + bitmap.width;
-    var bh = bitmap.y + bitmap.height;
+var Vertices = function () {
+	function Vertices() {
+		classCallCheck(this, Vertices);
+	}
 
-    // top left position
-    var u0 = bitmap.x / texWidth;
-    var v1 = bitmap.y / texHeight;
-    var u1 = bw / texWidth;
-    var v0 = bh / texHeight;
+	createClass(Vertices, null, [{
+		key: "pages",
+		value: function pages(glyph, _pages, i) {
+			var id = glyph.page || 0;
 
-    if (flipY) {
-      v1 = (texHeight - bitmap.y) / texHeight;
-      v0 = (texHeight - bh) / texHeight;
-    }
+			_pages[i++] = id;
+			_pages[i++] = id;
+			_pages[i++] = id;
+			_pages[i++] = id;
+			//pages.push(...[id, id, id, id]);
+		}
 
-    // BL
-    uvs[i++] = u0;
-    uvs[i++] = v1;
-    // TL
-    uvs[i++] = u0;
-    uvs[i++] = v0;
-    // TR
-    uvs[i++] = u1;
-    uvs[i++] = v0;
-    // BR
-    uvs[i++] = u1;
-    uvs[i++] = v1;
-  });
-  return uvs;
-}
+		/*static uvs(glyph, uvs, i, font, flipY) {
+  		const bw = (glyph.x + glyph.width),
+      bh = (glyph.y + glyph.height),
+      texWidth = font.common.scaleW,
+     	texHeight = font.common.scaleH,
+  	// top left position
+      u0 = glyph.x / texWidth,
+      u1 = bw / texWidth;
+  	    let v1 = glyph.y / texHeight,
+      v0 = bh / texHeight;
+  	    if (flipY) {
+        v1 = (texHeight - glyph.y) / texHeight;
+        v0 = (texHeight - bh) / texHeight;
+      }
+  	     // BL
+      uvs[i++] = u0;
+      uvs[i++] = v1;
+      // TL
+      uvs[i++] = u0;
+      uvs[i++] = v0;
+      // TR
+      uvs[i++] = u1;
+      uvs[i++] = v0;
+      // BR
+      uvs[i++] = u1;
+      uvs[i++] = v1;
+  	   
+  	}*/
 
-function positions(glyphs, currentPositions) {
-  var positions = currentPositions || new Float32Array(glyphs.length * 4 * 2);
-  var i = 0;
-  glyphs.forEach(function (glyph) {
-    var bitmap = glyph.data;
+	}, {
+		key: "geomData",
+		value: function geomData(glyphs, font, flipY) {
 
-    // bottom left position
-    var x = glyph.position[0] + bitmap.xoffset;
-    var y = glyph.position[1] + bitmap.yoffset;
+			var uvs = new Float32Array(glyphs.length * 8),
+			    positions = new Float32Array(glyphs.length * 8);
 
-    // quad size
-    var w = bitmap.width;
-    var h = bitmap.height;
+			var indices = new Uint16Array(glyphs.length * 6);
 
-    // BL
-    positions[i++] = x;
-    positions[i++] = y;
-    // TL
-    positions[i++] = x;
-    positions[i++] = y + h;
-    // TR
-    positions[i++] = x + w;
-    positions[i++] = y + h;
-    // BR
-    positions[i++] = x + w;
-    positions[i++] = y;
-  });
-  return positions;
-}
+			var i = 0,
+			    indicesIndex = 0,
+			    indicesValueIndex = 0;
+
+			glyphs.forEach(function (glyph) {
+
+				var bitmap = glyph.data;
+
+				//uv data
+				var width = bitmap.width,
+				    height = bitmap.height,
+				    bw = bitmap.x + width,
+				    bh = bitmap.y + height,
+				    texWidth = font.common.scaleW,
+				    texHeight = font.common.scaleH,
+
+				// top left position
+				u0 = bitmap.x / texWidth,
+				    u1 = bw / texWidth;
+
+				var v1 = bitmap.y / texHeight,
+				    v0 = bh / texHeight;
+
+				if (flipY) {
+					v1 = (texHeight - bitmap.y) / texHeight;
+					v0 = (texHeight - bh) / texHeight;
+				}
+
+				//position data
+				var x = glyph.position[0] + bitmap.xoffset,
+				    y = glyph.position[1] + bitmap.yoffset,
+				    heightPos = y + height,
+				    widthPos = x + width;
+
+				// BL
+				positions[i] = x;
+				uvs[i] = u0;
+
+				positions[i + 1] = y;
+				uvs[i + 1] = v1;
+
+				// TL
+				positions[i + 2] = x;
+				uvs[i + 2] = u0;
+
+				positions[i + 3] = heightPos;
+				uvs[i + 3] = v0;
+
+				// TR
+				positions[i + 4] = widthPos;
+				uvs[i + 4] = u1;
+
+				positions[i + 5] = heightPos;
+				uvs[i + 5] = v0;
+
+				// BR
+				positions[i + 6] = widthPos;
+				uvs[i + 6] = u1;
+
+				positions[i + 7] = y;
+				uvs[i + 7] = v1;
+
+				indices[indicesIndex + 0] = indicesValueIndex + 0;
+				indices[indicesIndex + 1] = indicesValueIndex + 1;
+				indices[indicesIndex + 2] = indicesValueIndex + 2;
+				indices[indicesIndex + 3] = indicesValueIndex + 0;
+				indices[indicesIndex + 4] = indicesValueIndex + 2;
+				indices[indicesIndex + 5] = indicesValueIndex + 3;
+
+				i += 8;
+				indicesIndex += 6;
+				indicesValueIndex += 4;
+
+				//console.log(indicesIndex);
+			});
+
+			return { uvs: uvs, positions: positions, index: indices };
+		}
+
+		/*static positions(glyph, positions,  i,  tx, ty) {
+  		const x = tx + glyph.xoffset,
+  	y = ty + glyph.yoffset,
+  	w = glyph.width,
+      h = glyph.height;
+  	    // BL
+      positions[i++] = x;
+      positions[i++] = y;
+      // TL
+      positions[i++] = x;
+      positions[i++] = y + h;
+      // TR
+      positions[i++] = x + w;
+      positions[i++] = y + h;
+      // BR
+      positions[i++] = x + w;
+      positions[i++] = y;
+  	}*/
+
+	}]);
+	return Vertices;
+}();
 
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
@@ -46883,95 +46975,6 @@ function monospace(text, start, end, width) {
 
 var index_1$1 = index$7.lines;
 
-var Vertices = function () {
-	function Vertices() {
-		classCallCheck(this, Vertices);
-	}
-
-	createClass(Vertices, null, [{
-		key: "pages",
-		value: function pages(glyph, _pages) {
-			var id = glyph.page || 0;
-			_pages.push.apply(_pages, [id, id, id, id]);
-		}
-	}, {
-		key: "uvs",
-		value: function uvs(glyph, _uvs, font, flipY) {
-
-			var bw = glyph.x + glyph.width,
-			    bh = glyph.y + glyph.height,
-			    texWidth = font.common.scaleW,
-			    texHeight = font.common.scaleH,
-
-			// top left position
-			u0 = glyph.x / texWidth,
-			    u1 = bw / texWidth;
-
-			var v1 = glyph.y / texHeight,
-			    v0 = bh / texHeight;
-
-			if (flipY) {
-				v1 = (texHeight - glyph.y) / texHeight;
-				v0 = (texHeight - bh) / texHeight;
-			}
-
-			// BL
-			_uvs.push(u0);
-			_uvs.push(v1);
-
-			// TL
-			_uvs.push(u0);
-			_uvs.push(v0);
-
-			// TR
-			_uvs.push(u1);
-			_uvs.push(v0);
-
-			// BR
-			_uvs.push(u1);
-			_uvs.push(v1);
-		}
-	}, {
-		key: "positions",
-		value: function positions(glyph, _positions, tx, ty) {
-
-			var x = tx + glyph.xoffset,
-			    y = ty + glyph.yoffset,
-			    w = glyph.width,
-			    h = glyph.height;
-
-			// BL
-			_positions.push(x);
-			_positions.push(y);
-
-			// TL
-			_positions.push(x);
-			_positions.push(y + h);
-
-			// TR
-			_positions.push(x);
-			_positions.push(y + h);
-
-			// BL
-			_positions.push(x);
-			_positions.push(y);
-
-			// TL
-			_positions.push(x);
-			_positions.push(y + h);
-
-			// TR
-			_positions.push(x + w);
-			_positions.push(y + h);
-
-			// BR
-			_positions.push(x + w);
-			_positions.push(y);
-		}
-	}]);
-	return Vertices;
-}();
-
 var TextLayoutUtils = function () {
   function TextLayoutUtils() {
     classCallCheck(this, TextLayoutUtils);
@@ -47013,7 +47016,7 @@ var TextLayout$1 = function () {
 
   createClass(TextLayout, [{
     key: 'update',
-    value: function update(opt) {
+    value: function update(opt, attributes) {
       var _this = this;
 
       opt.align = opt.align || "left";
@@ -47027,21 +47030,29 @@ var TextLayout$1 = function () {
       //if (!opt.font)
       //  throw new Error('must provide a valid bitmap font')
 
+
       var glyphs = this._glyphs,
-          positions = this._positions,
-          uvs = this._uvs,
-          text = opt.text || '',
+
+      //positions = this._positions,
+      //uvs = this._uvs,
+      text = opt.text || '',
           font = this.font,
           lines = index$7.lines(text, opt),
           minWidth = opt.width || 0,
           lineHeight = this.lineHeight,
-          letterSpacing = this.letterSpacing;
+          letterSpacing = this.letterSpacing,
+          positionIndex = 0,
+          uvIndex = 0;
 
       var pages = this._pages;
 
       //clear glyphs
-      glyphs.length = positions.length = uvs.length = 0;
+      glyphs.length = 0;
+      //glyphs.length = positions.length = uvs.length = 0;
       pages = [0, 0, 0, 0];
+
+      this._positions = attribute.position.array || new Float32Array(this.font.chars.length * 4 * 2);
+      this._uvs = attribute.uv.array || new Float32Array(this.font.chars.length * 4 * 2);
 
       //get max line width
       this._width = lines.reduce(function (prev, line) {
@@ -47057,6 +47068,8 @@ var TextLayout$1 = function () {
       y = -this._height;
 
       //layout each glyph
+
+      //new Float32Array(glyphs.length * 4 * 2)
 
       lines.forEach(function (line, lineIndex) {
         var start = line.start,
@@ -47079,9 +47092,9 @@ var TextLayout$1 = function () {
             //add visible glyphs determined by width and height
             if (glyph.width * glyph.height > 0) {
 
-              Vertices.positions(glyph, positions, x, y);
-              Vertices.uvs(glyph, uvs, _this.font, _this._opt.flipY);
-              if (glyph.page) Vertices.positions(glyph, pages);
+              Vertices.positions(glyph, _this._positions, positionIndex, x, y);
+              Vertices.uvs(glyph, _this._uvs, uvIndex, _this.font, _this._opt.flipY);
+              if (glyph.page) Vertices.pages(glyph, pages);
 
               glyphs.push({
                 //position: [tx, y],
@@ -47181,12 +47194,14 @@ var TextLayout$1 = function () {
   }, {
     key: 'positions',
     get: function get$$1() {
-      return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
+      return this._positions;
+      //return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
     }
   }, {
     key: 'uvs',
     get: function get$$1() {
-      return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
+      return this._uvs;
+      //return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
     }
   }, {
     key: 'font',
@@ -47335,6 +47350,9 @@ var TextGeometryUtil = function () {
 								indices[i + 3] = j + 0;
 								indices[i + 4] = j + 2;
 								indices[i + 5] = j + 3;
+
+								//console.log(i);
+								//console.log(j);
 						}
 
 						return indices;
@@ -47367,7 +47385,6 @@ var TextGeometryUtil = function () {
 //import createIndices from 'quad-indices';
 //import buffer from 'three-buffer-vertex-data';
 //import BufferVertexData from './util/BufferVertexData';
-//import Vertices from './layout/Vertices';
 //import { BufferGeometry } from 'three/build/three.modules'
 //import  * as utils from './utils';
 
@@ -47414,7 +47431,7 @@ var TextGeometry$1 = function (_BufferGeometry) {
 
 			this.layout = index$2(opt);
 
-			console.log(this.layout);
+			//console.log(this.layout);
 
 			// get vec2 texcoords
 			var flipY = opt.flipY !== false,
@@ -47447,7 +47464,8 @@ var TextGeometry$1 = function (_BufferGeometry) {
 			//var uvs = vertices.uvs
 			//(glyphs, texWidth, texHeight, flipY);
 
-			var indices = TextGeometryUtil.createIndices(glyphs.length);
+
+			// console.log("GLYPHS LENGTH", glyphs.length);
 
 			// update vertex data
 			//buffer.index(this, indices, 1, 'uint16')
@@ -47465,29 +47483,64 @@ var TextGeometry$1 = function (_BufferGeometry) {
 			//let positions = null,
 			//vertices = null;
 
+			//const indices = TextGeometryUtil.createIndices(glyphs.length);
+
+
+			//console.log(indices);
+
+			//console.log(glyphs.length);
+			//console.log(indices.length);
+
+			//this.setIndex( new BufferAttribute( indices, 1 ) );
+
+			var data = Vertices.geomData(glyphs, font, flipY);
+
+			this.setIndex(new BufferAttribute(data.index, 1));
+
 			// update vertex data
-			this.setIndex(new BufferAttribute(indices, 1));
+			//this.setIndex( new BufferAttribute( indices, 1 ) );
 			//this.setIndex(  new Uint16BufferAttribute( indices, 1 ) );
 			//this.addAttribute('index', new Uint16BufferAttribute( indices, 1 ));
 			//this.setIndex(  TextGeometryUtil.createIndices(glyphs.length) );
 			if (this.attributes.position) {
-				var newPos = positions(glyphs),
-				    newUvs = uvs(glyphs, null, texWidth, texHeight, flipY);
-				positions(glyphs, this.attributes.position.array);
-				uvs(glyphs, this.attributes.uv.array, texWidth, texHeight, flipY);
+				//const newPos = vertices.positions(glyphs),
+				//newUvs = vertices.uvs
+				//(glyphs, null, texWidth, texHeight, flipY);
+				// console.log(this.attributes.index.array);
+				//TextGeometryUtil.createIndices(glyphs.length, this.index.array);
+				//vertices.positions(glyphs, this.attributes.position.array);
+				//	vertices.uvs
+				//(glyphs, this.attributes.uv.array, texWidth, texHeight, flipY);
 				//this.attributes.position = new BufferAttribute( newPos, 2 );
 				//this.attributes.uv = new BufferAttribute( newUvs, 2 );
+
+				this.attributes.position = new BufferAttribute(data.positions, 2);
+				this.attributes.uv = new BufferAttribute(data.uvs, 2);
+
+				this.index.needsUpdate = true;
 
 				this.attributes.position.needsUpdate = true;
 				this.attributes.uv.needsUpdate = true;
 			} else {
-				var positions$$1 = positions(glyphs),
-				    uvs$$1 = uvs(glyphs, null, texWidth, texHeight, flipY);
+				//const data = Vertices.geomData(glyphs, font, flipY);
+
+
+				//console.log(data.index); 
+
+				//this.setIndex( new BufferAttribute( data.index, 1 ) );
+
+				//const positions = vertices.positions(glyphs),
+				//uvs = vertices.uvs(glyphs, null, texWidth, texHeight, flipY);
+
+				//const indices = TextGeometryUtil.createIndices(glyphs.length);
+
+
+				//this.setIndex( new BufferAttribute( indices, 1 ) );
 				//var uvs = vertices.uvs
 				//(glyphs, texWidth, texHeight, flipY);
 
-				this.addAttribute('position', new BufferAttribute(positions$$1, 2));
-				this.addAttribute('uv', new BufferAttribute(uvs$$1, 2));
+				this.addAttribute('position', new BufferAttribute(data.positions, 2));
+				this.addAttribute('uv', new BufferAttribute(data.uvs, 2));
 			}
 
 			// this.addAttribute( 'position', new Float32BufferAttribute( positions, 2 ) );
@@ -47870,6 +47923,10 @@ function start(font, texture) {
     }, renderer);
 
     text.text = "Text Change";
+
+    setTimeout(function () {
+      text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+    }, 5000);
 
     text.group.position.set(0, 0, -1);
     text.group.visible = true;
