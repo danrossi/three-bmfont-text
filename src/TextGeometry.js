@@ -5,6 +5,7 @@ import createLayout from 'layout-bmfont-text';
 import TextGeometryUtil from './util/TextGeometryUtil';
 import { BufferGeometry, Box3, Sphere, BufferAttribute } from 'three';
 
+
 export default class TextGeometry extends BufferGeometry {
 
 	constructor(opt) {

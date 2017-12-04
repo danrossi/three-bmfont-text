@@ -25,7 +25,7 @@ export default {
 			exclude: './node_modules/**',
 			presets: ['es2015-rollup']
 		}),
-     	uglify({
+     	/*uglify({
 	       output: {
 	         comments: false
 	       },
@@ -41,11 +41,12 @@ export default {
 	         // Drop console statements
 	            drop_console: true
 	       }
-     	})
+     	})*/
 	],
 	targets: [
 		{
-			format: 'cjs',
+			format: 'umd',
+			name: 'BmFont',
 			//moduleName: 'THREE',
 			dest: 'build/three-bmfont-text.js'
 		}

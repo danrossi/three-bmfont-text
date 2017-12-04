@@ -46843,425 +46843,6 @@ function findChar (array, value, start) {
   return -1
 }
 
-var index$7 = createCommonjsModule(function (module) {
-var newline = /\n/;
-var newlineChar = '\n';
-var whitespace = /\s/;
-
-module.exports = function(text, opt) {
-    var lines = module.exports.lines(text, opt);
-    return lines.map(function(line) {
-        return text.substring(line.start, line.end)
-    }).join('\n')
-};
-
-module.exports.lines = function wordwrap(text, opt) {
-    opt = opt||{};
-
-    //zero width results in nothing visible
-    if (opt.width === 0 && opt.mode !== 'nowrap') 
-        return []
-
-    text = text||'';
-    var width = typeof opt.width === 'number' ? opt.width : Number.MAX_VALUE;
-    var start = Math.max(0, opt.start||0);
-    var end = typeof opt.end === 'number' ? opt.end : text.length;
-    var mode = opt.mode;
-
-    var measure = opt.measure || monospace;
-    if (mode === 'pre')
-        return pre(measure, text, start, end, width)
-    else
-        return greedy(measure, text, start, end, width, mode)
-};
-
-function idxOf(text, chr, start, end) {
-    var idx = text.indexOf(chr, start);
-    if (idx === -1 || idx > end)
-        return end
-    return idx
-}
-
-function isWhitespace(chr) {
-    return whitespace.test(chr)
-}
-
-function pre(measure, text, start, end, width) {
-    var lines = [];
-    var lineStart = start;
-    for (var i=start; i<end && i<text.length; i++) {
-        var chr = text.charAt(i);
-        var isNewline = newline.test(chr);
-
-        //If we've reached a newline, then step down a line
-        //Or if we've reached the EOF
-        if (isNewline || i===end-1) {
-            var lineEnd = isNewline ? i : i+1;
-            var measured = measure(text, lineStart, lineEnd, width);
-            lines.push(measured);
-            
-            lineStart = i+1;
-        }
-    }
-    return lines
-}
-
-function greedy(measure, text, start, end, width, mode) {
-    //A greedy word wrapper based on LibGDX algorithm
-    //https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
-    var lines = [];
-
-    var testWidth = width;
-    //if 'nowrap' is specified, we only wrap on newline chars
-    if (mode === 'nowrap')
-        testWidth = Number.MAX_VALUE;
-
-    while (start < end && start < text.length) {
-        //get next newline position
-        var newLine = idxOf(text, newlineChar, start, end);
-
-        //eat whitespace at start of line
-        while (start < newLine) {
-            if (!isWhitespace( text.charAt(start) ))
-                break
-            start++;
-        }
-
-        //determine visible # of glyphs for the available width
-        var measured = measure(text, start, newLine, testWidth);
-
-        var lineEnd = start + (measured.end-measured.start);
-        var nextStart = lineEnd + newlineChar.length;
-
-        //if we had to cut the line before the next newline...
-        if (lineEnd < newLine) {
-            //find char to break on
-            while (lineEnd > start) {
-                if (isWhitespace(text.charAt(lineEnd)))
-                    break
-                lineEnd--;
-            }
-            if (lineEnd === start) {
-                if (nextStart > start + newlineChar.length) nextStart--;
-                lineEnd = nextStart; // If no characters to break, show all.
-            } else {
-                nextStart = lineEnd;
-                //eat whitespace at end of line
-                while (lineEnd > start) {
-                    if (!isWhitespace(text.charAt(lineEnd - newlineChar.length)))
-                        break
-                    lineEnd--;
-                }
-            }
-        }
-        if (lineEnd >= start) {
-            var result = measure(text, start, lineEnd, testWidth);
-            lines.push(result);
-        }
-        start = nextStart;
-    }
-    return lines
-}
-
-//determines the visible number of glyphs within a given width
-function monospace(text, start, end, width) {
-    var glyphs = Math.min(width, end-start);
-    return {
-        start: start,
-        end: start+glyphs
-    }
-}
-});
-
-var index_1$1 = index$7.lines;
-
-var TextLayoutUtils = function () {
-  function TextLayoutUtils() {
-    classCallCheck(this, TextLayoutUtils);
-  }
-
-  createClass(TextLayoutUtils, null, [{
-    key: "getGlyphById",
-    value: function getGlyphById(font, id) {
-      return font.charsmap[id] ? font.chars[font.charsmap[id]] : null;
-    }
-  }, {
-    key: "getKerning",
-    value: function getKerning(font, left, right) {
-      var amount = font.kerningsmap[left + right];
-      return amount >= -1 ? amount : 0;
-    }
-    /*
-      static* range (begin, end, interval = 1) {
-        for (let i = begin; i < end; i += interval) {
-            yield i;
-        }
-      }*/
-
-  }]);
-  return TextLayoutUtils;
-}();
-
-var TextLayout$1 = function () {
-  function TextLayout(opt) {
-    classCallCheck(this, TextLayout);
-
-    this._glyphs = [];
-    this._positions = [];
-    this._uvs = [];
-    this._pages = [];
-
-    this.update(opt);
-  }
-
-  createClass(TextLayout, [{
-    key: 'update',
-    value: function update(opt, attributes) {
-      var _this = this;
-
-      opt.align = opt.align || "left";
-
-      this._opt = opt;
-      this._opt.measure = function (text, start, end, width) {
-        return _this.computeMetrics(text, start, end, width);
-      };
-      this._opt.tabSize = this._opt.tabSize > 0 ? this._opt.tabSize : 4;
-
-      //if (!opt.font)
-      //  throw new Error('must provide a valid bitmap font')
-
-
-      var glyphs = this._glyphs,
-
-      //positions = this._positions,
-      //uvs = this._uvs,
-      text = opt.text || '',
-          font = this.font,
-          lines = index$7.lines(text, opt),
-          minWidth = opt.width || 0,
-          lineHeight = this.lineHeight,
-          letterSpacing = this.letterSpacing,
-          positionIndex = 0,
-          uvIndex = 0;
-
-      var pages = this._pages;
-
-      //clear glyphs
-      glyphs.length = 0;
-      //glyphs.length = positions.length = uvs.length = 0;
-      pages = [0, 0, 0, 0];
-
-      this._positions = attribute.position.array || new Float32Array(this.font.chars.length * 4 * 2);
-      this._uvs = attribute.uv.array || new Float32Array(this.font.chars.length * 4 * 2);
-
-      //get max line width
-      this._width = lines.reduce(function (prev, line) {
-        return Math.max(prev, line.width, minWidth);
-      }, 0);
-
-      //the pen position
-      this._height = this.lineHeight * lines.length - this.descender;
-
-      var x = 0,
-
-      //draw text along baseline
-      y = -this._height;
-
-      //layout each glyph
-
-      //new Float32Array(glyphs.length * 4 * 2)
-
-      lines.forEach(function (line, lineIndex) {
-        var start = line.start,
-            end = line.end,
-            lineWidth = line.width,
-            alignment = _this.getAlignment(lineWidth);
-
-        var lastGlyph = null;
-
-        //for each glyph in that line...
-        //for (let i of TextLayoutUtils.range(start, end, 1)) {
-        for (var i = start; i < end; i++) {
-
-          var glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
-
-          if (glyph) {
-            if (lastGlyph) x += TextLayoutUtils.getKerning(font, lastGlyph.id, glyph.id);
-            x += alignment;
-
-            //add visible glyphs determined by width and height
-            if (glyph.width * glyph.height > 0) {
-
-              Vertices.positions(glyph, _this._positions, positionIndex, x, y);
-              Vertices.uvs(glyph, _this._uvs, uvIndex, _this.font, _this._opt.flipY);
-              if (glyph.page) Vertices.pages(glyph, pages);
-
-              glyphs.push({
-                //position: [tx, y],
-                data: glyph,
-                index: i,
-                line: lineIndex
-              });
-            }
-
-            //move pen forward
-            x += glyph.xadvance + letterSpacing;
-            lastGlyph = glyph;
-          }
-        }
-
-        //next line down
-        y += lineHeight;
-        x = 0;
-      });
-
-      this._linesTotal = lines.length;
-    }
-  }, {
-    key: 'getAlignment',
-    value: function getAlignment(lineWidth) {
-      switch (this._opt.align) {
-        case "center":
-          return (this._width - lineWidth) / 2;
-        case "right":
-          return this._width - lineWidth;
-        default:
-          return 0;
-          break;
-      }
-    }
-  }, {
-    key: 'computeMetrics',
-    value: function computeMetrics(text, start, end, width) {
-      var letterSpacing = this.letterSpacing,
-          font = this.font;
-
-      var curPen = 0,
-          curWidth = 0,
-          count = 0,
-          glyph = null,
-          lastGlyph = null;
-
-      if (!font.chars || font.chars.length === 0) {
-        return {
-          start: start,
-          end: start,
-          width: 0
-        };
-      }
-
-      for (var i = start; i < Math.min(text.length, end); i++) {
-        //for (let i of TextLayoutUtils.range(start, Math.min(text.length, end), 1)) {
-
-        var _glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
-
-        if (_glyph) {
-          //move pen forward
-          var xoff = _glyph.xoffset,
-              kern = lastGlyph ? TextLayoutUtils.getKerning(font, lastGlyph.id, _glyph.id) : 0;
-
-          curPen += kern;
-
-          var nextPen = curPen + _glyph.xadvance + letterSpacing,
-              nextWidth = curPen + _glyph.width;
-
-          //we've hit our limit; we can't move onto the next glyph
-          if (nextWidth >= width || nextPen >= width) break;
-
-          //otherwise continue along our line
-          curPen = nextPen;
-          curWidth = nextWidth;
-          lastGlyph = _glyph;
-        }
-
-        count++;
-      }
-
-      //make sure rightmost edge lines up with rendered glyphs
-      if (lastGlyph) curWidth += lastGlyph.xoffset;
-
-      return {
-        start: start,
-        end: start + count,
-        width: curWidth
-      };
-    }
-  }, {
-    key: 'pages',
-    get: function get$$1() {
-      return new Float32Array(this._pages, 0, this.glyphs.length * 4 * 1);
-    }
-  }, {
-    key: 'positions',
-    get: function get$$1() {
-      return this._positions;
-      //return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
-    }
-  }, {
-    key: 'uvs',
-    get: function get$$1() {
-      return this._uvs;
-      //return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
-    }
-  }, {
-    key: 'font',
-    get: function get$$1() {
-      return this._opt.font;
-    }
-  }, {
-    key: 'glyphs',
-    get: function get$$1() {
-      return this._glyphs;
-    }
-  }, {
-    key: 'width',
-    get: function get$$1() {
-      return this._width;
-    }
-  }, {
-    key: 'height',
-    get: function get$$1() {
-      return this._height;
-    }
-  }, {
-    key: 'lineHeight',
-    get: function get$$1() {
-      return this._opt.lineHeight || this.font.common.lineHeight;
-    }
-  }, {
-    key: 'baseline',
-    get: function get$$1() {
-      return this.font.common.base;
-    }
-  }, {
-    key: 'descender',
-    get: function get$$1() {
-      return this.lineHeight - this.baseline;
-    }
-  }, {
-    key: 'ascender',
-    get: function get$$1() {
-      return this.lineHeight - descender - this.xHeight;
-    }
-  }, {
-    key: 'xHeight',
-    get: function get$$1() {
-      return this.font.common.xHeight;
-    }
-  }, {
-    key: 'capHeight',
-    get: function get$$1() {
-      return this.font.common.capHeight;
-    }
-  }, {
-    key: 'letterSpacing',
-    get: function get$$1() {
-      return this._opt.letterSpacing || 0;
-    }
-  }]);
-  return TextLayout;
-}();
-
 var itemSize = 2;
 var box = { min: [0, 0], max: [0, 0] };
 
@@ -47288,7 +46869,7 @@ var TextGeometryUtil = function () {
 		}
 
 		createClass(TextGeometryUtil, null, [{
-				key: "createIndices",
+				key: "computeBox",
 
 
 				/*
@@ -47335,30 +46916,25 @@ var TextGeometryUtil = function () {
     	  return output;
     	}*/
 
-				value: function createIndices(count) {
+				/*static createIndices(count) {
+       
+       	const numIndices = count * 6,
+       	indices = new Uint16Array(numIndices);
+        //var indices = new Uint16Array(indicesArray, 0, 6);
+       //var indices = new Uint16Array(numIndices);
+    	    for (let i = 0, j = 0; i < numIndices; i += 6, j += 4) {
+            indices[i + 0] = j + 0;
+            indices[i + 1] = j + 1;
+            indices[i + 2] = j + 2;
+            indices[i + 3] = j + 0;
+            indices[i + 4] = j + 2;
+            indices[i + 5] = j + 3;
+    	        //console.log(i);
+            //console.log(j);
+        }
+        	return indices;
+    }*/
 
-						var numIndices = count * 6,
-						    indices = new Uint16Array(numIndices);
-
-						//var indices = new Uint16Array(indicesArray, 0, 6);
-						//var indices = new Uint16Array(numIndices);
-
-						for (var i = 0, j = 0; i < numIndices; i += 6, j += 4) {
-								indices[i + 0] = j + 0;
-								indices[i + 1] = j + 1;
-								indices[i + 2] = j + 2;
-								indices[i + 3] = j + 0;
-								indices[i + 4] = j + 2;
-								indices[i + 5] = j + 3;
-
-								//console.log(i);
-								//console.log(j);
-						}
-
-						return indices;
-				}
-		}, {
-				key: "computeBox",
 				value: function computeBox(positions, output) {
 						bounds(positions);
 						output.min.set(box.min[0], box.min[1], 0);
@@ -47383,6 +46959,9 @@ var TextGeometryUtil = function () {
 }();
 
 //import * as vertices  from './vertices';
+//import TextLayout from './layout/TextLayout';
+//import * as THREE from 'three';
+
 var TextGeometry$1 = function (_BufferGeometry) {
 	inherits(TextGeometry$$1, _BufferGeometry);
 
@@ -47495,8 +47074,6 @@ var TextGeometry$1 = function (_BufferGeometry) {
 	}]);
 	return TextGeometry$$1;
 }(BufferGeometry);
-
-//import { RawShaderMaterial, BoxBufferGeometry } from 'three';
 
 var TextBitmap = function () {
   function TextBitmap(config, renderer) {

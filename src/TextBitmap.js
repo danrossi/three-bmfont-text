@@ -1,9 +1,8 @@
 import MSDFShader from './shaders/MSDFShader';
 import BasicShader from './shaders/BasicShader';
 import TextGeometry from './TextGeometry';
-//import { RawShaderMaterial, BoxBufferGeometry } from 'three';
+import { RawShaderMaterial, BoxBufferGeometry, Mesh, Group, LinearMipMapLinearFilter, LinearFilter, DoubleSide } from 'three';
 
-import * as THREE from 'three';
 
 export default class TextBitmap {
   constructor(config, renderer) {
@@ -22,16 +21,16 @@ export default class TextBitmap {
     this.initTexture(texture, renderer);
 
 
-    const material = new THREE.RawShaderMaterial(MSDFShader.createShader({
-        side: THREE.DoubleSide,
+    const material = new RawShaderMaterial(MSDFShader.createShader({
+        side: DoubleSide,
         transparent: true,
         depthTest: false,
         map: texture,
         //depthWrite: false,
         color: config.color
     })),
-    mesh = this.mesh = new THREE.Mesh( geometry, material ),
-    group = this.group = new THREE.Group();
+    mesh = this.mesh = new Mesh( geometry, material ),
+    group = this.group = new Group();
 
     mesh.renderOrder = 1;
     mesh.rotation.x = Math.PI;
@@ -51,8 +50,8 @@ export default class TextBitmap {
 
   createHitBox(config) {
 
-    const boxGeo = new THREE.BoxBufferGeometry(1,1,1),
-    boxMat = new THREE.RawShaderMaterial(BasicShader.createShader({
+    const boxGeo = new BoxBufferGeometry(1,1,1),
+    boxMat = new RawShaderMaterial(BasicShader.createShader({
       color: 0xff0000,
       transparent: true,
       opacity: config.showHitBox ? 1 : 0,
@@ -65,7 +64,7 @@ export default class TextBitmap {
       //opacity: config.showHitBox ? 1 : 0,
       wireframe: true
     }),*/
-    hitBox = this.hitBox = new THREE.Mesh( boxGeo, boxMat );
+    hitBox = this.hitBox = new Mesh( boxGeo, boxMat );
     hitBox.mesh = this.mesh;
 
     this.group.add( hitBox );
@@ -73,8 +72,8 @@ export default class TextBitmap {
 
   initTexture(texture, renderer) {
     texture.needsUpdate = true;
-    texture.minFilter = THREE.LinearMipMapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = LinearMipMapLinearFilter;
+    texture.magFilter = LinearFilter;
     texture.generateMipmaps = true;
     texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
   }
