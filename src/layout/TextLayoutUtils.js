@@ -7,8 +7,8 @@ export default class TextLayoutUtils {
   }
 
   static getKerning(font, left, right) {
-    const amount = font.kerningsmap[left + right];
-    return amount >= -1 ? amount : 0;
+    const amount = font.kerningsmap[left.id + left.index + right.id + right.index];
+    return amount || 0;
   }
 /*
   static* range (begin, end, interval = 1) {

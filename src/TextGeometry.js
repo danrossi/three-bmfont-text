@@ -1,10 +1,11 @@
 //import * as vertices  from './vertices';
 import Vertices from './layout/Vertices';
-import createLayout from 'layout-bmfont-text';
-//import TextLayout from './layout/TextLayout';
+//import createLayout from 'layout-bmfont-text';
+import TextLayout from './layout/TextLayout';
 import TextGeometryUtil from './util/TextGeometryUtil';
 import { BufferGeometry, Box3, Sphere, BufferAttribute } from 'three';
 
+//import { createLayout } from './layout';
 
 export default class TextGeometry extends BufferGeometry {
 
@@ -29,9 +30,12 @@ export default class TextGeometry extends BufferGeometry {
 	  // use constructor defaults
 	  opt = Object.assign({}, this._opt, opt);
 
-	  //this.layout = new TextLayout(opt);
 
-	  this.layout = createLayout(opt);
+	  //this.layout = createLayout(opt);
+
+
+
+	  this.layout = new TextLayout(opt);
 
 	  // get vec2 texcoords
 	  const flipY = opt.flipY !== false,
@@ -41,8 +45,8 @@ export default class TextGeometry extends BufferGeometry {
 	  // get visible glyphs
 	 // glyphs = this.layout.glyphs.filter((glyph) => glyph.data.width * glyph.data.height > 0);
 	  // provide visible glyphs for convenience
-	  this.visibleGlyphs = glyphs;
-	 
+	  this.visibleGlyphs = glyphs; 
+
   	  const data = Vertices.geomData(glyphs, font, flipY);
 
   	  this.setIndex( new BufferAttribute( data.index, 1 ) );
@@ -57,7 +61,9 @@ export default class TextGeometry extends BufferGeometry {
   	  	this.attributes.position.needsUpdate = true;
   	  	this.attributes.uv.needsUpdate = true;
 	  } else {
-	 
+	 	
+	 	//this.addAttribute( 'position', new BufferAttribute( this.layout.positions, 2 ));
+	  	//this.addAttribute( 'uv', new BufferAttribute( this.layout.uvs, 2 ));
 	  	this.addAttribute( 'position', new BufferAttribute( data.positions, 2 ));
 	  	this.addAttribute( 'uv', new BufferAttribute( data.uvs, 2 ));
 	  }

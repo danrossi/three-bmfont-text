@@ -198,10 +198,10 @@ uiObject.position.z = -1
         }, renderer);
 
      
-     text.text = "Text Change";
+     //text.text = "Text Change";
 
      setTimeout(function() {
-         text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+        // text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
          
      }, 5000);
 

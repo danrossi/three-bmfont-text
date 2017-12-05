@@ -46244,36 +46244,40 @@ var Vertices = function () {
 			_pages[i++] = id;
 			//pages.push(...[id, id, id, id]);
 		}
+	}, {
+		key: "uvs",
+		value: function uvs(glyph, _uvs, offset, font, flipY) {
 
-		/*static uvs(glyph, uvs, i, font, flipY) {
-  		const bw = (glyph.x + glyph.width),
-      bh = (glyph.y + glyph.height),
-      texWidth = font.common.scaleW,
-     	texHeight = font.common.scaleH,
-  	// top left position
-      u0 = glyph.x / texWidth,
-      u1 = bw / texWidth;
-  	    let v1 = glyph.y / texHeight,
-      v0 = bh / texHeight;
-  	    if (flipY) {
-        v1 = (texHeight - glyph.y) / texHeight;
-        v0 = (texHeight - bh) / texHeight;
-      }
-  	     // BL
-      uvs[i++] = u0;
-      uvs[i++] = v1;
-      // TL
-      uvs[i++] = u0;
-      uvs[i++] = v0;
-      // TR
-      uvs[i++] = u1;
-      uvs[i++] = v0;
-      // BR
-      uvs[i++] = u1;
-      uvs[i++] = v1;
-  	   
-  	}*/
+			var bw = glyph.x + glyph.width,
+			    bh = glyph.y + glyph.height,
+			    texWidth = font.common.scaleW,
+			    texHeight = font.common.scaleH,
 
+			// top left position
+			u0 = glyph.x / texWidth,
+			    u1 = bw / texWidth;
+
+			var v1 = glyph.y / texHeight,
+			    v0 = bh / texHeight;
+
+			if (flipY) {
+				v1 = (texHeight - glyph.y) / texHeight;
+				v0 = (texHeight - bh) / texHeight;
+			}
+
+			// BL
+			_uvs[offset] = u0;
+			_uvs[offset + 1] = v1;
+			// TL
+			_uvs[offset + 2] = u0;
+			_uvs[offset + 3] = v0;
+			// TR
+			_uvs[offset + 4] = u1;
+			_uvs[offset + 5] = v0;
+			// BR
+			_uvs[offset + 6] = u1;
+			_uvs[offset + 7] = v1;
+		}
 	}, {
 		key: "geomData",
 		value: function geomData(glyphs, font, flipY) {
@@ -46284,7 +46288,9 @@ var Vertices = function () {
 			var indices = new Uint16Array(glyphs.length * 6);
 
 			var i = 0,
-			    indicesIndex = 0,
+			    verticesOffset = 0,
+			    uvOffset = 0,
+			    indicesOffset = 0,
 			    indicesValueIndex = 0;
 
 			glyphs.forEach(function (glyph) {
@@ -46318,69 +46324,80 @@ var Vertices = function () {
 				    widthPos = x + width;
 
 				// BL
-				positions[i] = x;
-				uvs[i] = u0;
+				positions[verticesOffset] = x;
+				uvs[uvOffset] = u0;
 
-				positions[i + 1] = y;
-				uvs[i + 1] = v1;
+				positions[verticesOffset + 1] = y;
+				uvs[uvOffset + 1] = v1;
+
+				//positions[verticesOffset+2] = 0;
 
 				// TL
-				positions[i + 2] = x;
-				uvs[i + 2] = u0;
+				positions[verticesOffset + 2] = x;
+				uvs[uvOffset + 2] = u0;
 
-				positions[i + 3] = heightPos;
-				uvs[i + 3] = v0;
+				positions[verticesOffset + 3] = heightPos;
+				uvs[uvOffset + 3] = v0;
+
+				//positions[verticesOffset+5] = 0;
 
 				// TR
-				positions[i + 4] = widthPos;
-				uvs[i + 4] = u1;
+				positions[verticesOffset + 4] = widthPos;
+				uvs[uvOffset + 4] = u1;
 
-				positions[i + 5] = heightPos;
-				uvs[i + 5] = v0;
+				positions[verticesOffset + 5] = heightPos;
+				uvs[uvOffset + 5] = v0;
+
+				//positions[verticesOffset+8] = 0;
 
 				// BR
-				positions[i + 6] = widthPos;
-				uvs[i + 6] = u1;
+				positions[verticesOffset + 6] = widthPos;
+				uvs[uvOffset + 6] = u1;
 
-				positions[i + 7] = y;
-				uvs[i + 7] = v1;
+				positions[verticesOffset + 7] = y;
+				uvs[uvOffset + 7] = v1;
 
-				indices[indicesIndex + 0] = indicesValueIndex + 0;
-				indices[indicesIndex + 1] = indicesValueIndex + 1;
-				indices[indicesIndex + 2] = indicesValueIndex + 2;
-				indices[indicesIndex + 3] = indicesValueIndex + 0;
-				indices[indicesIndex + 4] = indicesValueIndex + 2;
-				indices[indicesIndex + 5] = indicesValueIndex + 3;
+				//positions[verticesOffset+11] = 0;
 
-				i += 8;
-				indicesIndex += 6;
+
+				indices[indicesOffset] = indicesValueIndex;
+				indices[indicesOffset + 1] = indicesValueIndex + 1;
+				indices[indicesOffset + 2] = indicesValueIndex + 2;
+				indices[indicesOffset + 3] = indicesValueIndex + 0;
+				indices[indicesOffset + 4] = indicesValueIndex + 2;
+				indices[indicesOffset + 5] = indicesValueIndex + 3;
+
+				//i += 8;
+				verticesOffset += 8;
+				uvOffset += 8;
+				indicesOffset += 6;
 				indicesValueIndex += 4;
-
-				//console.log(indicesIndex);
 			});
 
 			return { uvs: uvs, positions: positions, index: indices };
 		}
+	}, {
+		key: "positions",
+		value: function positions(glyph, _positions, offset, tx, ty) {
 
-		/*static positions(glyph, positions,  i,  tx, ty) {
-  		const x = tx + glyph.xoffset,
-  	y = ty + glyph.yoffset,
-  	w = glyph.width,
-      h = glyph.height;
-  	    // BL
-      positions[i++] = x;
-      positions[i++] = y;
-      // TL
-      positions[i++] = x;
-      positions[i++] = y + h;
-      // TR
-      positions[i++] = x + w;
-      positions[i++] = y + h;
-      // BR
-      positions[i++] = x + w;
-      positions[i++] = y;
-  	}*/
+			var x = tx + glyph.xoffset,
+			    y = ty + glyph.yoffset,
+			    w = glyph.width,
+			    h = glyph.height;
 
+			// BL
+			_positions[offset] = x;
+			_positions[offset + 1] = y;
+			// TL
+			_positions[offset + 2] = x;
+			_positions[offset + 3] = y + h;
+			// TR
+			_positions[offset + 4] = x + w;
+			_positions[offset + 5] = y + h;
+			// BR
+			_positions[offset + 6] = x + w;
+			_positions[offset + 7] = y;
+		}
 	}]);
 	return Vertices;
 }();
@@ -46389,7 +46406,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var index$3 = createCommonjsModule(function (module) {
+var index$2 = createCommonjsModule(function (module) {
 var newline = /\n/;
 var newlineChar = '\n';
 var whitespace = /\s/;
@@ -46519,329 +46536,318 @@ function monospace(text, start, end, width) {
 }
 });
 
-var index_1 = index$3.lines;
+var index_1 = index$2.lines;
 
-var immutable = extend;
+var TextLayoutUtils = function () {
+  function TextLayoutUtils() {
+    classCallCheck(this, TextLayoutUtils);
+  }
 
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-function extend() {
-    var target = {};
-
-    for (var i = 0; i < arguments.length; i++) {
-        var source = arguments[i];
-
-        for (var key in source) {
-            if (hasOwnProperty.call(source, key)) {
-                target[key] = source[key];
-            }
-        }
+  createClass(TextLayoutUtils, null, [{
+    key: "getGlyphById",
+    value: function getGlyphById(font, id) {
+      return font.charsmap[id] ? font.chars[font.charsmap[id]] : null;
     }
+  }, {
+    key: "getKerning",
+    value: function getKerning(font, left, right) {
+      var amount = font.kerningsmap[left.id + left.index + right.id + right.index];
+      return amount || 0;
+    }
+    /*
+      static* range (begin, end, interval = 1) {
+        for (let i = begin; i < end; i += interval) {
+            yield i;
+        }
+      }*/
 
-    return target
-}
+  }]);
+  return TextLayoutUtils;
+}();
 
-var index$5 = function numtype(num, def) {
-	return typeof num === 'number'
-		? num 
-		: (typeof def === 'number' ? def : 0)
-};
+//import wrap from 'word-wrap';
+var TextLayout = function () {
+  function TextLayout(opt) {
+    classCallCheck(this, TextLayout);
 
-var X_HEIGHTS = ['x', 'e', 'a', 'o', 'n', 's', 'r', 'c', 'u', 'm', 'v', 'w', 'z'];
-var M_WIDTHS = ['m', 'w'];
-var CAP_HEIGHTS = ['H', 'I', 'N', 'E', 'F', 'K', 'L', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+    this._glyphs = [];
+    this._positions = [];
+    this._uvs = [];
+    this._pages = [];
+
+    this.update(opt);
+  }
+
+  createClass(TextLayout, [{
+    key: 'update',
+    value: function update(opt, attributes) {
+      var _this = this;
+
+      opt.align = opt.align || "left";
+
+      this._opt = opt;
+      this._opt.measure = function (text, start, end, width) {
+        return _this.computeMetrics(text, start, end, width);
+      };
+      this._opt.tabSize = this._opt.tabSize > 0 ? this._opt.tabSize : 4;
+
+      //if (!opt.font)
+      //  throw new Error('must provide a valid bitmap font')
 
 
-var TAB_ID = '\t'.charCodeAt(0);
-var SPACE_ID = ' '.charCodeAt(0);
-var ALIGN_LEFT = 0;
-var ALIGN_CENTER = 1;
-var ALIGN_RIGHT = 2;
+      var kernings = [];
+      this.font.kernings.forEach(function (item, index) {
+        var val = _this.font.chars.find(function (itm) {
+          return itm.id == item.first;
+        });
+        var val1 = _this.font.chars.find(function (itm) {
+          return itm.id == item.second;
+        });
+        //if (item.first + item.second == 146) console.log(item);
+        kernings[item.first + val.index + item.second + val1.index] = item.amount;
+      });
 
-var index$2 = function createLayout(opt) {
-  return new TextLayout(opt)
-};
+      this.font.kerningsmap = kernings;
 
-function TextLayout(opt) {
-  this.glyphs = [];
-  this._measure = this.computeMetrics.bind(this);
-  this.update(opt);
-}
+      var glyphs = this._glyphs,
 
-TextLayout.prototype.update = function(opt) {
-  opt = immutable({
-    measure: this._measure
-  }, opt);
-  this._opt = opt;
-  this._opt.tabSize = index$5(this._opt.tabSize, 4);
+      //positions = this._positions,
+      //uvs = this._uvs,
+      text = opt.text || '',
+          font = this.font,
+          lines = index$2.lines(text, this._opt),
+          minWidth = opt.width || 0,
+          lineHeight = this.lineHeight,
+          letterSpacing = this.letterSpacing;
 
-  if (!opt.font)
-    throw new Error('must provide a valid bitmap font')
+      var pages = this._pages,
+          positionOffset = 0;
 
-  var glyphs = this.glyphs;
-  var text = opt.text||''; 
-  var font = opt.font;
-  this._setupSpaceGlyphs(font);
-  
-  var lines = index$3.lines(text, opt);
-  var minWidth = opt.width || 0;
+      //clear glyphs
+      glyphs.length = 0;
+      //glyphs.length = positions.length = uvs.length = 0;
+      pages = [0, 0, 0, 0];
 
-  //clear glyphs
-  glyphs.length = 0;
+      this._positions = new Float32Array(text.length * 8);
+      this._uvs = new Float32Array(text.length * 8);
 
-  //get max line width
-  var maxLineWidth = lines.reduce(function(prev, line) {
-    return Math.max(prev, line.width, minWidth)
-  }, 0);
+      //get max line width
+      this._width = lines.reduce(function (prev, line) {
+        return Math.max(prev, line.width, minWidth);
+      }, 0);
 
-  //the pen position
-  var x = 0;
-  var y = 0;
-  var lineHeight = index$5(opt.lineHeight, font.common.lineHeight);
-  var baseline = font.common.base;
-  var descender = lineHeight-baseline;
-  var letterSpacing = opt.letterSpacing || 0;
-  var height = lineHeight * lines.length - descender;
-  var align = getAlignType(this._opt.align);
+      //the pen position
+      this._height = this.lineHeight * lines.length - this.descender;
 
-  //draw text along baseline
-  y -= height;
-  
-  //the metrics for this text layout
-  this._width = maxLineWidth;
-  this._height = height;
-  this._descender = lineHeight - baseline;
-  this._baseline = baseline;
-  this._xHeight = getXHeight(font);
-  this._capHeight = getCapHeight(font);
-  this._lineHeight = lineHeight;
-  this._ascender = lineHeight - descender - this._xHeight;
-    
-  //layout each glyph
-  var self = this;
-  lines.forEach(function(line, lineIndex) {
-    var start = line.start;
-    var end = line.end;
-    var lineWidth = line.width;
-    var lastGlyph;
-    
-    //for each glyph in that line...
-    for (var i=start; i<end; i++) {
-      var id = text.charCodeAt(i);
-      var glyph = self.getGlyph(font, id);
-      if (glyph) {
-        if (lastGlyph) 
-          x += getKerning(font, lastGlyph.id, glyph.id);
+      var x = 0,
 
-        var tx = x;
-        if (align === ALIGN_CENTER) 
-          tx += (maxLineWidth-lineWidth)/2;
-        else if (align === ALIGN_RIGHT)
-          tx += (maxLineWidth-lineWidth);
+      //draw text along baseline
+      y = -this._height;
 
-        glyphs.push({
-          position: [tx, y],
-          data: glyph,
-          index: i,
-          line: lineIndex
-        });  
+      //layout each glyph
 
-        //move pen forward
-        x += glyph.xadvance + letterSpacing;
-        lastGlyph = glyph;
+      //new Float32Array(glyphs.length * 4 * 2)
+
+      lines.forEach(function (line, lineIndex) {
+        var start = line.start,
+            end = line.end,
+            lineWidth = line.width,
+            alignment = _this.getAlignment(lineWidth);
+
+        var lastGlyph = null;
+
+        //for each glyph in that line...
+        //for (let i of TextLayoutUtils.range(start, end, 1)) {
+        for (var i = start; i < end; i++) {
+
+          var glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
+
+          if (glyph) {
+
+            if (lastGlyph) {
+              x += TextLayoutUtils.getKerning(font, lastGlyph, glyph);
+            }
+
+            var tx = x;
+
+            tx += alignment;
+
+            //add visible glyphs determined by width and height
+            if (glyph.width * glyph.height > 0) {
+
+              Vertices.positions(glyph, _this._positions, positionOffset, tx, y);
+              Vertices.uvs(glyph, _this._uvs, positionOffset, _this.font, _this._opt.flipY);
+              //if (glyph.page) Vertices.pages(glyph, pages);
+
+              positionOffset += 8;
+              glyphs.push({
+                position: [tx, y],
+                data: glyph,
+                index: i,
+                line: lineIndex
+              });
+            }
+
+            //move pen forward
+            x += glyph.xadvance + letterSpacing;
+
+            lastGlyph = glyph;
+          }
+        }
+
+        //next line down
+        y += lineHeight;
+        x = 0;
+      });
+
+      this._linesTotal = lines.length;
+    }
+  }, {
+    key: 'getAlignment',
+    value: function getAlignment(lineWidth) {
+      switch (this._opt.align) {
+        case "center":
+          return (this._width - lineWidth) / 2;
+        case "right":
+          return this._width - lineWidth;
+        default:
+          return 0;
+          break;
       }
     }
+  }, {
+    key: 'computeMetrics',
+    value: function computeMetrics(text, start, end, width) {
+      var letterSpacing = this.letterSpacing,
+          font = this.font;
 
-    //next line down
-    y += lineHeight;
-    x = 0;
-  });
-  this._linesTotal = lines.length;
-};
+      var curPen = 0,
+          curWidth = 0,
+          count = 0,
+          glyph = null,
+          lastGlyph = null;
 
-TextLayout.prototype._setupSpaceGlyphs = function(font) {
-  //These are fallbacks, when the font doesn't include
-  //' ' or '\t' glyphs
-  this._fallbackSpaceGlyph = null;
-  this._fallbackTabGlyph = null;
+      if (!font.chars || font.chars.length === 0) {
+        return {
+          start: start,
+          end: start,
+          width: 0
+        };
+      }
 
-  if (!font.chars || font.chars.length === 0)
-    return
+      for (var i = start; i < Math.min(text.length, end); i++) {
+        //for (let i of TextLayoutUtils.range(start, Math.min(text.length, end), 1)) {
 
-  //try to get space glyph
-  //then fall back to the 'm' or 'w' glyphs
-  //then fall back to the first glyph available
-  var space = getGlyphById(font, SPACE_ID) 
-          || getMGlyph(font) 
-          || font.chars[0];
+        var _glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
 
-  //and create a fallback for tab
-  var tabWidth = this._opt.tabSize * space.xadvance;
-  this._fallbackSpaceGlyph = space;
-  this._fallbackTabGlyph = immutable(space, {
-    x: 0, y: 0, xadvance: tabWidth, id: TAB_ID, 
-    xoffset: 0, yoffset: 0, width: 0, height: 0
-  });
-};
+        if (_glyph) {
+          //move pen forward
+          var xoff = _glyph.xoffset,
+              kern = lastGlyph ? TextLayoutUtils.getKerning(font, lastGlyph, _glyph) : 0;
+          //kern1 = lastGlyph ? this.getKerning(font, lastGlyph.id, glyph.id) : 0;
 
-TextLayout.prototype.getGlyph = function(font, id) {
-  var glyph = getGlyphById(font, id);
-  if (glyph)
-    return glyph
-  else if (id === TAB_ID) 
-    return this._fallbackTabGlyph
-  else if (id === SPACE_ID) 
-    return this._fallbackSpaceGlyph
-  return null
-};
 
-TextLayout.prototype.computeMetrics = function(text, start, end, width) {
-  var letterSpacing = this._opt.letterSpacing || 0;
-  var font = this._opt.font;
-  var curPen = 0;
-  var curWidth = 0;
-  var count = 0;
-  var glyph;
-  var lastGlyph;
+          curPen += kern;
 
-  if (!font.chars || font.chars.length === 0) {
-    return {
-      start: start,
-      end: start,
-      width: 0
+          var nextPen = curPen + _glyph.xadvance + letterSpacing,
+              nextWidth = curPen + _glyph.width;
+
+          //we've hit our limit; we can't move onto the next glyph
+          if (nextWidth >= width || nextPen >= width) break;
+
+          //otherwise continue along our line
+          curPen = nextPen;
+          curWidth = nextWidth;
+          lastGlyph = _glyph;
+        }
+
+        count++;
+      }
+
+      //make sure rightmost edge lines up with rendered glyphs
+      if (lastGlyph) curWidth += lastGlyph.xoffset;
+
+      return {
+        start: start,
+        end: start + count,
+        width: curWidth
+      };
     }
-  }
-
-  end = Math.min(text.length, end);
-  for (var i=start; i < end; i++) {
-    var id = text.charCodeAt(i);
-    var glyph = this.getGlyph(font, id);
-
-    if (glyph) {
-      //move pen forward
-      var xoff = glyph.xoffset;
-      var kern = lastGlyph ? getKerning(font, lastGlyph.id, glyph.id) : 0;
-      curPen += kern;
-
-      var nextPen = curPen + glyph.xadvance + letterSpacing;
-      var nextWidth = curPen + glyph.width;
-
-      //we've hit our limit; we can't move onto the next glyph
-      if (nextWidth >= width || nextPen >= width)
-        break
-
-      //otherwise continue along our line
-      curPen = nextPen;
-      curWidth = nextWidth;
-      lastGlyph = glyph;
+  }, {
+    key: 'pages',
+    get: function get$$1() {
+      return new Float32Array(this._pages, 0, this.glyphs.length * 4 * 1);
     }
-    count++;
-  }
-  
-  //make sure rightmost edge lines up with rendered glyphs
-  if (lastGlyph)
-    curWidth += lastGlyph.xoffset;
-
-  return {
-    start: start,
-    end: start + count,
-    width: curWidth
-  }
-}
-
-//getters for the private vars
-;['width', 'height', 
-  'descender', 'ascender',
-  'xHeight', 'baseline',
-  'capHeight',
-  'lineHeight' ].forEach(addGetter);
-
-function addGetter(name) {
-  Object.defineProperty(TextLayout.prototype, name, {
-    get: wrapper(name),
-    configurable: true
-  });
-}
-
-//create lookups for private vars
-function wrapper(name) {
-  return (new Function([
-    'return function '+name+'() {',
-    '  return this._'+name,
-    '}'
-  ].join('\n')))()
-}
-
-function getGlyphById(font, id) {
-  if (!font.chars || font.chars.length === 0)
-    return null
-
-  var glyphIdx = findChar(font.chars, id);
-  if (glyphIdx >= 0)
-    return font.chars[glyphIdx]
-  return null
-}
-
-function getXHeight(font) {
-  for (var i=0; i<X_HEIGHTS.length; i++) {
-    var id = X_HEIGHTS[i].charCodeAt(0);
-    var idx = findChar(font.chars, id);
-    if (idx >= 0) 
-      return font.chars[idx].height
-  }
-  return 0
-}
-
-function getMGlyph(font) {
-  for (var i=0; i<M_WIDTHS.length; i++) {
-    var id = M_WIDTHS[i].charCodeAt(0);
-    var idx = findChar(font.chars, id);
-    if (idx >= 0) 
-      return font.chars[idx]
-  }
-  return 0
-}
-
-function getCapHeight(font) {
-  for (var i=0; i<CAP_HEIGHTS.length; i++) {
-    var id = CAP_HEIGHTS[i].charCodeAt(0);
-    var idx = findChar(font.chars, id);
-    if (idx >= 0) 
-      return font.chars[idx].height
-  }
-  return 0
-}
-
-function getKerning(font, left, right) {
-  if (!font.kernings || font.kernings.length === 0)
-    return 0
-
-  var table = font.kernings;
-  for (var i=0; i<table.length; i++) {
-    var kern = table[i];
-    if (kern.first === left && kern.second === right)
-      return kern.amount
-  }
-  return 0
-}
-
-function getAlignType(align) {
-  if (align === 'center')
-    return ALIGN_CENTER
-  else if (align === 'right')
-    return ALIGN_RIGHT
-  return ALIGN_LEFT
-}
-
-function findChar (array, value, start) {
-  start = start || 0;
-  for (var i = start; i < array.length; i++) {
-    if (array[i].id === value) {
-      return i
+  }, {
+    key: 'positions',
+    get: function get$$1() {
+      return this._positions;
+      //return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
     }
-  }
-  return -1
-}
+  }, {
+    key: 'uvs',
+    get: function get$$1() {
+      return this._uvs;
+      //return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
+    }
+  }, {
+    key: 'font',
+    get: function get$$1() {
+      return this._opt.font;
+    }
+  }, {
+    key: 'glyphs',
+    get: function get$$1() {
+      return this._glyphs;
+    }
+  }, {
+    key: 'width',
+    get: function get$$1() {
+      return this._width;
+    }
+  }, {
+    key: 'height',
+    get: function get$$1() {
+      return this._height;
+    }
+  }, {
+    key: 'lineHeight',
+    get: function get$$1() {
+      return this._opt.lineHeight || this.font.common.lineHeight;
+    }
+  }, {
+    key: 'baseline',
+    get: function get$$1() {
+      return this.font.common.base;
+    }
+  }, {
+    key: 'descender',
+    get: function get$$1() {
+      return this.lineHeight - this.baseline;
+    }
+  }, {
+    key: 'ascender',
+    get: function get$$1() {
+      return this.lineHeight - descender - this.xHeight;
+    }
+  }, {
+    key: 'xHeight',
+    get: function get$$1() {
+      return this.font.common.xHeight;
+    }
+  }, {
+    key: 'capHeight',
+    get: function get$$1() {
+      return this.font.common.capHeight;
+    }
+  }, {
+    key: 'letterSpacing',
+    get: function get$$1() {
+      return this._opt.letterSpacing || 0;
+    }
+  }]);
+  return TextLayout;
+}();
 
 var itemSize = 2;
 var box = { min: [0, 0], max: [0, 0] };
@@ -46959,8 +46965,8 @@ var TextGeometryUtil = function () {
 }();
 
 //import * as vertices  from './vertices';
-//import TextLayout from './layout/TextLayout';
-//import * as THREE from 'three';
+//import createLayout from 'layout-bmfont-text';
+//import { createLayout } from './layout';
 
 var TextGeometry$1 = function (_BufferGeometry) {
 	inherits(TextGeometry$$1, _BufferGeometry);
@@ -46991,9 +46997,10 @@ var TextGeometry$1 = function (_BufferGeometry) {
 			// use constructor defaults
 			opt = Object.assign({}, this._opt, opt);
 
-			//this.layout = new TextLayout(opt);
+			//this.layout = createLayout(opt);
 
-			this.layout = index$2(opt);
+
+			this.layout = new TextLayout(opt);
 
 			// get vec2 texcoords
 			var flipY = opt.flipY !== false,
@@ -47021,6 +47028,8 @@ var TextGeometry$1 = function (_BufferGeometry) {
 				this.attributes.uv.needsUpdate = true;
 			} else {
 
+				//this.addAttribute( 'position', new BufferAttribute( this.layout.positions, 2 ));
+				//this.addAttribute( 'uv', new BufferAttribute( this.layout.uvs, 2 ));
 				this.addAttribute('position', new BufferAttribute(data.positions, 2));
 				this.addAttribute('uv', new BufferAttribute(data.uvs, 2));
 			}
@@ -47364,10 +47373,11 @@ function start(font, texture) {
       showHitBox: true // for debugging
     }, renderer);
 
-    text.text = "Text Change";
+    //text.text = "Text Change";
 
     setTimeout(function () {
-      text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+      // text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+
     }, 5000);
 
     text.group.position.set(0, 0, -1);

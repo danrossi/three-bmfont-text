@@ -10,7 +10,7 @@ export default class Vertices {
 	 	//pages.push(...[id, id, id, id]);
 	}
 
-	/*static uvs(glyph, uvs, i, font, flipY) {
+	static uvs(glyph, uvs, offset, font, flipY) {
 
 		const bw = (glyph.x + glyph.width),
 	    bh = (glyph.y + glyph.height),
@@ -29,21 +29,21 @@ export default class Vertices {
 	    }
 
 	     // BL
-	    uvs[i++] = u0;
-	    uvs[i++] = v1;
+	    uvs[offset] = u0;
+	    uvs[offset + 1] = v1;
 	    // TL
-	    uvs[i++] = u0;
-	    uvs[i++] = v0;
+	    uvs[offset + 2] = u0;
+	    uvs[offset + 3] = v0;
 	    // TR
-	    uvs[i++] = u1;
-	    uvs[i++] = v0;
+	    uvs[offset + 4] = u1;
+	    uvs[offset + 5] = v0;
 	    // BR
-	    uvs[i++] = u1;
-	    uvs[i++] = v1;
+	    uvs[offset + 6] = u1;
+	    uvs[offset + 7] = v1;
 
 	   
 
-	}*/
+	}
 
 	static geomData(glyphs, font, flipY) {
 
@@ -53,8 +53,10 @@ export default class Vertices {
 
 		const indices = new Uint16Array(glyphs.length * 6);
 
-		let i = 0, indicesIndex = 0, indicesValueIndex = 0;
+		let i = 0, verticesOffset = 0, uvOffset = 0, indicesOffset = 0, indicesValueIndex = 0;
 		
+		var pos = [];
+
 		glyphs.forEach(function (glyph) {
 
 			const bitmap = glyph.data;
@@ -84,54 +86,66 @@ export default class Vertices {
 				y = glyph.position[1] + bitmap.yoffset,
 				heightPos = y + height,
 				widthPos = x + width;
+				
+		    // BL
+		    positions[verticesOffset] = x;
+		    uvs[uvOffset] = u0;
 
-			// BL
-		    positions[i] = x;
-		    uvs[i] = u0;
+		    positions[verticesOffset+1] = y;
+		    uvs[uvOffset+1] = v1;
 
-		    positions[i+1] = y;
-		    uvs[i+1] = v1;
+		    //positions[verticesOffset+2] = 0;
 
 		    // TL
-		    positions[i+2] = x;
-		    uvs[i+2] = u0;
+		    positions[verticesOffset+2] = x;
+		    uvs[uvOffset+2] = u0;
 
-		    positions[i+3] = heightPos;
-		    uvs[i+3] = v0;
+		    positions[verticesOffset+3] = heightPos;
+		    uvs[uvOffset+3] = v0;
+
+		    //positions[verticesOffset+5] = 0;
 
 		    // TR
-		    positions[i+4] = widthPos;
-		    uvs[i+4] = u1;
+		    positions[verticesOffset+4] = widthPos;
+		    uvs[uvOffset+4] = u1;
 
-		    positions[i+5] = heightPos;
-		    uvs[i+5] = v0;
+		    positions[verticesOffset+5] = heightPos;
+		    uvs[uvOffset+5] = v0;
+
+		    //positions[verticesOffset+8] = 0;
 
 		    // BR
-		    positions[i+6] = widthPos;
-		    uvs[i+6] = u1;
+		    positions[verticesOffset+6] = widthPos;
+		    uvs[uvOffset+6] = u1;
 
-		    positions[i+7] = y;
-		    uvs[i+7] = v1;
+		    positions[verticesOffset+7] = y;
+		    uvs[uvOffset+7] = v1;
 
-		    indices[indicesIndex + 0] = indicesValueIndex + 0;
-	        indices[indicesIndex + 1] = indicesValueIndex + 1;
-	        indices[indicesIndex + 2] = indicesValueIndex + 2;
-	        indices[indicesIndex + 3] = indicesValueIndex + 0;
-	        indices[indicesIndex + 4] = indicesValueIndex + 2;
-	        indices[indicesIndex + 5] = indicesValueIndex + 3;
+		   //positions[verticesOffset+11] = 0;
+	
 
-		    i += 8;
-		    indicesIndex += 6;
+			
+
+		    indices[indicesOffset] = indicesValueIndex;
+	        indices[indicesOffset + 1] = indicesValueIndex + 1;
+	        indices[indicesOffset + 2] = indicesValueIndex + 2;
+	        indices[indicesOffset + 3] = indicesValueIndex + 0;
+	        indices[indicesOffset + 4] = indicesValueIndex + 2;
+	        indices[indicesOffset + 5] = indicesValueIndex + 3;
+
+		    //i += 8;
+		    verticesOffset += 8;
+		    uvOffset += 8;
+		    indicesOffset += 6;
 		    indicesValueIndex += 4;
 
-		    //console.log(indicesIndex);
 
 		});
 
 		return { uvs: uvs, positions: positions, index: indices };
 	}
 
-	/*static positions(glyph, positions,  i,  tx, ty) {
+	static positions(glyph, positions,  offset,  tx, ty) {
 
 		const x = tx + glyph.xoffset,
 		y = ty + glyph.yoffset,
@@ -139,17 +153,17 @@ export default class Vertices {
 	    h = glyph.height;
 
 	    // BL
-	    positions[i++] = x;
-	    positions[i++] = y;
+	    positions[offset] = x;
+	    positions[offset + 1] = y;
 	    // TL
-	    positions[i++] = x;
-	    positions[i++] = y + h;
+	    positions[offset + 2] = x;
+	    positions[offset + 3] = y + h;
 	    // TR
-	    positions[i++] = x + w;
-	    positions[i++] = y + h;
+	    positions[offset + 4] = x + w;
+	    positions[offset + 5] = y + h;
 	    // BR
-	    positions[i++] = x + w;
-	    positions[i++] = y;
+	    positions[offset + 6] = x + w;
+	    positions[offset + 7] = y;
 
-	}*/
+	}
 }

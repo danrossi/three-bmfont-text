@@ -1,4 +1,5 @@
 import wordWrap from 'word-wrapper';
+//import wrap from 'word-wrap';
 import Vertices from './Vertices';
 import TextLayoutUtils from './TextLayoutUtils';
 
@@ -24,29 +25,38 @@ export default class TextLayout {
     //if (!opt.font)
     //  throw new Error('must provide a valid bitmap font')
 
-    
+    //move this to font generator
+     var kernings = [];
+            this.font.kernings.forEach((item, index) => {
+              var val = this.font.chars.find( function(itm) { return itm.id == item.first } );
+              var val1 = this.font.chars.find( function(itm) { return itm.id == item.second } );
+              kernings[item.first + val.index + item.second + val1.index] = item.amount;
+    });
+
+    this.font.kerningsmap = kernings;    
 
     const glyphs = this._glyphs,
     //positions = this._positions,
     //uvs = this._uvs,
     text = opt.text || '',
     font = this.font,
-    lines = wordWrap.lines(text, opt),
+    lines = wordWrap.lines(text, this._opt),
     minWidth = opt.width || 0,
     lineHeight = this.lineHeight,
-    letterSpacing = this.letterSpacing,
-    positionIndex = 0,
-    uvIndex = 0;
+    letterSpacing = this.letterSpacing;
 
-    let pages = this._pages;
+
+
+    let pages = this._pages, 
+    positionOffset = 0;
 
     //clear glyphs
     glyphs.length = 0;
     //glyphs.length = positions.length = uvs.length = 0;
     pages = [0, 0, 0, 0];
 
-    this._positions = attribute.position.array || new Float32Array(this.font.chars.length * 4 * 2);
-    this._uvs = attribute.uv.array || new Float32Array(this.font.chars.length * 4 * 2);
+    this._positions = new Float32Array(text.length * 8);
+    this._uvs = new Float32Array(text.length * 8);
 
 
     //get max line width
@@ -59,6 +69,7 @@ export default class TextLayout {
      //draw text along baseline
     y = -this._height;
       
+
     //layout each glyph
 
      //new Float32Array(glyphs.length * 4 * 2)
@@ -79,28 +90,36 @@ export default class TextLayout {
         const glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
         
         if (glyph) {
-          if (lastGlyph) 
-            x += TextLayoutUtils.getKerning(font, lastGlyph.id, glyph.id);
-            x += alignment;
+          
+          if (lastGlyph) {
+            x += TextLayoutUtils.getKerning(font, lastGlyph, glyph); 
+          }
+
+          let tx = x;
+
+          tx += alignment;
 
             //add visible glyphs determined by width and height
             if (glyph.width * glyph.height > 0) {
 
-              Vertices.positions(glyph, this._positions, positionIndex, x, y);
-              Vertices.uvs(glyph, this._uvs, uvIndex, this.font, this._opt.flipY);
-              if (glyph.page) Vertices.pages(glyph, pages);
+              Vertices.positions(glyph, this._positions, positionOffset, tx, y);
+              Vertices.uvs(glyph, this._uvs, positionOffset, this.font, this._opt.flipY);
+              //if (glyph.page) Vertices.pages(glyph, pages);
 
+              positionOffset += 8;
               glyphs.push({
-                //position: [tx, y],
+                position: [tx, y],
                 data: glyph,
                 index: i,
                 line: lineIndex
               }); 
 
             }
-  
+
+ 
           //move pen forward
           x += glyph.xadvance + letterSpacing;
+
           lastGlyph = glyph;
         }
       }
@@ -143,6 +162,7 @@ export default class TextLayout {
       };
     }
 
+
     for (let i = start; i < Math.min(text.length, end); i++ ) {
     //for (let i of TextLayoutUtils.range(start, Math.min(text.length, end), 1)) {
 
@@ -151,8 +171,11 @@ export default class TextLayout {
       if (glyph) {
         //move pen forward
         const xoff = glyph.xoffset,
-        kern = lastGlyph ? TextLayoutUtils.getKerning(font, lastGlyph.id, glyph.id) : 0;
-        
+        kern = lastGlyph ? TextLayoutUtils.getKerning(font, lastGlyph, glyph) : 0;
+        //kern1 = lastGlyph ? this.getKerning(font, lastGlyph.id, glyph.id) : 0;
+         
+         
+
         curPen += kern;
 
         const nextPen = curPen + glyph.xadvance + letterSpacing,
@@ -166,6 +189,7 @@ export default class TextLayout {
         curPen = nextPen;
         curWidth = nextWidth;
         lastGlyph = glyph;
+
       }
 
       count++;
@@ -181,6 +205,7 @@ export default class TextLayout {
       width: curWidth
     }
   }
+
 
   get pages() {
     return new Float32Array(this._pages, 0, this.glyphs.length * 4 * 1);

@@ -16,12 +16,14 @@
   },
   "dependencies": {
     "array-shuffle": "^1.0.1",
+    "as-number": "^1.0.0",
     "inherits": "^2.0.1",
     "layout-bmfont-text": "^1.2.0",
     "nice-color-palettes": "^2.0.0",
     "object-assign": "^4.0.1",
     "quad-indices": "^2.0.1",
-    "three-buffer-vertex-data": "^1.0.0"
+    "three-buffer-vertex-data": "^1.0.0",
+    "word-wrap": "^1.2.3"
   },
   "devDependencies": {
     "babel-plugin-transform-runtime": "^6.23.0",
