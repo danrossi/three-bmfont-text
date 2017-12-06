@@ -51,7 +51,7 @@ export default class TextBitmap {
         //if (config.hitbox) this.createHitBox();
     }
 
-    rotateMesh() {
+    rotateMesh(mesh) {
       mesh.rotation.x = Math.PI;
     }
 
