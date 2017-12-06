@@ -46414,21 +46414,20 @@ var BasicShader = function (_BaseShader) {
   return BasicShader;
 }(BaseShader);
 
-var Vertices$1 = function () {
+var Vertices = function () {
 	function Vertices() {
 		classCallCheck(this, Vertices);
 	}
 
 	createClass(Vertices, null, [{
 		key: "pages",
-		value: function pages(glyph, _pages, i) {
+		value: function pages(glyph, _pages, pagesOffset) {
 			var id = glyph.page || 0;
 
-			_pages[i++] = id;
-			_pages[i++] = id;
-			_pages[i++] = id;
-			_pages[i++] = id;
-			//pages.push(...[id, id, id, id]);
+			_pages[pagesOffset] = id;
+			_pages[pagesOffset + 1] = id;
+			_pages[pagesOffset + 2] = id;
+			_pages[pagesOffset + 3] = id;
 		}
 	}, {
 		key: "uvs",
@@ -46670,12 +46669,15 @@ var TextLayout = function () {
       var pages = this._pages,
           positionOffset = 0,
           indicesOffset = 0,
-          indicesValueOffset = 0;
+          indicesValueOffset = 0,
+          pagesOffset = 0;
 
       pages = [0, 0, 0, 0];
 
       //init position, uv and indices buffers
       this.initBuffers(text);
+
+      if (opt.multipage) this._pages = new Uint16Array(text.length * 4);
 
       this._glyphCount = 0;
 
@@ -46723,22 +46725,21 @@ var TextLayout = function () {
 
               _this._glyphCount++;
 
-              Vertices$1.positions(glyph, _this._positions, positionOffset, tx, y);
-              Vertices$1.uvs(glyph, _this._uvs, positionOffset, _this.font, _this._opt.flipY);
-              Vertices$1.index(_this._indices, indicesOffset, indicesValueOffset);
-              //if (glyph.page) Vertices.pages(glyph, pages);
+              Vertices.positions(glyph, _this._positions, positionOffset, tx, y);
+              Vertices.uvs(glyph, _this._uvs, positionOffset, _this.font, _this._opt.flipY);
+              Vertices.index(_this._indices, indicesOffset, indicesValueOffset);
+              if (glyph.page) {
+
+                Vertices.pages(glyph, _this._pages, pagesOffset);
+
+                pagesOffset += 4;
+              }
+
               indicesOffset += 6;
               indicesValueOffset += 4;
               positionOffset += 8;
 
               _this._drawRange = positionOffset;
-
-              /* glyphs.push({
-                 position: [tx, y],
-                 data: glyph,
-                 index: i,
-                 line: lineIndex
-               }); */
             }
 
             //move pen forward
@@ -46854,7 +46855,6 @@ var TextLayout = function () {
     key: 'drawRange',
     get: function get$$1() {
       return this._drawRange;
-      //return this._glyphCount * 8;
     }
   }, {
     key: 'font',
@@ -46942,71 +46942,6 @@ var TextGeometryUtil = function () {
 
 		createClass(TextGeometryUtil, null, [{
 				key: "computeBox",
-
-
-				/*
-    	flattenVertexData (data, output, offset) {
-    	  //if (!data) throw new TypeError('must specify data as first parameter')
-    	  offset = +(offset || 0) | 0
-    
-    	  if (Array.isArray(data) && Array.isArray(data[0])) {
-    	    var dim = data[0].length
-    	    var length = data.length * dim
-    
-    	    // no output specified, create a new typed array
-    	    if (!output || typeof output === 'string') {
-    	      output = new (dtype(output || 'float32'))(length + offset)
-    	    }
-    
-    	    var dstLength = output.length - offset
-    	    if (length !== dstLength) {
-    	      throw new Error('source length ' + length + ' (' + dim + 'x' + data.length + ')' +
-    	        ' does not match destination length ' + dstLength)
-    	    }
-    
-    	    for (var i = 0, k = offset; i < data.length; i++) {
-    	      for (var j = 0; j < dim; j++) {
-    	        output[k++] = data[i][j]
-    	      }
-    	    }
-    	  } else {
-    	    if (!output || typeof output === 'string') {
-    	      // no output, create a new one
-    	      var Ctor = dtype(output || 'float32')
-    	      if (offset === 0) {
-    	        output = new Ctor(data)
-    	      } else {
-    	        output = new Ctor(data.length + offset)
-    	        output.set(data, offset)
-    	      }
-    	    } else {
-    	      // store output in existing array
-    	      output.set(data, offset)
-    	    }
-    	  }
-    
-    	  return output;
-    	}*/
-
-				/*static createIndices(count) {
-       
-       	const numIndices = count * 6,
-       	indices = new Uint16Array(numIndices);
-        //var indices = new Uint16Array(indicesArray, 0, 6);
-       //var indices = new Uint16Array(numIndices);
-    	    for (let i = 0, j = 0; i < numIndices; i += 6, j += 4) {
-            indices[i + 0] = j + 0;
-            indices[i + 1] = j + 1;
-            indices[i + 2] = j + 2;
-            indices[i + 3] = j + 0;
-            indices[i + 4] = j + 2;
-            indices[i + 5] = j + 3;
-    	        //console.log(i);
-            //console.log(j);
-        }
-        	return indices;
-    }*/
-
 				value: function computeBox(positions, output) {
 						bounds(positions);
 						output.min.set(box.min[0], box.min[1], 0);
@@ -47030,7 +46965,6 @@ var TextGeometryUtil = function () {
 		return TextGeometryUtil;
 }();
 
-//import Vertices from './layout/Vertices';
 var TextGeometry$1 = function (_BufferGeometry) {
 	inherits(TextGeometry$$1, _BufferGeometry);
 
@@ -47064,38 +46998,42 @@ var TextGeometry$1 = function (_BufferGeometry) {
 
 			this.layout = this.creatTextLayout();
 
-			//const data = Vertices.geomData(glyphs, font, opt.flipY);
-
+			//set the current indices.
 			this.setIndex(new BufferAttribute(this.layout.indices, 1));
 
 			//buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
 			this.setDrawRange(0, this.layout.drawRange);
 
+			//set the positions and uvs
+			var positions = new BufferAttribute(this.layout.positions, 2),
+			    uvs = new BufferAttribute(this.layout.uvs, 2);
+
 			if (this.attributes.position) {
 
-				this.attributes.position = new BufferAttribute(this.layout.positions, 2);
-				this.attributes.uv = new BufferAttribute(this.layout.uvs, 2);
+				this.attributes.position = positions;
+				this.attributes.uv = uvs;
 
 				this.index.needsUpdate = true;
-
 				this.attributes.position.needsUpdate = true;
 				this.attributes.uv.needsUpdate = true;
 			} else {
 
-				this.addAttribute('position', new BufferAttribute(this.layout.positions, 2));
-				this.addAttribute('uv', new BufferAttribute(this.layout.uvs, 2));
+				this.addAttribute('position', positions);
+				this.addAttribute('uv', uvs);
 			}
 
-			// update multipage data
-			if (!opt.multipage && 'page' in this.attributes) {
-				// disable multipage rendering
-				this.removeAttribute('page');
-			} else if (opt.multipage) {
-				var pages = Vertices.pages(glyphs);
-				this.addAttribute('uv', new BufferAttribute(pages, 1));
-				//const pages = Vertices.pages(glyphs);
-				// enable multipage rendering
-				//buffer.attr(this, 'page', this.layout.pages, 1);
+			//multipage support if enabled
+			if (opt.multipage) {
+
+				var page = new BufferAttribute(this.layout.pages, 1);
+
+				if (this.attributes.page) {
+					this.attributes.page = page;
+					this.attributes.page.needsUpdate = true;
+				} else {
+					// enable multipage rendering
+					this.addAttribute('page', page);
+				}
 			}
 		}
 	}, {

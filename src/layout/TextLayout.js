@@ -40,12 +40,15 @@ export default class TextLayout {
     let pages = this._pages, 
     positionOffset = 0,
     indicesOffset = 0,
-    indicesValueOffset = 0;
+    indicesValueOffset = 0,
+    pagesOffset = 0;
 
     pages = [0, 0, 0, 0];
 
     //init position, uv and indices buffers
     this.initBuffers(text);
+
+    if (opt.multipage) this._pages = new Uint16Array(text.length * 4);
     
     this._glyphCount = 0;
 
@@ -77,8 +80,6 @@ export default class TextLayout {
         
         if (glyph) {
 
-
-          
           if (lastGlyph) {
             x += TextLayoutUtils.getKerning(font, lastGlyph, glyph); 
           }
@@ -95,19 +96,18 @@ export default class TextLayout {
               Vertices.positions(glyph, this._positions, positionOffset, tx, y);
               Vertices.uvs(glyph, this._uvs, positionOffset, this.font, this._opt.flipY);
               Vertices.index(this._indices, indicesOffset, indicesValueOffset);
-              //if (glyph.page) Vertices.pages(glyph, pages);
+              if (glyph.page) {
+
+                Vertices.pages(glyph, this._pages, pagesOffset);
+
+                pagesOffset += 4;
+              }
+
               indicesOffset += 6;
               indicesValueOffset += 4;
               positionOffset += 8;
 
               this._drawRange = positionOffset;
-
-             /* glyphs.push({
-                position: [tx, y],
-                data: glyph,
-                index: i,
-                line: lineIndex
-              }); */
 
             }
 
@@ -221,7 +221,6 @@ export default class TextLayout {
 
   get drawRange() {
     return this._drawRange;
-    //return this._glyphCount * 8;
   }
 
   get font() {

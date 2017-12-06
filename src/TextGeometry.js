@@ -1,4 +1,3 @@
-//import Vertices from './layout/Vertices';
 import TextLayout from './layout/TextLayout';
 import TextGeometryUtil from './util/TextGeometryUtil';
 import { BufferGeometry, Box3, Sphere, BufferAttribute } from 'three';
@@ -29,38 +28,43 @@ export default class TextGeometry extends BufferGeometry {
 
 	  this.layout = this.creatTextLayout();
 
-  	  //const data = Vertices.geomData(glyphs, font, opt.flipY);
-
+  	  //set the current indices.
   	  this.setIndex( new BufferAttribute( this.layout.indices, 1 ) );
 
   	  //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
   	  this.setDrawRange(0, this.layout.drawRange);
 
+  	  //set the positions and uvs
+  	  const positions = new BufferAttribute( this.layout.positions, 2 ),
+  	  uvs = new BufferAttribute( this.layout.uvs, 2 );
+
 	  if (this.attributes.position) {
 		
-		this.attributes.position = new BufferAttribute( this.layout.positions, 2 );
-  	  	this.attributes.uv = new BufferAttribute( this.layout.uvs, 2 );
+		this.attributes.position = positions;
+  	  	this.attributes.uv = uvs;
 
   	  	this.index.needsUpdate = true;
-
   	  	this.attributes.position.needsUpdate = true;
   	  	this.attributes.uv.needsUpdate = true;
 	  } else {
 	 	
-	 	this.addAttribute( 'position', new BufferAttribute( this.layout.positions, 2 ));
-	  	this.addAttribute( 'uv', new BufferAttribute( this.layout.uvs, 2 ));
+	 	this.addAttribute( 'position', positions);
+	  	this.addAttribute( 'uv', uvs);
 	  }
-	  
-	  // update multipage data
-	  if (!opt.multipage && 'page' in this.attributes) {
-	    // disable multipage rendering
-	    this.removeAttribute('page');
-	  } else if (opt.multipage) {
-	  	const pages = Vertices.pages(glyphs);
-	  	this.addAttribute( 'uv', new BufferAttribute( pages, 1 ));
-	    //const pages = Vertices.pages(glyphs);
-	    // enable multipage rendering
-	    //buffer.attr(this, 'page', this.layout.pages, 1);
+
+
+	  //multipage support if enabled
+	  if (opt.multipage) {
+
+	  	const page = new BufferAttribute( this.layout.pages, 1 );
+	  	
+	  	if (this.attributes.page) {
+	  		this.attributes.page = page;
+	  		this.attributes.page.needsUpdate = true;
+	  	} else {
+			// enable multipage rendering
+	  		this.addAttribute( 'page', page);
+	  	}
 	  }
 	}
 

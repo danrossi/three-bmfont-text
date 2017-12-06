@@ -1,13 +1,12 @@
 export default class Vertices {
 
-	static pages(glyph, pages, i) {
+	static pages(glyph, pages, pagesOffset) {
 		const id = glyph.page || 0;
 
-		pages[i++] = id;
-    	pages[i++] = id;
-    	pages[i++] = id;
-    	pages[i++] = id;
-	 	//pages.push(...[id, id, id, id]);
+		pages[pagesOffset] = id;
+    	pages[pagesOffset + 1] = id;
+    	pages[pagesOffset + 2] = id;
+    	pages[pagesOffset + 3] = id;
 	}
 
 	static uvs(glyph, uvs, offset, font, flipY) {

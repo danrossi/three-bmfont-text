@@ -3,5 +3,4 @@
 //export { default as SDFShader } from './shaders/SDFShader.js';
 //export { default as TextGeometry } from './TextGeometry.js';
 export { default as TextBitmap } from './TextBitmap.js';
-
-//export { OldTextGeometry } from './index.js';
+export { default as SimpleTextBitmap } from './SimpleTextBitmap.js';
