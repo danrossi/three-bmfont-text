@@ -162,142 +162,6 @@
 	  return BasicShader;
 	}(BaseShader);
 
-	function createCommonjsModule(fn, module) {
-		return module = { exports: {} }, fn(module, module.exports), module.exports;
-	}
-
-	var index = createCommonjsModule(function (module) {
-	var newline = /\n/;
-	var newlineChar = '\n';
-	var whitespace = /\s/;
-
-	module.exports = function(text, opt) {
-	    var lines = module.exports.lines(text, opt);
-	    return lines.map(function(line) {
-	        return text.substring(line.start, line.end)
-	    }).join('\n')
-	};
-
-	module.exports.lines = function wordwrap(text, opt) {
-	    opt = opt||{};
-
-	    //zero width results in nothing visible
-	    if (opt.width === 0 && opt.mode !== 'nowrap') 
-	        return []
-
-	    text = text||'';
-	    var width = typeof opt.width === 'number' ? opt.width : Number.MAX_VALUE;
-	    var start = Math.max(0, opt.start||0);
-	    var end = typeof opt.end === 'number' ? opt.end : text.length;
-	    var mode = opt.mode;
-
-	    var measure = opt.measure || monospace;
-	    if (mode === 'pre')
-	        return pre(measure, text, start, end, width)
-	    else
-	        return greedy(measure, text, start, end, width, mode)
-	};
-
-	function idxOf(text, chr, start, end) {
-	    var idx = text.indexOf(chr, start);
-	    if (idx === -1 || idx > end)
-	        return end
-	    return idx
-	}
-
-	function isWhitespace(chr) {
-	    return whitespace.test(chr)
-	}
-
-	function pre(measure, text, start, end, width) {
-	    var lines = [];
-	    var lineStart = start;
-	    for (var i=start; i<end && i<text.length; i++) {
-	        var chr = text.charAt(i);
-	        var isNewline = newline.test(chr);
-
-	        //If we've reached a newline, then step down a line
-	        //Or if we've reached the EOF
-	        if (isNewline || i===end-1) {
-	            var lineEnd = isNewline ? i : i+1;
-	            var measured = measure(text, lineStart, lineEnd, width);
-	            lines.push(measured);
-	            
-	            lineStart = i+1;
-	        }
-	    }
-	    return lines
-	}
-
-	function greedy(measure, text, start, end, width, mode) {
-	    //A greedy word wrapper based on LibGDX algorithm
-	    //https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
-	    var lines = [];
-
-	    var testWidth = width;
-	    //if 'nowrap' is specified, we only wrap on newline chars
-	    if (mode === 'nowrap')
-	        testWidth = Number.MAX_VALUE;
-
-	    while (start < end && start < text.length) {
-	        //get next newline position
-	        var newLine = idxOf(text, newlineChar, start, end);
-
-	        //eat whitespace at start of line
-	        while (start < newLine) {
-	            if (!isWhitespace( text.charAt(start) ))
-	                break
-	            start++;
-	        }
-
-	        //determine visible # of glyphs for the available width
-	        var measured = measure(text, start, newLine, testWidth);
-
-	        var lineEnd = start + (measured.end-measured.start);
-	        var nextStart = lineEnd + newlineChar.length;
-
-	        //if we had to cut the line before the next newline...
-	        if (lineEnd < newLine) {
-	            //find char to break on
-	            while (lineEnd > start) {
-	                if (isWhitespace(text.charAt(lineEnd)))
-	                    break
-	                lineEnd--;
-	            }
-	            if (lineEnd === start) {
-	                if (nextStart > start + newlineChar.length) nextStart--;
-	                lineEnd = nextStart; // If no characters to break, show all.
-	            } else {
-	                nextStart = lineEnd;
-	                //eat whitespace at end of line
-	                while (lineEnd > start) {
-	                    if (!isWhitespace(text.charAt(lineEnd - newlineChar.length)))
-	                        break
-	                    lineEnd--;
-	                }
-	            }
-	        }
-	        if (lineEnd >= start) {
-	            var result = measure(text, start, lineEnd, testWidth);
-	            lines.push(result);
-	        }
-	        start = nextStart;
-	    }
-	    return lines
-	}
-
-	//determines the visible number of glyphs within a given width
-	function monospace(text, start, end, width) {
-	    var glyphs = Math.min(width, end-start);
-	    return {
-	        start: start,
-	        end: start+glyphs
-	    }
-	}
-	});
-
-	var index_1 = index.lines;
-
 	var Vertices = function () {
 		function Vertices() {
 			classCallCheck(this, Vertices);
@@ -357,104 +221,107 @@
 				indices[indicesOffset + 4] = indicesValueOffset + 2;
 				indices[indicesOffset + 5] = indicesValueOffset + 3;
 			}
-		}, {
-			key: "geomData",
-			value: function geomData(glyphs, font, flipY) {
 
-				var uvs = new Float32Array(glyphs.length * 8),
-				    positions = new Float32Array(glyphs.length * 8);
+			/*
+	  	static geomData(glyphs, font, flipY) {
+	  
+	  		const uvs = new Float32Array(glyphs.length * 8),
+	  		positions = new Float32Array(glyphs.length * 8);
+	  
+	  
+	  		const indices = new Uint16Array(glyphs.length * 6);
+	  
+	  		let i = 0, verticesOffset = 0, uvOffset = 0, indicesOffset = 0, indicesValueIndex = 0;
+	  		
+	  		var pos = [];
+	  
+	  		glyphs.forEach(function (glyph) {
+	  
+	  			const bitmap = glyph.data;
+	  
+	  			//uv data
+	  			const width = bitmap.width,
+	  			height = bitmap.height,
+	  			bw = (bitmap.x + width),
+	  		    bh = (bitmap.y + height),
+	  		    texWidth = font.common.scaleW,
+	  	    	texHeight = font.common.scaleH,
+	  			// top left position
+	  		    u0 = bitmap.x / texWidth,
+	  		    u1 = bw / texWidth;
+	  
+	  		    let v1 = bitmap.y / texHeight,
+	  		    v0 = bh / texHeight;
+	  
+	  		    if (flipY) {
+	  		      v1 = (texHeight - bitmap.y) / texHeight;
+	  		      v0 = (texHeight - bh) / texHeight;
+	  		    }
+	  
+	  		    //position data
+	  			let x = glyph.position[0] + bitmap.xoffset,
+	  				y = glyph.position[1] + bitmap.yoffset,
+	  				heightPos = y + height,
+	  				widthPos = x + width;
+	  
+	  		    // BL
+	  		    positions[verticesOffset] = x;
+	  		    uvs[uvOffset] = u0;
+	  
+	  		    positions[verticesOffset+1] = y;
+	  		    uvs[uvOffset+1] = v1;
+	  
+	  		    //positions[verticesOffset+2] = 0;
+	  
+	  		    // TL
+	  		    positions[verticesOffset+2] = x;
+	  		    uvs[uvOffset+2] = u0;
+	  
+	  		    positions[verticesOffset+3] = heightPos;
+	  		    uvs[uvOffset+3] = v0;
+	  
+	  		    //positions[verticesOffset+5] = 0;
+	  
+	  		    // TR
+	  		    positions[verticesOffset+4] = widthPos;
+	  		    uvs[uvOffset+4] = u1;
+	  
+	  		    positions[verticesOffset+5] = heightPos;
+	  		    uvs[uvOffset+5] = v0;
+	  
+	  		    //positions[verticesOffset+8] = 0;
+	  
+	  		    // BR
+	  		    positions[verticesOffset+6] = widthPos;
+	  		    uvs[uvOffset+6] = u1;
+	  
+	  		    positions[verticesOffset+7] = y;
+	  		    uvs[uvOffset+7] = v1;
+	  
+	  		   //positions[verticesOffset+11] = 0;
+	  	
+	  
+	  			
+	  
+	  		    indices[indicesOffset] = indicesValueIndex;
+	  	        indices[indicesOffset + 1] = indicesValueIndex + 1;
+	  	        indices[indicesOffset + 2] = indicesValueIndex + 2;
+	  	        indices[indicesOffset + 3] = indicesValueIndex + 0;
+	  	        indices[indicesOffset + 4] = indicesValueIndex + 2;
+	  	        indices[indicesOffset + 5] = indicesValueIndex + 3;
+	  
+	  		    //i += 8;
+	  		    verticesOffset += 8;
+	  		    uvOffset += 8;
+	  		    indicesOffset += 6;
+	  		    indicesValueIndex += 4;
+	  
+	  
+	  		});
+	  
+	  		return { uvs: uvs, positions: positions, index: indices };
+	  	}*/
 
-				var indices = new Uint16Array(glyphs.length * 6);
-
-				var i = 0,
-				    verticesOffset = 0,
-				    uvOffset = 0,
-				    indicesOffset = 0,
-				    indicesValueIndex = 0;
-
-				glyphs.forEach(function (glyph) {
-
-					var bitmap = glyph.data;
-
-					//uv data
-					var width = bitmap.width,
-					    height = bitmap.height,
-					    bw = bitmap.x + width,
-					    bh = bitmap.y + height,
-					    texWidth = font.common.scaleW,
-					    texHeight = font.common.scaleH,
-
-					// top left position
-					u0 = bitmap.x / texWidth,
-					    u1 = bw / texWidth;
-
-					var v1 = bitmap.y / texHeight,
-					    v0 = bh / texHeight;
-
-					if (flipY) {
-						v1 = (texHeight - bitmap.y) / texHeight;
-						v0 = (texHeight - bh) / texHeight;
-					}
-
-					//position data
-					var x = glyph.position[0] + bitmap.xoffset,
-					    y = glyph.position[1] + bitmap.yoffset,
-					    heightPos = y + height,
-					    widthPos = x + width;
-
-					// BL
-					positions[verticesOffset] = x;
-					uvs[uvOffset] = u0;
-
-					positions[verticesOffset + 1] = y;
-					uvs[uvOffset + 1] = v1;
-
-					//positions[verticesOffset+2] = 0;
-
-					// TL
-					positions[verticesOffset + 2] = x;
-					uvs[uvOffset + 2] = u0;
-
-					positions[verticesOffset + 3] = heightPos;
-					uvs[uvOffset + 3] = v0;
-
-					//positions[verticesOffset+5] = 0;
-
-					// TR
-					positions[verticesOffset + 4] = widthPos;
-					uvs[uvOffset + 4] = u1;
-
-					positions[verticesOffset + 5] = heightPos;
-					uvs[uvOffset + 5] = v0;
-
-					//positions[verticesOffset+8] = 0;
-
-					// BR
-					positions[verticesOffset + 6] = widthPos;
-					uvs[uvOffset + 6] = u1;
-
-					positions[verticesOffset + 7] = y;
-					uvs[uvOffset + 7] = v1;
-
-					//positions[verticesOffset+11] = 0;
-
-
-					indices[indicesOffset] = indicesValueIndex;
-					indices[indicesOffset + 1] = indicesValueIndex + 1;
-					indices[indicesOffset + 2] = indicesValueIndex + 2;
-					indices[indicesOffset + 3] = indicesValueIndex + 0;
-					indices[indicesOffset + 4] = indicesValueIndex + 2;
-					indices[indicesOffset + 5] = indicesValueIndex + 3;
-
-					//i += 8;
-					verticesOffset += 8;
-					uvOffset += 8;
-					indicesOffset += 6;
-					indicesValueIndex += 4;
-				});
-
-				return { uvs: uvs, positions: positions, index: indices };
-			}
 		}, {
 			key: "positions",
 			value: function positions(glyph, _positions, offset, tx, ty) {
@@ -481,35 +348,109 @@
 		return Vertices;
 	}();
 
-	var TextLayoutUtils = function () {
-	  function TextLayoutUtils() {
-	    classCallCheck(this, TextLayoutUtils);
-	  }
+	var newlineChar = '\n';
+	var whitespace = /\s/;
 
-	  createClass(TextLayoutUtils, null, [{
-	    key: "getGlyphById",
-	    value: function getGlyphById(font, id) {
-	      //assume for now every character has a mapping. 
-	      return font.chars[font.charsmap[id]];
-	      //return font.charsmap[id] != null ? font.chars[font.charsmap[id]] : null;
-	    }
-	  }, {
-	    key: "getKerning",
-	    value: function getKerning(font, left, right) {
-	      var amount = font.kerningsmap[left.id + left.index + right.id + right.index];
-	      return amount || 0;
-	    }
-	    /*
-	      static* range (begin, end, interval = 1) {
-	        for (let i = begin; i < end; i += interval) {
-	            yield i;
+	function idxOf(text, chr, start, end) {
+	    var idx = text.indexOf(chr, start);
+	    if (idx === -1 || idx > end) return end;
+	    return idx;
+	}
+
+	function isWhitespace(chr) {
+	    return whitespace.test(chr);
+	}
+
+	function greedy(measure, text, start, end, width) {
+	    //A greedy word wrapper based on LibGDX algorithm
+	    //https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
+	    var lines = [];
+
+	    var testWidth = width;
+
+	    while (start < end && start < text.length) {
+	        //get next newline position
+	        var newLine = idxOf(text, newlineChar, start, end);
+
+	        //eat whitespace at start of line
+	        while (start < newLine) {
+	            if (!isWhitespace(text.charAt(start))) break;
+	            start++;
 	        }
-	      }*/
 
-	  }]);
-	  return TextLayoutUtils;
+	        //determine visible # of glyphs for the available width
+	        var measured = measure(text, start, newLine, testWidth);
+
+	        var lineEnd = start + (measured.end - measured.start),
+	            nextStart = lineEnd + newlineChar.length;
+
+	        //if we had to cut the line before the next newline...
+	        if (lineEnd < newLine) {
+	            //find char to break on
+	            while (lineEnd > start) {
+	                if (isWhitespace(text.charAt(lineEnd))) break;
+	                lineEnd--;
+	            }
+	            if (lineEnd === start) {
+	                if (nextStart > start + newlineChar.length) nextStart--;
+	                lineEnd = nextStart; // If no characters to break, show all.
+	            } else {
+	                nextStart = lineEnd;
+	                //eat whitespace at end of line
+	                while (lineEnd > start) {
+	                    if (!isWhitespace(text.charAt(lineEnd - newlineChar.length))) break;
+	                    lineEnd--;
+	                }
+	            }
+	        }
+	        if (lineEnd >= start) {
+	            var result = measure(text, start, lineEnd, testWidth);
+	            lines.push(result);
+	        }
+	        start = nextStart;
+	    }
+	    return lines;
+	}
+
+	var TextLayoutUtils = function () {
+	    function TextLayoutUtils() {
+	        classCallCheck(this, TextLayoutUtils);
+	    }
+
+	    createClass(TextLayoutUtils, null, [{
+	        key: 'getGlyphById',
+	        value: function getGlyphById(font, id) {
+	            //assume for now every character has a mapping. 
+	            return font.chars[font.charsmap[id]];
+	        }
+	    }, {
+	        key: 'getKerning',
+	        value: function getKerning(font, left, right) {
+	            var amount = font.kerningsmap[left.id + left.index + right.id + right.index];
+	            return amount || 0;
+	        }
+
+	        //internalise wordwrap for future replacement
+
+	    }, {
+	        key: 'wordwrap',
+	        value: function wordwrap(text, opt) {
+	            opt = opt || {};
+	            return greedy(opt.measure, text, opt.start || 0, opt.end || text.length, opt.width || 50);
+	        }
+
+	        /*
+	          static* range (begin, end, interval = 1) {
+	            for (let i = begin; i < end; i += interval) {
+	                yield i;
+	            }
+	          }*/
+
+	    }]);
+	    return TextLayoutUtils;
 	}();
 
+	//import wordWrap from 'word-wrapper';
 	//import wrap from 'word-wrap';
 	var TextLayout = function () {
 	  function TextLayout(opt) {
@@ -544,10 +485,9 @@
 	      };
 	      this._opt.tabSize = this._opt.tabSize > 0 ? this._opt.tabSize : 4;
 
-	      //const glyphs = this._glyphs,
 	      var text = opt.text || '',
 	          font = this.font,
-	          lines = index.lines(text, this._opt),
+	          lines = TextLayoutUtils.wordwrap(text, this._opt),
 	          minWidth = opt.width || 0,
 	          lineHeight = this.lineHeight,
 	          letterSpacing = this.letterSpacing;

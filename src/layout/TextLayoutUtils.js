@@ -16,15 +16,12 @@ function isWhitespace(chr) {
 }
 
 
-function greedy(measure, text, start, end, width, mode) {
+function greedy(measure, text, start, end, width) {
     //A greedy word wrapper based on LibGDX algorithm
     //https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
     const lines = [];
 
     let testWidth = width;
-    //if 'nowrap' is specified, we only wrap on newline chars
-    if (mode === 'nowrap')
-        testWidth = Number.MAX_VALUE;
 
     while (start < end && start < text.length) {
         //get next newline position
@@ -79,7 +76,6 @@ export default class TextLayoutUtils {
   static getGlyphById(font, id) {
     //assume for now every character has a mapping. 
     return font.chars[font.charsmap[id]];
-    //return font.charsmap[id] != null ? font.chars[font.charsmap[id]] : null;
   }
 
   static getKerning(font, left, right) {
@@ -89,20 +85,8 @@ export default class TextLayoutUtils {
   
   //internalise wordwrap for future replacement
   static wordwrap(text, opt) {
-    opt = opt||{}
-
-    //zero width results in nothing visible
-    if (opt.width === 0 && opt.mode !== 'nowrap') 
-        return []
-
-    text = text||''
-    const width = typeof opt.width === 'number' ? opt.width : Number.MAX_VALUE,
-    start = Math.max(0, opt.start||0),
-    end = typeof opt.end === 'number' ? opt.end : text.length,
-    mode = opt.mode,
-    measure = opt.measure;
-
-    return greedy(measure, text, start, end, width, mode);       
+    opt = opt || {};
+    return greedy(opt.measure, text, opt.start || 0, opt.end || text.length, opt.width || 50);       
   }
 
 /*

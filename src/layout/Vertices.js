@@ -53,6 +53,7 @@ export default class Vertices {
 	    indices[indicesOffset + 5] = indicesValueOffset + 3;
 	}
 
+/*
 	static geomData(glyphs, font, flipY) {
 
 		const uvs = new Float32Array(glyphs.length * 8),
@@ -150,7 +151,7 @@ export default class Vertices {
 		});
 
 		return { uvs: uvs, positions: positions, index: indices };
-	}
+	}*/
 
 	static positions(glyph, positions,  offset,  tx, ty) {
 
