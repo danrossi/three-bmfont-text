@@ -1,11 +1,7 @@
-//import * as vertices  from './vertices';
-import Vertices from './layout/Vertices';
-//import createLayout from 'layout-bmfont-text';
+//import Vertices from './layout/Vertices';
 import TextLayout from './layout/TextLayout';
 import TextGeometryUtil from './util/TextGeometryUtil';
 import { BufferGeometry, Box3, Sphere, BufferAttribute } from 'three';
-
-//import { createLayout } from './layout';
 
 export default class TextGeometry extends BufferGeometry {
 
@@ -33,30 +29,17 @@ export default class TextGeometry extends BufferGeometry {
 
 	  this.layout = this.creatTextLayout();
 
-	  // get vec2 texcoords
-	  // the desired BMFont data
-	 // const font = opt.font;
-	//  glyphs = this.layout.glyphs;
-	  // get visible glyphs
-	 // glyphs = this.layout.glyphs.filter((glyph) => glyph.data.width * glyph.data.height > 0);
-	  // provide visible glyphs for convenience
-	  //this.visibleGlyphs = glyphs; 
-
   	  //const data = Vertices.geomData(glyphs, font, opt.flipY);
 
-  	  //console.log(data.index);
-  	  //console.log(this.layout.indices);
-
   	  this.setIndex( new BufferAttribute( this.layout.indices, 1 ) );
-  	  //this.setIndex( new BufferAttribute( data.index, 1 ) );
+
+  	  //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
   	  this.setDrawRange(0, this.layout.drawRange);
 
 	  if (this.attributes.position) {
 		
 		this.attributes.position = new BufferAttribute( this.layout.positions, 2 );
   	  	this.attributes.uv = new BufferAttribute( this.layout.uvs, 2 );
-  	  	//this.attributes.position = new BufferAttribute( data.positions, 2 );
-  	  	//this.attributes.uv = new BufferAttribute( data.uvs, 2 );
 
   	  	this.index.needsUpdate = true;
 
@@ -66,8 +49,6 @@ export default class TextGeometry extends BufferGeometry {
 	 	
 	 	this.addAttribute( 'position', new BufferAttribute( this.layout.positions, 2 ));
 	  	this.addAttribute( 'uv', new BufferAttribute( this.layout.uvs, 2 ));
-	  	//this.addAttribute( 'position', new BufferAttribute( data.positions, 2 ));
-	  	//this.addAttribute( 'uv', new BufferAttribute( data.uvs, 2 ));
 	  }
 	  
 	  // update multipage data
