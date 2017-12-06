@@ -25,11 +25,10 @@ export default {
 			exclude: './node_modules/**',
 			presets: ['es2015-rollup']
 		}),
-     	uglify({
+     	/*uglify({
 	       output: {
 	         comments: false
 	       },
-	    // Compression specific options
 	       compress: {
 	            warnings: true,
 	            dead_code: true,
@@ -38,10 +37,10 @@ export default {
 	            join_vars: true,
 	            reduce_vars: true,
 	            passes: 1,
-	         // Drop console statements
+
 	            drop_console: true
 	       }
-     	})
+     	})*/
 	],
 	targets: [
 		{
