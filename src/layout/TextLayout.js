@@ -1,4 +1,4 @@
-import wordWrap from 'word-wrapper';
+//import wordWrap from 'word-wrapper';
 //import wrap from 'word-wrap';
 import Vertices from './Vertices';
 import TextLayoutUtils from './TextLayoutUtils';
@@ -29,10 +29,9 @@ export default class TextLayout {
     this._opt.measure = (text, start, end, width) => this.computeMetrics(text, start, end, width);
     this._opt.tabSize = this._opt.tabSize > 0 ? this._opt.tabSize : 4;
 
-    //const glyphs = this._glyphs,
     const text = opt.text || '',
     font = this.font,
-    lines = wordWrap.lines(text, this._opt),
+    lines = TextLayoutUtils.wordwrap(text, this._opt),
     minWidth = opt.width || 0,
     lineHeight = this.lineHeight,
     letterSpacing = this.letterSpacing;
