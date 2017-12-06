@@ -46414,7 +46414,7 @@ var BasicShader = function (_BaseShader) {
   return BasicShader;
 }(BaseShader);
 
-var Vertices = function () {
+var Vertices$1 = function () {
 	function Vertices() {
 		classCallCheck(this, Vertices);
 	}
@@ -46640,6 +46640,14 @@ var TextLayout = function () {
   }
 
   createClass(TextLayout, [{
+    key: 'initBuffers',
+    value: function initBuffers(text) {
+      var bufferLength = text.length * 8;
+      this._positions = new Float32Array(bufferLength);
+      this._uvs = new Float32Array(bufferLength);
+      this._indices = new Uint16Array(text.length * 6);
+    }
+  }, {
     key: 'update',
     value: function update(opt, attributes) {
       var _this = this;
@@ -46657,22 +46665,18 @@ var TextLayout = function () {
           lines = index$3.lines(text, this._opt),
           minWidth = opt.width || 0,
           lineHeight = this.lineHeight,
-          letterSpacing = this.letterSpacing,
-          bufferLength = text.length * 8;
+          letterSpacing = this.letterSpacing;
 
       var pages = this._pages,
           positionOffset = 0,
           indicesOffset = 0,
           indicesValueOffset = 0;
 
-      //clear glyphs
-      //glyphs.length = 0;
-      //glyphs.length = positions.length = uvs.length = 0;
       pages = [0, 0, 0, 0];
 
-      this._positions = new Float32Array(bufferLength);
-      this._uvs = new Float32Array(bufferLength);
-      this._indices = new Uint16Array(text.length * 6);
+      //init position, uv and indices buffers
+      this.initBuffers(text);
+
       this._glyphCount = 0;
 
       //get max line width
@@ -46719,9 +46723,9 @@ var TextLayout = function () {
 
               _this._glyphCount++;
 
-              Vertices.positions(glyph, _this._positions, positionOffset, tx, y);
-              Vertices.uvs(glyph, _this._uvs, positionOffset, _this.font, _this._opt.flipY);
-              Vertices.index(_this._indices, indicesOffset, indicesValueOffset);
+              Vertices$1.positions(glyph, _this._positions, positionOffset, tx, y);
+              Vertices$1.uvs(glyph, _this._uvs, positionOffset, _this.font, _this._opt.flipY);
+              Vertices$1.index(_this._indices, indicesOffset, indicesValueOffset);
               //if (glyph.page) Vertices.pages(glyph, pages);
               indicesOffset += 6;
               indicesValueOffset += 4;
@@ -47026,10 +47030,7 @@ var TextGeometryUtil = function () {
 		return TextGeometryUtil;
 }();
 
-//import * as vertices  from './vertices';
-//import createLayout from 'layout-bmfont-text';
-//import { createLayout } from './layout';
-
+//import Vertices from './layout/Vertices';
 var TextGeometry$1 = function (_BufferGeometry) {
 	inherits(TextGeometry$$1, _BufferGeometry);
 
@@ -47063,30 +47064,17 @@ var TextGeometry$1 = function (_BufferGeometry) {
 
 			this.layout = this.creatTextLayout();
 
-			// get vec2 texcoords
-			// the desired BMFont data
-			// const font = opt.font;
-			//  glyphs = this.layout.glyphs;
-			// get visible glyphs
-			// glyphs = this.layout.glyphs.filter((glyph) => glyph.data.width * glyph.data.height > 0);
-			// provide visible glyphs for convenience
-			//this.visibleGlyphs = glyphs; 
-
 			//const data = Vertices.geomData(glyphs, font, opt.flipY);
 
-			//console.log(data.index);
-			//console.log(this.layout.indices);
-
 			this.setIndex(new BufferAttribute(this.layout.indices, 1));
-			//this.setIndex( new BufferAttribute( data.index, 1 ) );
+
+			//buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
 			this.setDrawRange(0, this.layout.drawRange);
 
 			if (this.attributes.position) {
 
 				this.attributes.position = new BufferAttribute(this.layout.positions, 2);
 				this.attributes.uv = new BufferAttribute(this.layout.uvs, 2);
-				//this.attributes.position = new BufferAttribute( data.positions, 2 );
-				//this.attributes.uv = new BufferAttribute( data.uvs, 2 );
 
 				this.index.needsUpdate = true;
 
@@ -47096,8 +47084,6 @@ var TextGeometry$1 = function (_BufferGeometry) {
 
 				this.addAttribute('position', new BufferAttribute(this.layout.positions, 2));
 				this.addAttribute('uv', new BufferAttribute(this.layout.uvs, 2));
-				//this.addAttribute( 'position', new BufferAttribute( data.positions, 2 ));
-				//this.addAttribute( 'uv', new BufferAttribute( data.uvs, 2 ));
 			}
 
 			// update multipage data

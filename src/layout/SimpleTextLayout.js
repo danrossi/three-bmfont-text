@@ -16,24 +16,20 @@ export default class SimpleTextLayout extends TextLayout {
     	y = -this._height,
     	text = opt.text;
 
-    	let positionOffset = 0,
-		x = 0;
+    	let x = 0;
 
-    	this._positions = new Float32Array(text.length * 8);
-    	this._uvs = new Float32Array(text.length * 8);
+    	this.initBuffers(text);
 
 		if (glyph.width * glyph.height > 0) {
 
 			  x = this.getAlignment(glyph.width);
 
-              Vertices.positions(glyph, this._positions, positionOffset, x, y);
-              Vertices.uvs(glyph, this._uvs, positionOffset, this.font, this._opt.flipY);
-              
-              this.glyphs.push({
-                position: [x, y],
-                data: glyph
-              }); 
-
+              Vertices.positions(glyph, this._positions, 0, x, y);
+              Vertices.uvs(glyph, this._uvs, 0, this.font, this._opt.flipY);
+              Vertices.index(this._indices, 0, 0);
+             
+             //set the draw range to 8 for a single character. 
+             this._drawRange = 8;
         }
 	}
 

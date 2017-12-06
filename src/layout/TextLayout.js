@@ -15,6 +15,13 @@ export default class TextLayout {
       this.update(opt);
   }
 
+  initBuffers(text) {
+    const bufferLength = text.length * 8;
+    this._positions = new Float32Array(bufferLength);
+    this._uvs = new Float32Array(bufferLength);
+    this._indices = new Uint16Array(text.length * 6);
+  }
+
   update(opt, attributes) {
 
     opt.align = opt.align || "left";
@@ -28,22 +35,18 @@ export default class TextLayout {
     lines = wordWrap.lines(text, this._opt),
     minWidth = opt.width || 0,
     lineHeight = this.lineHeight,
-    letterSpacing = this.letterSpacing,
-    bufferLength = text.length * 8;
+    letterSpacing = this.letterSpacing;
 
     let pages = this._pages, 
     positionOffset = 0,
     indicesOffset = 0,
     indicesValueOffset = 0;
 
-    //clear glyphs
-    //glyphs.length = 0;
-    //glyphs.length = positions.length = uvs.length = 0;
     pages = [0, 0, 0, 0];
 
-    this._positions = new Float32Array(bufferLength);
-    this._uvs = new Float32Array(bufferLength);
-    this._indices = new Uint16Array(text.length * 6);
+    //init position, uv and indices buffers
+    this.initBuffers(text);
+    
     this._glyphCount = 0;
 
     //get max line width
