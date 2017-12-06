@@ -24,7 +24,7 @@ var OrbitControls = createControls(THREE);
 var palette = palettes[5]
 var background = palette.shift();
 
-import SimpleTextBitmap from '../src/SimpleTextBitmap';
+import SingleTextBitmap from '../src/SingleTextBitmap';
 
 import { fontLoader } from './fontLoader';
 
@@ -129,7 +129,7 @@ uiObject.position.z = -1
 
    
 
-        scene.add( uiObject );
+        //scene.add( uiObject );
 
       
 
@@ -158,18 +158,14 @@ uiObject.position.z = -1
 
   function createGlyph (font, texture) {
 
-     const text = new SimpleTextBitmap({
-          text: "\uE007",
+     const text = new SingleTextBitmap({
+          text: "\uE012",
           width: 30,
-          align: 'left',
           font: font,
           letterSpacing: 1,
-          smoothing: 0.20,
           scale: 0.01,
-          rotate: false,
           color: "#ffffff",
-          texture: texture,
-          showHitBox: true // for debugging
+          texture: texture
         }, renderer);
 
 
