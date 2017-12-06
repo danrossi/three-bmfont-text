@@ -20,6 +20,10 @@ import shuffle from 'array-shuffle';
 import { suntzuquotes } from './quotes';  
 import { palettes } from './palettes';
 
+
+import wrap from 'word-wrap';
+import wordWrap from 'word-wrapper';
+
 var OrbitControls = createControls(THREE);
 
 var palette = palettes[5]
@@ -37,6 +41,56 @@ import TextBitmap from '../src/TextBitmap';
 
 import { fontLoader } from './fontLoader';
 
+
+var text = "Text Change Text Change Text Change Text Change Text Change Text Change Text Change Text Change";
+
+var a = performance.now();
+
+//console.log(wordWrap.lines(text, { width: 100 }));
+console.log(wordWrap(text, { width: 100 }));
+//console.log(wordWrap(text, { width: 100 }));
+
+//console.log(wrap(text, { width: 100, trim: true }));
+
+var b = performance.now();
+
+console.log('It took ' + (b - a) + ' ms.');
+
+a = performance.now();
+
+//wrap(text, { width: 100, trim: true });
+console.log(wrap(text, { width: 100, trim: true }));
+
+//console.log(wordWrap(text, { width: 100 }));
+
+b = performance.now();
+
+console.log('It took ' + (b - a) + ' ms.');
+
+function wordwrap1(a, b, c, d, e) {
+    c = c || '\n';
+    b = b || 75;
+    d = d || false;
+    if (!a) {return a;}
+    e = '.{1,' + b + '}(\\s|$)' + (d ? '|.{' + b + '}|.+$' : '|\\S+?(\\s|$)');
+    return a.match(RegExp(e, 'g'));
+    //return a.match(RegExp(e, 'g')).join(c);
+} 
+
+a = performance.now();
+
+//wrap(text, { width: 100, trim: true });
+//wordWrap(text, { width: 100 });
+console.log(wordwrap1(text, 100));
+//console.log(wrap(text, { width: 100, trim: true }));
+
+//console.log(wordwrap1(text, 50));
+
+b = performance.now();
+
+console.log('It took ' + (b - a) + ' ms.');
+
+
 fontLoader({
   font: 'fnt/Roboto-Bold.json',
   image: 'fnt/Roboto-Bold.png'
@@ -45,14 +99,6 @@ fontLoader({
 let scene, renderer, camera, container, clock;
 
 function start (font, texture) {
-  //console.log(createOrbitViewer(THREE));
-  /*var app = createOrbitViewer(THREE)({
-    clearColor: background,
-    clearAlpha: 1.0,
-    fov: 65,
-    position: new THREE.Vector3()
-  })*/
-
 
       scene = new THREE.Scene();
 
@@ -60,19 +106,8 @@ function start (font, texture) {
       renderer.setClearColor( background, 1 );
 
       document.body.appendChild(renderer.domElement);
-/*
-  camera = new THREE.OrthographicCamera();
-  camera.left = 0;
-  camera.top = 0;
-  camera.near = -1;
-  camera.far = 1000;
-  camera.fov = 65;
-  camera.position.set( 0, 0, -0.26 );*/
-
 
    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .01, 100000 );
-
-
 
         camera.layers.enable( 1 ); // render left view when no stereo available
 
@@ -106,39 +141,9 @@ uiObject.position.z = -1
 
         scene.add( uiObject );
 
-       
-
-    const boxGeo = new THREE.PlaneGeometry(2, 1, 200, 200),  
-    boxMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: false,
-      opacity: 1,
-      map: texture,
-      //side: THREE.DoubleSide,
-      //opacity: config.showHitBox ? 1 : 0,
-      wireframe: true
-    }),
-    hitBox = new THREE.Mesh( boxGeo, boxMat );
-
-    //scene.add(hitBox);
-
-
-
-
-
 
   clock = new THREE.Clock();
-
-  var count = 25;
-
-
-  /*
-  for (var i = 0; i < count; i++) {
-    createGlyph();
-  }*/
-
-  
-//createGlyph1(font, texture);  
+ 
 
   createGlyph(font, texture);
 
@@ -148,21 +153,9 @@ uiObject.position.z = -1
   renderer.animate( loop );
 
 
-  var time = 0
+ 
   // update orthographic
   function loop() {
-    time += clock.getDelta() / 1000
-    var s = (Math.sin(time * 0.5) * 0.5 + 0.5) * 2.0 + 0.5
-    container.scale.set(s, s, s);
-    // update camera
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-
-   /* camera.left = -width / 2
-    camera.right = width / 2
-    camera.top = -height / 2
-    camera.bottom = height / 2
-    camera.updateProjectionMatrix();*/
 
     renderer.render( scene, camera );
   };
@@ -178,11 +171,7 @@ uiObject.position.z = -1
 
   function createGlyph (font, texture) {
 
-    
-
      const text = new TextBitmap({
-          //imagePath: "fnt/roboto-bold.png",
-          //imagePath: "fnt/Arial.png",
           text: 'Tap to reposition',
           width: 1000,
           align: 'center',
@@ -198,10 +187,10 @@ uiObject.position.z = -1
         }, renderer);
 
      
-     //text.text = "Text Change";
+     text.text = "Text Change";
 
      setTimeout(function() {
-        // text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+         text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
          
      }, 5000);
 

@@ -9,13 +9,18 @@ export default class TextBitmap {
     config.color = config.color || '#fff';
     config.lineHeight = config.lineHeight ? config.font.common.lineHeight + config.lineHeight : config.font.common.lineHeight;
     this.config = config;
+    this._text = null;
 
     this.init(config, renderer);
   }
 
+  createGeometry() {
+    return new TextGeometry(this.config);
+  }
+
   init(config, renderer) {
 
-    const geometry = this.geometry = new TextGeometry( config ); // text-bm-font
+    const geometry = this.geometry = this.createGeometry();  // text-bm-font
 
     const texture = config.texture;
     this.initTexture(texture, renderer);
@@ -98,12 +103,12 @@ export default class TextBitmap {
   }
 
   get text() {
-    return this.config.text;
+    return this._text;
   }
 
   set text(value) {
-    this.config.text = value;
-    this.geometry.update( this.config );
+    this._text = value;
+    this.geometry.update( value );
     this.update();
   }
 

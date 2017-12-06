@@ -10,6 +10,7 @@ export default class TextLayout {
       this._positions = [];
       this._uvs = [];
       this._pages = [];
+      this._opt = opt;
 
       this.update(opt);
   }
@@ -18,46 +19,32 @@ export default class TextLayout {
 
     opt.align = opt.align || "left";
 
-    this._opt = opt;
     this._opt.measure = (text, start, end, width) => this.computeMetrics(text, start, end, width);
     this._opt.tabSize = this._opt.tabSize > 0 ? this._opt.tabSize : 4;
 
-    //if (!opt.font)
-    //  throw new Error('must provide a valid bitmap font')
-
-    //move this to font generator
-     var kernings = [];
-            this.font.kernings.forEach((item, index) => {
-              var val = this.font.chars.find( function(itm) { return itm.id == item.first } );
-              var val1 = this.font.chars.find( function(itm) { return itm.id == item.second } );
-              kernings[item.first + val.index + item.second + val1.index] = item.amount;
-    });
-
-    this.font.kerningsmap = kernings;    
-
-    const glyphs = this._glyphs,
-    //positions = this._positions,
-    //uvs = this._uvs,
-    text = opt.text || '',
+    //const glyphs = this._glyphs,
+    const text = opt.text || '',
     font = this.font,
     lines = wordWrap.lines(text, this._opt),
     minWidth = opt.width || 0,
     lineHeight = this.lineHeight,
-    letterSpacing = this.letterSpacing;
-
-
+    letterSpacing = this.letterSpacing,
+    bufferLength = text.length * 8;
 
     let pages = this._pages, 
-    positionOffset = 0;
+    positionOffset = 0,
+    indicesOffset = 0,
+    indicesValueOffset = 0;
 
     //clear glyphs
-    glyphs.length = 0;
+    //glyphs.length = 0;
     //glyphs.length = positions.length = uvs.length = 0;
     pages = [0, 0, 0, 0];
 
-    this._positions = new Float32Array(text.length * 8);
-    this._uvs = new Float32Array(text.length * 8);
-
+    this._positions = new Float32Array(bufferLength);
+    this._uvs = new Float32Array(bufferLength);
+    this._indices = new Uint16Array(text.length * 6);
+    this._glyphCount = 0;
 
     //get max line width
     this._width = lines.reduce((prev, line) => Math.max(prev, line.width, minWidth), 0);
@@ -69,10 +56,7 @@ export default class TextLayout {
      //draw text along baseline
     y = -this._height;
       
-
     //layout each glyph
-
-     //new Float32Array(glyphs.length * 4 * 2)
 
     lines.forEach((line, lineIndex) => {
       const start = line.start,
@@ -86,10 +70,11 @@ export default class TextLayout {
       //for (let i of TextLayoutUtils.range(start, end, 1)) {
       for (let i = start; i < end; i++ ) {
 
-
         const glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
         
         if (glyph) {
+
+
           
           if (lastGlyph) {
             x += TextLayoutUtils.getKerning(font, lastGlyph, glyph); 
@@ -102,21 +87,27 @@ export default class TextLayout {
             //add visible glyphs determined by width and height
             if (glyph.width * glyph.height > 0) {
 
+              this._glyphCount++;
+
               Vertices.positions(glyph, this._positions, positionOffset, tx, y);
               Vertices.uvs(glyph, this._uvs, positionOffset, this.font, this._opt.flipY);
+              Vertices.index(this._indices, indicesOffset, indicesValueOffset);
               //if (glyph.page) Vertices.pages(glyph, pages);
-
+              indicesOffset += 6;
+              indicesValueOffset += 4;
               positionOffset += 8;
-              glyphs.push({
+
+              this._drawRange = positionOffset;
+
+             /* glyphs.push({
                 position: [tx, y],
                 data: glyph,
                 index: i,
                 line: lineIndex
-              }); 
+              }); */
 
             }
 
- 
           //move pen forward
           x += glyph.xadvance + letterSpacing;
 
@@ -174,8 +165,6 @@ export default class TextLayout {
         kern = lastGlyph ? TextLayoutUtils.getKerning(font, lastGlyph, glyph) : 0;
         //kern1 = lastGlyph ? this.getKerning(font, lastGlyph.id, glyph.id) : 0;
          
-         
-
         curPen += kern;
 
         const nextPen = curPen + glyph.xadvance + letterSpacing,
@@ -213,21 +202,32 @@ export default class TextLayout {
 
   get positions() {
     return this._positions;
-    //return new Float32Array(this._positions, 0, this.glyphs.length * 4 * 2);
   }
 
   get uvs() {
     return this._uvs;
-    //return new Float32Array(this._uvs, 0, this.glyphs.length * 4 * 2);
+  }
+
+  get indices() {
+    return this._indices;
+  }
+
+  get glyphCount() {
+    return this._glyphCount;
+  }
+
+  get drawRange() {
+    return this._drawRange;
+    //return this._glyphCount * 8;
   }
 
   get font() {
     return this._opt.font;
   }
 
-  get glyphs() {
+  /*get glyphs() {
     return this._glyphs;
-  }
+  }*/
 
   get width() {
     return this._width;

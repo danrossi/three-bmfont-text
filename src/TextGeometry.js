@@ -13,48 +13,50 @@ export default class TextGeometry extends BufferGeometry {
 		super();
 
   		//THREE.js already polyfills assign.
-		this._opt = Object.assign({}, opt);
+		this._opt = Object.assign({
+			flipY: true
+		}, opt);
 
 		this.boundingBox = new Box3();
 
-		// also do an initial setup...
-  		if (opt) this.update(opt);
+  		this.update(opt.text);
 	}
 
-	update(opt) {
+	creatTextLayout() {
+		return new TextLayout(this._opt);
+	}
 
-	  if (typeof opt === 'string') {
-	    opt = { text: opt }
-	  }
+	update(text) {
 
-	  // use constructor defaults
-	  opt = Object.assign({}, this._opt, opt);
+	  const opt = this._opt;
+	  opt.text = text;
 
-
-	  //this.layout = createLayout(opt);
-
-
-
-	  this.layout = new TextLayout(opt);
+	  this.layout = this.creatTextLayout();
 
 	  // get vec2 texcoords
-	  const flipY = opt.flipY !== false,
 	  // the desired BMFont data
-	  font = opt.font,
-	  glyphs = this.layout.glyphs;
+	 // const font = opt.font;
+	//  glyphs = this.layout.glyphs;
 	  // get visible glyphs
 	 // glyphs = this.layout.glyphs.filter((glyph) => glyph.data.width * glyph.data.height > 0);
 	  // provide visible glyphs for convenience
-	  this.visibleGlyphs = glyphs; 
+	  //this.visibleGlyphs = glyphs; 
 
-  	  const data = Vertices.geomData(glyphs, font, flipY);
+  	  //const data = Vertices.geomData(glyphs, font, opt.flipY);
 
-  	  this.setIndex( new BufferAttribute( data.index, 1 ) );
+  	  //console.log(data.index);
+  	  //console.log(this.layout.indices);
+
+  	  this.setIndex( new BufferAttribute( this.layout.indices, 1 ) );
+  	  //this.setIndex( new BufferAttribute( data.index, 1 ) );
+  	  this.setDrawRange(0, this.layout.drawRange);
 
 	  if (this.attributes.position) {
-	
-  	  	this.attributes.position = new BufferAttribute( data.positions, 2 );
-  	  	this.attributes.uv = new BufferAttribute( data.uvs, 2 );
+		
+		this.attributes.position = new BufferAttribute( this.layout.positions, 2 );
+  	  	this.attributes.uv = new BufferAttribute( this.layout.uvs, 2 );
+  	  	//this.attributes.position = new BufferAttribute( data.positions, 2 );
+  	  	//this.attributes.uv = new BufferAttribute( data.uvs, 2 );
 
   	  	this.index.needsUpdate = true;
 
@@ -62,10 +64,10 @@ export default class TextGeometry extends BufferGeometry {
   	  	this.attributes.uv.needsUpdate = true;
 	  } else {
 	 	
-	 	//this.addAttribute( 'position', new BufferAttribute( this.layout.positions, 2 ));
-	  	//this.addAttribute( 'uv', new BufferAttribute( this.layout.uvs, 2 ));
-	  	this.addAttribute( 'position', new BufferAttribute( data.positions, 2 ));
-	  	this.addAttribute( 'uv', new BufferAttribute( data.uvs, 2 ));
+	 	this.addAttribute( 'position', new BufferAttribute( this.layout.positions, 2 ));
+	  	this.addAttribute( 'uv', new BufferAttribute( this.layout.uvs, 2 ));
+	  	//this.addAttribute( 'position', new BufferAttribute( data.positions, 2 ));
+	  	//this.addAttribute( 'uv', new BufferAttribute( data.uvs, 2 ));
 	  }
 	  
 	  // update multipage data

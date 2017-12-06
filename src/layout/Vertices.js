@@ -45,6 +45,15 @@ export default class Vertices {
 
 	}
 
+	static index(indices, indicesOffset, indicesValueOffset) {
+		indices[indicesOffset] = indicesValueOffset;
+	    indices[indicesOffset + 1] = indicesValueOffset + 1;
+	    indices[indicesOffset + 2] = indicesValueOffset + 2;
+	    indices[indicesOffset + 3] = indicesValueOffset + 0;
+	    indices[indicesOffset + 4] = indicesValueOffset + 2;
+	    indices[indicesOffset + 5] = indicesValueOffset + 3;
+	}
+
 	static geomData(glyphs, font, flipY) {
 
 		const uvs = new Float32Array(glyphs.length * 8),
@@ -80,13 +89,12 @@ export default class Vertices {
 		      v0 = (texHeight - bh) / texHeight;
 		    }
 
-
 		    //position data
 			let x = glyph.position[0] + bitmap.xoffset,
 				y = glyph.position[1] + bitmap.yoffset,
 				heightPos = y + height,
 				widthPos = x + width;
-				
+
 		    // BL
 		    positions[verticesOffset] = x;
 		    uvs[uvOffset] = u0;
