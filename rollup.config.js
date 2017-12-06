@@ -25,7 +25,7 @@ export default {
 			exclude: './node_modules/**',
 			presets: ['es2015-rollup']
 		}),
-     	/*uglify({
+     	uglify({
 	       output: {
 	         comments: false
 	       },
@@ -40,7 +40,7 @@ export default {
 
 	            drop_console: true
 	       }
-     	})*/
+     	})
 	],
 	targets: [
 		{

@@ -489,7 +489,9 @@
 	  createClass(TextLayoutUtils, null, [{
 	    key: "getGlyphById",
 	    value: function getGlyphById(font, id) {
-	      return font.charsmap[id] ? font.chars[font.charsmap[id]] : null;
+	      //assume for now every character has a mapping. 
+	      return font.chars[font.charsmap[id]];
+	      //return font.charsmap[id] != null ? font.chars[font.charsmap[id]] : null;
 	    }
 	  }, {
 	    key: "getKerning",
