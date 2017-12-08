@@ -1,4 +1,6 @@
-import { Texture, Color } from 'three';
+//import { Texture, Color } from 'three';
+import { Color } from '../../../three.js/src/math/Color';
+import { Texture } from '../../../three.js/src/textures/Texture';
 
 export default class BaseShader {
 

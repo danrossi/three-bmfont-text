@@ -1,4 +1,3 @@
-//import wordWrap from 'word-wrapper';
 //import wrap from 'word-wrap';
 import Vertices from './Vertices';
 import TextLayoutUtils from './TextLayoutUtils';

@@ -1,11 +1,21 @@
 import TextLayout from './layout/TextLayout';
 import TextGeometryUtil from './util/TextGeometryUtil';
-import {
+/*import {
     BufferGeometry,
     Box3,
     Sphere,
     BufferAttribute
-} from 'three';
+} from 'three';*/
+
+
+//import files directly for bundling with three.js
+//bundling is flawed and need to find a better system. 
+
+import { BufferGeometry } from '../../three.js/src/core/BufferGeometry';
+import { Box3 } from '../../three.js/src/math/Box3';
+import { Sphere } from '../../three.js/src/math/Sphere';
+import { BufferAttribute } from '../../three.js/src/core/BufferAttribute';
+import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
 
 export default class TextGeometry extends BufferGeometry {
     

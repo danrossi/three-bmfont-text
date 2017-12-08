@@ -46300,6 +46300,9 @@ var possibleConstructorReturn = function (self, call) {
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
 };
 
+//import { Color } from '../../../three.js/src/math/Color';
+//import { Texture } from '../../../three.js/src/textures/Texture';
+
 var BaseShader = function () {
 	function BaseShader() {
 		classCallCheck(this, BaseShader);
@@ -46637,7 +46640,6 @@ var TextLayoutUtils = function () {
     return TextLayoutUtils;
 }();
 
-//import wordWrap from 'word-wrapper';
 //import wrap from 'word-wrap';
 var TextLayout = function () {
     function TextLayout(opt) {
@@ -46936,6 +46938,16 @@ var TextGeometryUtil = function () {
     return TextGeometryUtil;
 }();
 
+//import files directly for bundling with three.js
+//bundling is flawed and need to find a better system. 
+/*
+import { BufferGeometry } from '../../three.js/src/core/BufferGeometry';
+import { Box3 } from '../../three.js/src/math/Box3';
+import { Sphere } from '../../three.js/src/math/Sphere';
+import { BufferAttribute } from '../../three.js/src/core/BufferAttribute';
+import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
+*/
+
 var TextGeometry$1 = function (_BufferGeometry) {
     inherits(TextGeometry$$1, _BufferGeometry);
 
@@ -47024,6 +47036,16 @@ var TextGeometry$1 = function (_BufferGeometry) {
     return TextGeometry$$1;
 }(BufferGeometry);
 
+//import files directly for bundling with three.js
+//bundling is flawed and need to find a better system. 
+/*
+import { RawShaderMaterial } from '../../three.js/src/materials/RawShaderMaterial';
+import { BoxBufferGeometry } from '../../three.js/src/geometries/BoxGeometry';
+import { Mesh } from '../../three.js/src/objects/Mesh';
+import { Group } from '../../three.js/src/objects/Group';
+import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
+*/
+
 var TextBitmap = function () {
     function TextBitmap(config, renderer) {
         classCallCheck(this, TextBitmap);
@@ -47058,6 +47080,8 @@ var TextBitmap = function () {
                 group = this.group = new Group();
             mesh.renderOrder = 1;
 
+            console.log(material);
+
             this.rotateMesh(mesh);
 
             var s = config.scale || 1;
@@ -47069,7 +47093,7 @@ var TextBitmap = function () {
         }
     }, {
         key: 'rotateMesh',
-        value: function rotateMesh() {
+        value: function rotateMesh(mesh) {
             mesh.rotation.x = Math.PI;
         }
     }, {
@@ -47078,8 +47102,9 @@ var TextBitmap = function () {
             var boxGeo = new BoxBufferGeometry(1, 1, 1),
                 boxMat = new RawShaderMaterial(BasicShader.createShader({
                 color: 0xff0000,
-                transparent: true,
-                opacity: config.showHitBox ? 1 : 0,
+                transparent: false,
+                opacity: 1,
+                //              opacity: config.showHitBox ? 1 : 0,
                 wireframe: true
             })),
 
@@ -47358,7 +47383,7 @@ function start(font, texture) {
   function createGlyph(font, texture) {
 
     var text = new SingleTextBitmap({
-      text: '\uE012',
+      text: '\uE007',
       width: 30,
       font: font,
       letterSpacing: 1,

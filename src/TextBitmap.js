@@ -1,8 +1,9 @@
 import MSDFShader from './shaders/MSDFShader';
 import BasicShader from './shaders/BasicShader';
 import TextGeometry from './TextGeometry';
-import {
+/*import {
     //MeshBasicMaterial,
+    ShaderMaterial,
     RawShaderMaterial,
     BoxBufferGeometry,
     Mesh,
@@ -10,7 +11,19 @@ import {
     LinearMipMapLinearFilter,
     LinearFilter,
     DoubleSide
-} from 'three';
+} from 'three';*/
+
+
+//import files directly for bundling with three.js
+//bundling is flawed and need to find a better system. 
+
+import { RawShaderMaterial } from '../../three.js/src/materials/RawShaderMaterial';
+import { BoxBufferGeometry } from '../../three.js/src/geometries/BoxGeometry';
+import { Mesh } from '../../three.js/src/objects/Mesh';
+import { Group } from '../../three.js/src/objects/Group';
+import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
+
+
 export default class TextBitmap {
 
     constructor(config, renderer) {
@@ -59,8 +72,9 @@ export default class TextBitmap {
         const boxGeo = new BoxBufferGeometry(1, 1, 1),
             boxMat = new RawShaderMaterial(BasicShader.createShader({
               color: 0xff0000,
-              transparent: true,
-              opacity: config.showHitBox ? 1 : 0,
+              transparent: false,
+               opacity: 1,
+//              opacity: config.showHitBox ? 1 : 0,
               wireframe: true
             })),
             /*boxMat = new MeshBasicMaterial({

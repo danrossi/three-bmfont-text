@@ -159,7 +159,7 @@ uiObject.position.z = -1
   function createGlyph (font, texture) {
 
      const text = new SingleTextBitmap({
-          text: "\uE012",
+          text: "\uE007",
           width: 30,
           font: font,
           letterSpacing: 1,
