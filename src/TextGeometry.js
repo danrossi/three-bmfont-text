@@ -1,5 +1,4 @@
 import TextLayout from './layout/TextLayout';
-//import TextGeometryUtil from './util/TextGeometryUtil';
 /*import {
     BufferGeometry,
     Box3,
@@ -68,39 +67,4 @@ export default class TextGeometry extends BufferGeometry {
             }
         }
     }
-
-    /*computeBoundingSphere() {
-        if (this.boundingSphere === null) {
-            this.boundingSphere = new Sphere();
-        }
-        const positions = this.attributes.position.array,
-            itemSize = this.attributes.position.itemSize;
-        if (!positions || !itemSize || positions.length < 2) {
-            this.boundingSphere.radius = 0
-            this.boundingSphere.center.set(0, 0, 0)
-            return;
-        }
-
-        super.computeBoundingSphere();
-
-        //console.log("COMPUTERSHERE", this.boundingSphere);
-       // TextGeometryUtil.computeSphere(positions, this.boundingSphere);
-    }*/
-    
-    /*computeBoundingBox() {
-        const bbox = this.boundingBox,
-            positions = this.attributes.position.array,
-            itemSize = this.attributes.position.itemSize;
-        if (!positions || !itemSize || positions.length < 2) {
-            bbox.makeEmpty();
-            return
-        }
-
-        //console.log(this.attributes.position.array);
-
-        super.computeBoundingBox();
-
-       // console.log(this.boundingBox);
-        //TextGeometryUtil.computeBox(positions, bbox);
-    }*/
 }
