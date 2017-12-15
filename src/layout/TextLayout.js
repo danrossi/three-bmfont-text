@@ -1,4 +1,3 @@
-//import wrap from 'word-wrap';
 import Vertices from './Vertices';
 import TextLayoutUtils from './TextLayoutUtils';
 
@@ -15,8 +14,9 @@ export default class TextLayout {
 
     initBuffers(text) {
         const bufferLength = text.length * 8;
-        this._positions = new Float32Array(bufferLength);
-        this._uvs = new Float32Array(bufferLength);
+        //this._positions = [];
+        this._positions = new Float32Array(text.length * 12);
+        this._uvs = new Float32Array(text.length * 8);
         this._indices = new Uint16Array(text.length * 6);
     }
 
@@ -32,6 +32,7 @@ export default class TextLayout {
             letterSpacing = this.letterSpacing;
         let pages = this._pages,
             positionOffset = 0,
+            uvOffset = 0,
             indicesOffset = 0,
             indicesValueOffset = 0,
             pagesOffset = 0;
@@ -47,7 +48,7 @@ export default class TextLayout {
         let x = 0,
             y = 0;
         //draw text along baseline
-        //y = -this._height;
+        y = -this._height;
         //layout each glyph
         lines.forEach((line, lineIndex) => {
             const start = line.start,
@@ -68,16 +69,17 @@ export default class TextLayout {
                     //add visible glyphs determined by width and height
                     if (glyph.width * glyph.height > 0) {
                         this._glyphCount++;
-                        Vertices.positions(glyph, this._positions, positionOffset, tx, y);
-                        Vertices.uvs(glyph, this._uvs, positionOffset, this.font, this._opt.flipY);
-                        Vertices.index(this._indices, indicesOffset, indicesValueOffset);
+
+                        this.updateVertices(glyph, tx, y, positionOffset,  uvOffset, indicesOffset, indicesValueOffset);
+                        
                         if (glyph.page) {
                             Vertices.pages(glyph, this._pages, pagesOffset);
                             pagesOffset += 4;
                         }
                         indicesOffset += 6;
                         indicesValueOffset += 4;
-                        positionOffset += 8;
+                        uvOffset += 8;
+                        positionOffset += 12;
                         this._drawRange = positionOffset;
                     }
                     //move pen forward
@@ -90,6 +92,12 @@ export default class TextLayout {
             x = 0;
         });
         this._linesTotal = lines.length;
+    }
+
+    updateVertices(glyph, x, y, positionOffset = 0,  uvOffset = 0, indicesOffset = 0, indicesValueOffset = 0) {
+        Vertices.positions(glyph, this._positions, positionOffset, x, y);
+        Vertices.uvs(glyph, this._uvs, uvOffset, this.font, this._opt.flipY);
+        Vertices.index(this._indices, indicesOffset, indicesValueOffset);
     }
 
     getAlignment(lineWidth) {
@@ -112,13 +120,7 @@ export default class TextLayout {
             count = 0,
             glyph = null,
             lastGlyph = null;
-        if (!font.chars || font.chars.length === 0) {
-            return {
-                start: start,
-                end: start,
-                width: 0
-            };
-        }
+       
         for (let i = start; i < Math.min(text.length, end); i++) {
             //for (let i of TextLayoutUtils.range(start, Math.min(text.length, end), 1)) {
             const glyph = TextLayoutUtils.getGlyphById(font, text.charCodeAt(i));
@@ -151,6 +153,7 @@ export default class TextLayout {
         return new Float32Array(this._pages, 0, this.glyphs.length * 4 * 1);
     }
     get positions() {
+        //return new Float32Array(this._positions, 0, this._opt.text.length * 8);
         return this._positions;
     }
     get uvs() {

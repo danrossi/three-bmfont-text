@@ -98,14 +98,32 @@ fontLoader({
 
 let scene, renderer, camera, container, clock;
 
+function onEnableVr(presenting) {
+        console.log(" presenting", presenting);
+        renderer.vr.enabled = true;
+
+        
+      }
+
 function start (font, texture) {
 
       scene = new THREE.Scene();
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setClearColor( background, 1 );
+      renderer.vr.enabled = true;
 
       document.body.appendChild(renderer.domElement);
+
+      /* WEBVR.getVRDisplay( function ( display, displays ) {
+
+          renderer.vr.setDevice( display );
+
+        
+
+          document.body.appendChild( WEBVR.getButton( display, renderer.domElement, onEnableVr ) );
+
+        } );*/
 
    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .01, 100000 );
 
@@ -178,9 +196,7 @@ uiObject.position.z = -1
           font: font,
           //lineHeight: font.common.lineHeight - 20,
           letterSpacing: 1,
-          smoothing: 0.20,
-          scale: 0.01,
-          rotate: false,
+          scale: 0.001,
           color: "#ffffff",
           texture: texture,
           showHitBox: true // for debugging
@@ -205,31 +221,24 @@ uiObject.position.z = -1
 
 
   function createGlyph1 (font, texture) {
-    var angle = (Math.random() * 2 - 1) * Math.PI
-    var geom = new OldTextGeometry({
-      text: "Click To Reset",
-      //text: quotes[Math.floor(Math.random() * quotes.length)].split(/\s+/g).slice(0, 6).join(' '),
-      font: font,
-      align: 'left',
-      flipY: texture.flipY
-    });
+    
 
-/*
-    var material = new THREE.RawShaderMaterial(MSDFShader.createShader({
-      map: texture,
-      transparent: true,
-      color: 0xffffff
-      //color: palette[Math.floor(Math.random() * palette.length)]
-    }))*/
+     var geom = new TextGeometry({
+          text: "\uE007",
+          width: 30,
+          font: font,
+          letterSpacing: 1,
+          scale: 0.01,
+          color: "#ffffff",
+          texture: texture
+      });
 
-     //var material = new THREE.RawShaderMaterial(createMSDFShader({
-    var material = new THREE.RawShaderMaterial(MSDFShader.createShader({
+     var material = new THREE.RawShaderMaterial(MSDFShader.createShader({
       map: texture,
       side: THREE.DoubleSide,
       depthTest: false,
       transparent: true,
       color: 0xffffff
-      //color: palette[Math.floor(Math.random() * palette.length)]
     }));
 
     var layout = geom.layout
@@ -242,9 +251,5 @@ uiObject.position.z = -1
 
     scene.add(text);
 
-    var textAnchor = new THREE.Object3D()
-    //textAnchor.add(text)
-    textAnchor.rotation.z = angle
-    //container.add(textAnchor)
   }
 }

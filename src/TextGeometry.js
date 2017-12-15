@@ -1,5 +1,5 @@
 import TextLayout from './layout/TextLayout';
-import TextGeometryUtil from './util/TextGeometryUtil';
+//import TextGeometryUtil from './util/TextGeometryUtil';
 /*import {
     BufferGeometry,
     Box3,
@@ -11,11 +11,13 @@ import TextGeometryUtil from './util/TextGeometryUtil';
 //import files directly for bundling with three.js
 //bundling is flawed and need to find a better system. 
 
+
 import { BufferGeometry } from '../../three.js/src/core/BufferGeometry';
 import { Box3 } from '../../three.js/src/math/Box3';
 import { Sphere } from '../../three.js/src/math/Sphere';
 import { BufferAttribute } from '../../three.js/src/core/BufferAttribute';
 import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
+
 
 export default class TextGeometry extends BufferGeometry {
     
@@ -42,7 +44,7 @@ export default class TextGeometry extends BufferGeometry {
         //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
         this.setDrawRange(0, this.layout.drawRange);
         //set the positions and uvs
-        const positions = new BufferAttribute(this.layout.positions, 2),
+        const positions = new BufferAttribute(this.layout.positions, 3),
             uvs = new BufferAttribute(this.layout.uvs, 2);
         if (this.attributes.position) {
             this.attributes.position = positions;
@@ -67,7 +69,7 @@ export default class TextGeometry extends BufferGeometry {
         }
     }
 
-    computeBoundingSphere() {
+    /*computeBoundingSphere() {
         if (this.boundingSphere === null) {
             this.boundingSphere = new Sphere();
         }
@@ -78,10 +80,14 @@ export default class TextGeometry extends BufferGeometry {
             this.boundingSphere.center.set(0, 0, 0)
             return;
         }
-        TextGeometryUtil.computeSphere(positions, this.boundingSphere);
-    }
+
+        super.computeBoundingSphere();
+
+        //console.log("COMPUTERSHERE", this.boundingSphere);
+       // TextGeometryUtil.computeSphere(positions, this.boundingSphere);
+    }*/
     
-    computeBoundingBox() {
+    /*computeBoundingBox() {
         const bbox = this.boundingBox,
             positions = this.attributes.position.array,
             itemSize = this.attributes.position.itemSize;
@@ -89,6 +95,12 @@ export default class TextGeometry extends BufferGeometry {
             bbox.makeEmpty();
             return
         }
-        TextGeometryUtil.computeBox(positions, bbox);
-    }
+
+        //console.log(this.attributes.position.array);
+
+        super.computeBoundingBox();
+
+       // console.log(this.boundingBox);
+        //TextGeometryUtil.computeBox(positions, bbox);
+    }*/
 }

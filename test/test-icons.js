@@ -160,7 +160,8 @@ uiObject.position.z = -1
 
      const text = new SingleTextBitmap({
           text: "\uE007",
-          width: 30,
+          width: 36,
+          align: 'center',
           font: font,
           letterSpacing: 1,
           scale: 0.01,
