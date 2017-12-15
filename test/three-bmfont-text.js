@@ -28104,7 +28104,7 @@ ExtrudeGeometry.WorldUVGenerator = {
 
 // TextGeometry
 
-function TextGeometry$1( text, parameters ) {
+function TextGeometry( text, parameters ) {
 
 	Geometry.call( this );
 
@@ -28120,8 +28120,8 @@ function TextGeometry$1( text, parameters ) {
 
 }
 
-TextGeometry$1.prototype = Object.create( Geometry.prototype );
-TextGeometry$1.prototype.constructor = TextGeometry$1;
+TextGeometry.prototype = Object.create( Geometry.prototype );
+TextGeometry.prototype.constructor = TextGeometry;
 
 // TextBufferGeometry
 
@@ -29394,7 +29394,7 @@ var Geometries = Object.freeze({
 	TorusKnotBufferGeometry: TorusKnotBufferGeometry,
 	TorusGeometry: TorusGeometry,
 	TorusBufferGeometry: TorusBufferGeometry,
-	TextGeometry: TextGeometry$1,
+	TextGeometry: TextGeometry,
 	TextBufferGeometry: TextBufferGeometry,
 	SphereGeometry: SphereGeometry,
 	SphereBufferGeometry: SphereBufferGeometry,
@@ -44832,7 +44832,7 @@ var THREE = Object.freeze({
 	TorusKnotBufferGeometry: TorusKnotBufferGeometry,
 	TorusGeometry: TorusGeometry,
 	TorusBufferGeometry: TorusBufferGeometry,
-	TextGeometry: TextGeometry$1,
+	TextGeometry: TextGeometry,
 	TextBufferGeometry: TextBufferGeometry,
 	SphereGeometry: SphereGeometry,
 	SphereBufferGeometry: SphereBufferGeometry,
@@ -46046,28 +46046,6 @@ var index = function( THREE ) {
 	return OrbitControls;
 };
 
-var index$1 = function (arr) {
-	if (!Array.isArray(arr)) {
-		throw new TypeError('Expected Array, got ' + typeof arr);
-	}
-
-	var rand;
-	var tmp;
-	var len = arr.length;
-	var ret = arr.slice();
-
-	while (len) {
-		rand = Math.floor(Math.random() * len--);
-		tmp = ret[len];
-		ret[len] = ret[rand];
-		ret[rand] = tmp;
-	}
-
-	return ret;
-};
-
-var suntzuquotes = ["The general who wins the battle makes many calculations in his temple before the battle is fought. The general who loses makes but few calculations beforehand.", "A leader leads by example not by force.", "The control of a large force is the same principle as the control of a few men: it is merely a question of dividing up their numbers.", "The ultimate in disposing one's troops is to be without ascertainable shape. Then the most penetrating spies cannot pry in nor can the wise lay plans against you.", "If words of command are not clear and distinct, if orders are not thoroughly understood, the general is to blame. But if his orders ARE clear, and the soldiers nevertheless disobey, then it is the fault of their officers.", "Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat.", "All warfare is based on deception.", "If fighting is sure to result in victory, then you must fight.", "One defends when his strength is inadaquate, he attacks when it is abundant.", "The quality of decision is like the well-timed swoop of a falcon which enables it to strike and destroy its victim.", "When the enemy is at ease, be able to weary him; when well fed, to starve him; when at rest, to make him move. Appear at places to which he must hasten; move swiftly where he does not expect you.", "If you know your enemy and you know yourself you need not fear the results of a hundred battles. If you know yourself but not the enemy for every victory gained you will also suffer a defeat. If you know neither the enemy nor yourself you will succumb in every battle.", "The general who advances without coveting fame and retreats without fearing disgrace, whose only thought is to protect his country and do good service for his sovereign, is the jewel of the kingdom.", "For to win one hundred victories in one hundred battles is not the acme of skill. To subdue the enemy without fighting is the acme of skill.", "What the ancients called a clever fighter is one who not only wins, but excels in winning with ease.", "To a surrounded enemy, you must leave a way of escape.", "To know your Enemy, you must become your Enemy.", "Thus, what is of supreme importance in war is to attack the enemy's strategy.", "A leader leads by example, not force.", "Too frequent rewards indicate that the general is at the end of his resources; too frequent punishments that he is in acute distress.", "Pretend inferiority and encourage his arrogance.", "All men can see these tactics whereby I conquer, but what none can see is the strategy out of which victory is evolved.", "If we do not wish to fight, we can prevent the enemy from engaging us even though the lines of our encampment be merely traced out on the ground. All we need to do is to throw something odd and unaccountable in his way.", "A military operation involves deception. Even though you are competent, appear to be incompetent. Though effective, appear to be ineffective.", "Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win.", "The best victory is when the opponent surrenders of its own accord before there are any actual hostilities... It is best to win without fighting.", "Opportunities multiply as they are seized.", "Speed is the essence of war. Take advantage of the enemy's unpreparedness; travel by unexpected routes and strike him where he has taken no precautions.", "If your opponent is of choleric temperament, seek to irritate him.", "Management of many is the same as management of few. It is a matter of organization.", "The good fighters of old first put themselves beyond the possibility of defeat, and then waited for an opportunity of defeating the enemy.", "Build your opponent a golden bridge to retreat across.", "Swift as the wind. Quiet as the forest. Conquer like the fire. Steady as the mountain.", "It is essential to seek out enemy agents who have come to conduct espionage against you and to bribe them to serve you. Give them instructions and care for them. Thus doubled agents are recruited and used.", "Now the reason the enlightened prince and the wise general conquer the enemy whenever they move and their achievements surpass those of ordinary men is foreknowledge.", "And therefore those skilled in war bring the enemy to the field of battle and are not brought there by him.", "There is no instance of a nation benefitting from prolonged warfare.", "When able to attack, we must seem unable; when using our forces, we must seem inactive; when we are near, we must make the enemy believe we are far away; when far away, we must make him believe we are near.", "When torrential water tosses boulders, it is because of its momentum. When the strike of a hawk breaks the body of its prey, it is because of timing.", "Secret operations are essential in war; upon them the army relies to make its every move.", "It is said that if you know your enemies and know yourself, you will not be imperilled in a hundred battles; if you do not know your enemies but do know yourself, you will win one and lose one; if you do not know your enemies nor yourself, you will be imperilled in every single battle.", "He who knows when he can fight and when he cannot will be victorious.", "Subtle and insubstantial, the expert leaves no trace; divinely mysterious, he is inaudible. Thus he is master of his enemy's fate.", "A skilled commander seeks victory from the situation and does not demand it of his subordinates."];
-
 var palettes = [["#69d2e7", "#a7dbd8", "#e0e4cc", "#f38630", "#fa6900"], ["#fe4365", "#fc9d9a", "#f9cdad", "#c8c8a9", "#83af9b"], ["#ecd078", "#d95b43", "#c02942", "#542437", "#53777a"], ["#556270", "#4ecdc4", "#c7f464", "#ff6b6b", "#c44d58"], ["#774f38", "#e08e79", "#f1d4af", "#ece5ce", "#c5e0dc"], ["#e8ddcb", "#cdb380", "#036564", "#033649", "#031634"], ["#490a3d", "#bd1550", "#e97f02", "#f8ca00", "#8a9b0f"], ["#594f4f", "#547980", "#45ada8", "#9de0ad", "#e5fcc2"], ["#00a0b0", "#6a4a3c", "#cc333f", "#eb6841", "#edc951"], ["#e94e77", "#d68189", "#c6a49a", "#c6e5d9", "#f4ead5"], ["#3fb8af", "#7fc7af", "#dad8a7", "#ff9e9d", "#ff3d7f"], ["#d9ceb2", "#948c75", "#d5ded9", "#7a6a53", "#99b2b7"], ["#ffffff", "#cbe86b", "#f2e9e1", "#1c140d", "#cbe86b"], ["#efffcd", "#dce9be", "#555152", "#2e2633", "#99173c"], ["#343838", "#005f6b", "#008c9e", "#00b4cc", "#00dffc"], ["#413e4a", "#73626e", "#b38184", "#f0b49e", "#f7e4be"], ["#99b898", "#fecea8", "#ff847c", "#e84a5f", "#2a363b"], ["#ff4e50", "#fc913a", "#f9d423", "#ede574", "#e1f5c4"], ["#655643", "#80bca3", "#f6f7bd", "#e6ac27", "#bf4d28"], ["#351330", "#424254", "#64908a", "#e8caa4", "#cc2a41"], ["#00a8c6", "#40c0cb", "#f9f2e7", "#aee239", "#8fbe00"], ["#554236", "#f77825", "#d3ce3d", "#f1efa5", "#60b99a"], ["#ff9900", "#424242", "#e9e9e9", "#bcbcbc", "#3299bb"], ["#8c2318", "#5e8c6a", "#88a65e", "#bfb35a", "#f2c45a"], ["#fad089", "#ff9c5b", "#f5634a", "#ed303c", "#3b8183"], ["#5d4157", "#838689", "#a8caba", "#cad7b2", "#ebe3aa"], ["#ff4242", "#f4fad2", "#d4ee5e", "#e1edb9", "#f0f2eb"], ["#d1e751", "#ffffff", "#000000", "#4dbce9", "#26ade4"], ["#f8b195", "#f67280", "#c06c84", "#6c5b7b", "#355c7d"], ["#bcbdac", "#cfbe27", "#f27435", "#f02475", "#3b2d38"], ["#5e412f", "#fcebb6", "#78c0a8", "#f07818", "#f0a830"], ["#1b676b", "#519548", "#88c425", "#bef202", "#eafde6"], ["#eee6ab", "#c5bc8e", "#696758", "#45484b", "#36393b"], ["#452632", "#91204d", "#e4844a", "#e8bf56", "#e2f7ce"], ["#f0d8a8", "#3d1c00", "#86b8b1", "#f2d694", "#fa2a00"], ["#f04155", "#ff823a", "#f2f26f", "#fff7bd", "#95cfb7"], ["#2a044a", "#0b2e59", "#0d6759", "#7ab317", "#a0c55f"], ["#bbbb88", "#ccc68d", "#eedd99", "#eec290", "#eeaa88"], ["#b9d7d9", "#668284", "#2a2829", "#493736", "#7b3b3b"], ["#67917a", "#170409", "#b8af03", "#ccbf82", "#e33258"], ["#a3a948", "#edb92e", "#f85931", "#ce1836", "#009989"], ["#b3cc57", "#ecf081", "#ffbe40", "#ef746f", "#ab3e5b"], ["#e8d5b7", "#0e2430", "#fc3a51", "#f5b349", "#e8d5b9"], ["#ab526b", "#bca297", "#c5ceae", "#f0e2a4", "#f4ebc3"], ["#607848", "#789048", "#c0d860", "#f0f0d8", "#604848"], ["#aab3ab", "#c4cbb7", "#ebefc9", "#eee0b7", "#e8caaf"], ["#300030", "#480048", "#601848", "#c04848", "#f07241"], ["#a8e6ce", "#dcedc2", "#ffd3b5", "#ffaaa6", "#ff8c94"], ["#3e4147", "#fffedf", "#dfba69", "#5a2e2e", "#2a2c31"], ["#515151", "#ffffff", "#00b4ff", "#eeeeee"], ["#fc354c", "#29221f", "#13747d", "#0abfbc", "#fcf7c5"], ["#1c2130", "#028f76", "#b3e099", "#ffeaad", "#d14334"], ["#b6d8c0", "#c8d9bf", "#dadabd", "#ecdbbc", "#fedcba"], ["#edebe6", "#d6e1c7", "#94c7b6", "#403b33", "#d3643b"], ["#fdf1cc", "#c6d6b8", "#987f69", "#e3ad40", "#fcd036"], ["#cc0c39", "#e6781e", "#c8cf02", "#f8fcc1", "#1693a7"], ["#5c323e", "#a82743", "#e15e32", "#c0d23e", "#e5f04c"], ["#dad6ca", "#1bb0ce", "#4f8699", "#6a5e72", "#563444"], ["#230f2b", "#f21d41", "#ebebbc", "#bce3c5", "#82b3ae"], ["#b9d3b0", "#81bda4", "#b28774", "#f88f79", "#f6aa93"], ["#3a111c", "#574951", "#83988e", "#bcdea5", "#e6f9bc"], ["#a7c5bd", "#e5ddcb", "#eb7b59", "#cf4647", "#524656"], ["#5e3929", "#cd8c52", "#b7d1a3", "#dee8be", "#fcf7d3"], ["#1c0113", "#6b0103", "#a30006", "#c21a01", "#f03c02"], ["#8dccad", "#988864", "#fea6a2", "#f9d6ac", "#ffe9af"], ["#c1b398", "#605951", "#fbeec2", "#61a6ab", "#accec0"], ["#382f32", "#ffeaf2", "#fcd9e5", "#fbc5d8", "#f1396d"], ["#e3dfba", "#c8d6bf", "#93ccc6", "#6cbdb5", "#1a1f1e"], ["#5e9fa3", "#dcd1b4", "#fab87f", "#f87e7b", "#b05574"], ["#4e395d", "#827085", "#8ebe94", "#ccfc8e", "#dc5b3e"], ["#000000", "#9f111b", "#b11623", "#292c37", "#cccccc"], ["#cfffdd", "#b4dec1", "#5c5863", "#a85163", "#ff1f4c"], ["#9dc9ac", "#fffec7", "#f56218", "#ff9d2e", "#919167"], ["#413d3d", "#040004", "#c8ff00", "#fa023c", "#4b000f"], ["#951f2b", "#f5f4d7", "#e0dfb1", "#a5a36c", "#535233"], ["#1b325f", "#9cc4e4", "#e9f2f9", "#3a89c9", "#f26c4f"], ["#a8a7a7", "#cc527a", "#e8175d", "#474747", "#363636"], ["#eff3cd", "#b2d5ba", "#61ada0", "#248f8d", "#605063"], ["#2d2d29", "#215a6d", "#3ca2a2", "#92c7a3", "#dfece6"], ["#ffedbf", "#f7803c", "#f54828", "#2e0d23", "#f8e4c1"], ["#9d7e79", "#ccac95", "#9a947c", "#748b83", "#5b756c"], ["#f6f6f6", "#e8e8e8", "#333333", "#990100", "#b90504"], ["#0ca5b0", "#4e3f30", "#fefeeb", "#f8f4e4", "#a5b3aa"], ["#edf6ee", "#d1c089", "#b3204d", "#412e28", "#151101"], ["#d1313d", "#e5625c", "#f9bf76", "#8eb2c5", "#615375"], ["#fffbb7", "#a6f6af", "#66b6ab", "#5b7c8d", "#4f2958"], ["#4e4d4a", "#353432", "#94ba65", "#2790b0", "#2b4e72"], ["#f38a8a", "#55443d", "#a0cab5", "#cde9ca", "#f1edd0"], ["#a70267", "#f10c49", "#fb6b41", "#f6d86b", "#339194"], ["#fcfef5", "#e9ffe1", "#cdcfb7", "#d6e6c3", "#fafbe3"], ["#4d3b3b", "#de6262", "#ffb88c", "#ffd0b3", "#f5e0d3"], ["#c2412d", "#d1aa34", "#a7a844", "#a46583", "#5a1e4a"], ["#046d8b", "#309292", "#2fb8ac", "#93a42a", "#ecbe13"], ["#f8edd1", "#d88a8a", "#474843", "#9d9d93", "#c5cfc6"], ["#9cddc8", "#bfd8ad", "#ddd9ab", "#f7af63", "#633d2e"], ["#ffefd3", "#fffee4", "#d0ecea", "#9fd6d2", "#8b7a5e"], ["#30261c", "#403831", "#36544f", "#1f5f61", "#0b8185"], ["#75616b", "#bfcff7", "#dce4f7", "#f8f3bf", "#d34017"], ["#a1dbb2", "#fee5ad", "#faca66", "#f7a541", "#f45d4c"], ["#ff003c", "#ff8a00", "#fabe28", "#88c100", "#00c176"]];
 
 /*!
@@ -46077,7 +46055,7 @@ var palettes = [["#69d2e7", "#a7dbd8", "#e0e4cc", "#f38630", "#fa6900"], ["#fe43
  * Released under the MIT License.
  */
 
-var index$2 = function(str, options) {
+var index$1 = function(str, options) {
   options = options || {};
   if (str == null) {
     return str;
@@ -46124,7 +46102,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var index$3 = createCommonjsModule(function (module) {
+var index$2 = createCommonjsModule(function (module) {
 var newline = /\n/;
 var newlineChar = '\n';
 var whitespace = /\s/;
@@ -46254,7 +46232,7 @@ function monospace(text, start, end, width) {
 }
 });
 
-var index_1 = index$3.lines;
+var index_1 = index$2.lines;
 
 /**
  * @author alteredq / http://alteredqualia.com/
@@ -50279,7 +50257,7 @@ var BaseShader = function () {
 	return BaseShader;
 }();
 
-var MSDFShader$1 = function (_BaseShader) {
+var MSDFShader = function (_BaseShader) {
   inherits(MSDFShader, _BaseShader);
 
   function MSDFShader() {
@@ -50757,7 +50735,6 @@ var TextLayout = function () {
     return TextLayout;
 }();
 
-//import TextGeometryUtil from './util/TextGeometryUtil';
 //import files directly for bundling with three.js
 //bundling is flawed and need to find a better system. 
 
@@ -50769,14 +50746,14 @@ import { BufferAttribute } from '../../three.js/src/core/BufferAttribute';
 import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
 */
 
-var TextGeometry$2 = function (_BufferGeometry) {
-    inherits(TextGeometry, _BufferGeometry);
+var TextGeometry$1 = function (_BufferGeometry) {
+    inherits(TextGeometry$$1, _BufferGeometry);
 
-    function TextGeometry(opt) {
-        classCallCheck(this, TextGeometry);
+    function TextGeometry$$1(opt) {
+        classCallCheck(this, TextGeometry$$1);
 
         //THREE.js already polyfills assign.
-        var _this = possibleConstructorReturn(this, (TextGeometry.__proto__ || Object.getPrototypeOf(TextGeometry)).call(this));
+        var _this = possibleConstructorReturn(this, (TextGeometry$$1.__proto__ || Object.getPrototypeOf(TextGeometry$$1)).call(this));
 
         _this._opt = Object.assign({
             flipY: true
@@ -50786,7 +50763,7 @@ var TextGeometry$2 = function (_BufferGeometry) {
         return _this;
     }
 
-    createClass(TextGeometry, [{
+    createClass(TextGeometry$$1, [{
         key: 'creatTextLayout',
         value: function creatTextLayout() {
             return new TextLayout(this._opt);
@@ -50826,39 +50803,8 @@ var TextGeometry$2 = function (_BufferGeometry) {
                 }
             }
         }
-
-        /*computeBoundingSphere() {
-            if (this.boundingSphere === null) {
-                this.boundingSphere = new Sphere();
-            }
-            const positions = this.attributes.position.array,
-                itemSize = this.attributes.position.itemSize;
-            if (!positions || !itemSize || positions.length < 2) {
-                this.boundingSphere.radius = 0
-                this.boundingSphere.center.set(0, 0, 0)
-                return;
-            }
-             super.computeBoundingSphere();
-             //console.log("COMPUTERSHERE", this.boundingSphere);
-           // TextGeometryUtil.computeSphere(positions, this.boundingSphere);
-        }*/
-
-        /*computeBoundingBox() {
-            const bbox = this.boundingBox,
-                positions = this.attributes.position.array,
-                itemSize = this.attributes.position.itemSize;
-            if (!positions || !itemSize || positions.length < 2) {
-                bbox.makeEmpty();
-                return
-            }
-             //console.log(this.attributes.position.array);
-             super.computeBoundingBox();
-            // console.log(this.boundingBox);
-            //TextGeometryUtil.computeBox(positions, bbox);
-        }*/
-
     }]);
-    return TextGeometry;
+    return TextGeometry$$1;
 }(BufferGeometry);
 
 //import files directly for bundling with three.js
@@ -50885,7 +50831,7 @@ var TextBitmap = function () {
     createClass(TextBitmap, [{
         key: 'createGeometry',
         value: function createGeometry() {
-            return new TextGeometry$2(this.config);
+            return new TextGeometry$1(this.config);
         }
     }, {
         key: 'init',
@@ -50893,7 +50839,7 @@ var TextBitmap = function () {
             var geometry = this.geometry = this.createGeometry(); // text-bm-font
             var texture = config.texture;
             this.initTexture(texture, renderer);
-            var material = new RawShaderMaterial(MSDFShader$1.createShader({
+            var material = new RawShaderMaterial(MSDFShader.createShader({
                 side: DoubleSide,
                 transparent: true,
                 depthTest: false,
@@ -50931,12 +50877,12 @@ var TextBitmap = function () {
             //              opacity: config.showHitBox ? 1 : 0,
               wireframe: true
             })),*/
-            boxMat = new MeshBasicMaterial({
+            boxMat = new MeshNormalMaterial({
                 //color: 0x000000,
                 transparent: false,
-                opacity: 1,
+                opacity: 1
                 //opacity: config.showHitBox ? 1 : 0,
-                wireframe: true
+                //wireframe: true
             }),
                 hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
             hitBox.mesh = this.mesh;
@@ -50959,9 +50905,13 @@ var TextBitmap = function () {
             //geometry.update( this.config );
             // centering
             geometry.computeBoundingBox();
+            //geometry.computeBoundingSphere();
+            //this.hitBox.geometry.computeBoundingSphere();
             mesh.position.x = -geometry.layout.width / 2;
             mesh.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
 
+            //console.log(geometry.boundingSphere);
+            //console.log(this.hitBox.geometry.boundingSphere);
             this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);
             // mesh.position.y = - ( geometry.boundingBox.max.y - geometry.boundingBox.min.y ); // valign top
             //this.hitBox.position.y = - geometry.layout.height / 2; // valign top
@@ -50980,6 +50930,78 @@ var TextBitmap = function () {
     }]);
     return TextBitmap;
 }();
+
+var SingleTextLayout = function (_TextLayout) {
+    inherits(SingleTextLayout, _TextLayout);
+
+    function SingleTextLayout(opt) {
+        classCallCheck(this, SingleTextLayout);
+        return possibleConstructorReturn(this, (SingleTextLayout.__proto__ || Object.getPrototypeOf(SingleTextLayout)).call(this, opt));
+    }
+
+    createClass(SingleTextLayout, [{
+        key: 'update',
+        value: function update(opt, attributes) {
+            this._height = this.lineHeight - this.descender, this._width = opt.width;
+            var glyph = TextLayoutUtils.getGlyphById(opt.font, opt.text.charCodeAt(0)),
+
+            //y = 10,
+            text = opt.text;
+            //console.log(this.lineHeight / 2 - this._height / 2);
+            var x = 0,
+                y = -(this._height / 2) / 2;
+            this.initBuffers(text);
+            if (glyph.width * glyph.height > 0) {
+                this._width = glyph.width;
+
+                x = -glyph.xoffset;
+
+                this.updateVertices(glyph, x, y);
+
+                //set the draw range to 12 for a single character. 
+                this._drawRange = 12;
+            }
+        }
+    }]);
+    return SingleTextLayout;
+}(TextLayout);
+
+var SingleTextGeometry = function (_TextGeometry) {
+	inherits(SingleTextGeometry, _TextGeometry);
+
+	function SingleTextGeometry(opt) {
+		classCallCheck(this, SingleTextGeometry);
+		return possibleConstructorReturn(this, (SingleTextGeometry.__proto__ || Object.getPrototypeOf(SingleTextGeometry)).call(this, opt));
+	}
+
+	createClass(SingleTextGeometry, [{
+		key: 'creatTextLayout',
+		value: function creatTextLayout() {
+			return new SingleTextLayout(this._opt);
+		}
+	}]);
+	return SingleTextGeometry;
+}(TextGeometry$1);
+
+var SingleTextBitmap = function (_TextBitmap) {
+  inherits(SingleTextBitmap, _TextBitmap);
+
+  function SingleTextBitmap(opt, renderer) {
+    classCallCheck(this, SingleTextBitmap);
+    return possibleConstructorReturn(this, (SingleTextBitmap.__proto__ || Object.getPrototypeOf(SingleTextBitmap)).call(this, opt, renderer));
+  }
+
+  createClass(SingleTextBitmap, [{
+    key: 'createGeometry',
+    value: function createGeometry() {
+      return new SingleTextGeometry(this.config);
+    }
+  }, {
+    key: 'rotateMesh',
+    value: function rotateMesh() {}
+  }]);
+  return SingleTextBitmap;
+}(TextBitmap);
 
 function fontLoader(opt, cb) {
 
@@ -51009,27 +51031,17 @@ function fontLoader(opt, cb) {
   })
  */
 
-//import { default as createOrbitViewer } from 'three-orbit-viewer';
-
 var OrbitControls = index(THREE);
 
 var palette = palettes[5];
 var background = palette.shift();
 
-var quotes = index$1(suntzuquotes);
-//var quotes = shuffle(suntzuquotes().join(' ').split('.'));
-
-
-//import { createMSDFShader  } from '../src/msdf.js';
-//import MSDFShader from '../src/shaders/MSDFShader';
-//import TextGeometry from '../src/TextGeometry';
-//import { OldTextGeometry } from '../src/index.js';
 var text = "Text Change Text Change Text Change Text Change Text Change Text Change Text Change Text Change";
 
 var a = performance.now();
 
 //console.log(wordWrap.lines(text, { width: 100 }));
-console.log(index$3(text, { width: 100 }));
+console.log(index$2(text, { width: 100 }));
 //console.log(wordWrap(text, { width: 100 }));
 
 //console.log(wrap(text, { width: 100, trim: true }));
@@ -51041,7 +51053,7 @@ console.log('It took ' + (b - a) + ' ms.');
 a = performance.now();
 
 //wrap(text, { width: 100, trim: true });
-console.log(index$2(text, { width: 100, trim: true }));
+console.log(index$1(text, { width: 100, trim: true }));
 
 //console.log(wordWrap(text, { width: 100 }));
 
@@ -51075,8 +51087,8 @@ b = performance.now();
 console.log('It took ' + (b - a) + ' ms.');
 
 fontLoader({
-  font: 'fnt/Roboto-Bold.json',
-  image: 'fnt/Roboto-Bold.png'
+  font: 'fnt/flowplayer-icons.json',
+  image: 'fnt/flowplayer-icons.png'
 }, start);
 
 var scene = void 0;
@@ -51090,15 +51102,8 @@ function start(font, texture) {
 
   renderer = new WebGLRenderer({ antialias: true });
   renderer.setClearColor(background, 1);
-  renderer.vr.enabled = true;
 
   document.body.appendChild(renderer.domElement);
-
-  /* WEBVR.getVRDisplay( function ( display, displays ) {
-        renderer.vr.setDevice( display );
-      
-        document.body.appendChild( WEBVR.getButton( display, renderer.domElement, onEnableVr ) );
-      } );*/
 
   camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, .01, 100000);
 
@@ -51126,7 +51131,8 @@ function start(font, texture) {
   var uiObject = new Mesh(geometry, material);
   uiObject.position.z = -1;
 
-  scene.add(uiObject);
+  //scene.add( uiObject );
+
 
   createGlyph(font, texture);
 
@@ -51135,9 +51141,7 @@ function start(font, texture) {
 
   renderer.animate(loop);
 
-  // update orthographic
   function loop() {
-
     renderer.render(scene, camera);
   }
 
@@ -51152,32 +51156,20 @@ function start(font, texture) {
 
   function createGlyph(font, texture) {
 
-    var text = new TextBitmap({
-      text: 'Tap to reposition',
-      width: 1000,
+    var text = new SingleTextBitmap({
+      text: '\uE007',
+      width: 36,
       align: 'center',
       font: font,
-      //lineHeight: font.common.lineHeight - 20,
       letterSpacing: 1,
-      scale: 0.001,
+      scale: 0.01,
       color: "#ffffff",
-      texture: texture,
-      showHitBox: true // for debugging
+      texture: texture
     }, renderer);
-
-    text.text = "Text Change";
-
-    setTimeout(function () {
-      text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
-    }, 5000);
 
     text.group.position.set(0, 0, -1);
     text.group.visible = true;
 
-    //container.add(text.group);
-    //camera.add(text.group);
     scene.add(text.group);
   }
-
-  
 }

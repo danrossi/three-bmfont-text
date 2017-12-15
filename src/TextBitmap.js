@@ -2,6 +2,7 @@ import MSDFShader from './shaders/MSDFShader';
 import BasicShader from './shaders/BasicShader';
 import TextGeometry from './TextGeometry';
 /*import {
+    MeshNormalMaterial,
     MeshBasicMaterial,
     ShaderMaterial,
     RawShaderMaterial,
@@ -70,20 +71,20 @@ export default class TextBitmap {
     }
 
     createHitBox(config) {
-        const boxGeo = new BoxGeometry(1, 1, 1),
+        const boxGeo = new BoxBufferGeometry(1, 1, 1),
             boxMat = new RawShaderMaterial(BasicShader.createShader({
               color: 0xff0000,
               transparent: false,
-               opacity: 1,
+               opacity: 1
 //              opacity: config.showHitBox ? 1 : 0,
-              wireframe: true
+              //wireframe: true
             })),
             /*boxMat = new MeshBasicMaterial({
                 //color: 0x000000,
                 transparent: false,
                 opacity: 1,
                 //opacity: config.showHitBox ? 1 : 0,
-                wireframe: true
+                //wireframe: true
             }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this.mesh;
@@ -104,9 +105,13 @@ export default class TextBitmap {
         //geometry.update( this.config );
         // centering
         geometry.computeBoundingBox();
+        //geometry.computeBoundingSphere();
+        //this.hitBox.geometry.computeBoundingSphere();
         mesh.position.x = -geometry.layout.width / 2;
         mesh.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
-      
+        
+        //console.log(geometry.boundingSphere);
+        //console.log(this.hitBox.geometry.boundingSphere);
         this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);
         // mesh.position.y = - ( geometry.boundingBox.max.y - geometry.boundingBox.min.y ); // valign top
         //this.hitBox.position.y = - geometry.layout.height / 2; // valign top
