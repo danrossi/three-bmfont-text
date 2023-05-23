@@ -1,29 +1,18 @@
 import MSDFShader from './shaders/MSDFShader';
 import BasicShader from './shaders/BasicShader';
 import TextGeometry from './TextGeometry';
-/*import {
-    MeshNormalMaterial,
-    MeshBasicMaterial,
-    ShaderMaterial,
+
+
+
+import { 
     RawShaderMaterial,
     BoxGeometry,
-    BoxBufferGeometry,
     Mesh,
     Group,
     LinearMipMapLinearFilter,
     LinearFilter,
     DoubleSide
-} from 'three';*/
-
-
-//import files directly for bundling with three.js
-//bundling is flawed and need to find a better system. 
-
-import { RawShaderMaterial } from '../../three.js/src/materials/RawShaderMaterial';
-import { BoxBufferGeometry } from '../../three.js/src/geometries/BoxGeometry';
-import { Mesh } from '../../three.js/src/objects/Mesh';
-import { Group } from '../../three.js/src/objects/Group';
-import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
+ } from 'three';
 
 
 export default class TextBitmap {
@@ -41,18 +30,28 @@ export default class TextBitmap {
     }
 
     init(config, renderer) {
-        const geometry = this.geometry = this.createGeometry(); // text-bm-font
-        const texture = config.texture;
+        const geometry = this.geometry = this.createGeometry(),
+        texture = config.texture,
+        webgl2 = renderer.capabilities.isWebGL2;
+
         this.initTexture(texture, renderer);
-        const material = new RawShaderMaterial(MSDFShader.createShader({
+
+        const shaderConf = {
                 side: DoubleSide,
                 transparent: true,
                 depthTest: false,
                 map: texture,
                 //depthWrite: false,
-                color: config.color
-            })),
-            mesh = this.mesh = new Mesh(geometry, material),
+                color: config.color,
+                glslVersion: webgl2 ? THREE.GLSL3 : THREE.GLSL1
+        };
+
+
+        const material = new RawShaderMaterial(webgl2 ? MSDFShader.createShader2(shaderConf) : MSDFShader.createShader(shaderConf));
+
+        material.extensions.derivatives = true;
+
+        const mesh = this.mesh = new Mesh(geometry, material),
             group = this.group = new Group();
         mesh.renderOrder = 1;
 
@@ -71,7 +70,7 @@ export default class TextBitmap {
     }
 
     createHitBox(config) {
-        const boxGeo = new BoxBufferGeometry(1, 1, 1),
+        const boxGeo = new BoxGeometry(1, 1, 1),
             boxMat = new RawShaderMaterial(BasicShader.createShader({
               color: 0xff0000,
               transparent: false,

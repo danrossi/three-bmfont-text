@@ -1,21 +1,7 @@
 import TextLayout from './layout/TextLayout';
-/*import {
-    BufferGeometry,
-    Box3,
-    Sphere,
-    BufferAttribute
-} from 'three';*/
 
 
-//import files directly for bundling with three.js
-//bundling is flawed and need to find a better system. 
-
-
-import { BufferGeometry } from '../../three.js/src/core/BufferGeometry';
-import { Box3 } from '../../three.js/src/math/Box3';
-import { Sphere } from '../../three.js/src/math/Sphere';
-import { BufferAttribute } from '../../three.js/src/core/BufferAttribute';
-import { LinearMipMapLinearFilter,LinearFilter, DoubleSide } from '../../three.js/src/constants';
+import { BufferGeometry,  Box3, BufferAttribute } from 'three';
 
 
 export default class TextGeometry extends BufferGeometry {
@@ -52,9 +38,11 @@ export default class TextGeometry extends BufferGeometry {
             this.attributes.position.needsUpdate = true;
             this.attributes.uv.needsUpdate = true;
         } else {
-            this.addAttribute('position', positions);
-            this.addAttribute('uv', uvs);
+            this.setAttribute('position', positions);
+            this.setAttribute('uv', uvs);
         }
+
+
         //multipage support if enabled
         if (opt.multipage) {
             const page = new BufferAttribute(this.layout.pages, 1);
@@ -63,7 +51,7 @@ export default class TextGeometry extends BufferGeometry {
                 this.attributes.page.needsUpdate = true;
             } else {
                 // enable multipage rendering
-                this.addAttribute('page', page);
+                this.setAttribute('page', page);
             }
         }
     }

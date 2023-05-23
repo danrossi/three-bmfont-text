@@ -1,6 +1,5 @@
-//import { Texture, Color } from 'three';
-import { Color } from '../../../three.js/src/math/Color';
-import { Texture } from '../../../three.js/src/textures/Texture';
+import { Texture, Color } from 'three';
+
 
 export default class BaseShader {
 
@@ -50,6 +49,29 @@ export default class BaseShader {
 	      uniforms: shader.uniforms(map, color, opacity),
 	      vertexShader: shader.vertexShader,
 	      fragmentShader: shader.fragmentShader(precision, alphaTest)
+	    }, opt);
+	}
+
+	static createShader2(opt) {
+
+	    opt = opt || {};
+	    const shader = this,
+	    color = opt.color,
+	    map = opt.map,
+	    precision = opt.precision,
+	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
+	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
+
+	    // remove to satisfy r73
+	    delete opt.map;
+	    delete opt.color;
+	    delete opt.precision;
+	    delete opt.opacity;
+
+	    return Object.assign({
+	      uniforms: shader.uniforms(map, color, opacity),
+	      vertexShader: shader.vertexShader2,
+	      fragmentShader: shader.fragmentShader2(precision, alphaTest)
 	    }, opt);
 	}
 }
