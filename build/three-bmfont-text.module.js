@@ -1,4 +1,4 @@
-import { Texture, Color, BufferGeometry, Box3, BufferAttribute, DoubleSide, RawShaderMaterial, Mesh, Group, BoxGeometry, LinearMipMapLinearFilter, LinearFilter } from 'three';
+import { Texture, Color, BufferGeometry, Box3, BufferAttribute, DoubleSide, GLSL3, GLSL1, RawShaderMaterial, Mesh, Group, BoxGeometry, LinearMipMapLinearFilter, LinearFilter } from 'three';
 
 class BaseShader {
 
@@ -612,7 +612,7 @@ class TextBitmap {
                 map: texture,
                 //depthWrite: false,
                 color: config.color,
-                glslVersion: webgl2 ? THREE.GLSL3 : THREE.GLSL1
+                glslVersion: webgl2 ? GLSL3 : GLSL1
         };
 
 
