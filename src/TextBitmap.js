@@ -11,7 +11,9 @@ import {
     Group,
     LinearMipMapLinearFilter,
     LinearFilter,
-    DoubleSide
+    DoubleSide,
+    GLSL3,
+    GLSL1
  } from 'three';
 
 
@@ -43,7 +45,7 @@ export default class TextBitmap {
                 map: texture,
                 //depthWrite: false,
                 color: config.color,
-                glslVersion: webgl2 ? THREE.GLSL3 : THREE.GLSL1
+                glslVersion: webgl2 ? GLSL3 : GLSL1
         };
 
 
