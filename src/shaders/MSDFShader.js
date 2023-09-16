@@ -1,8 +1,10 @@
 import BaseShader from './BaseShader';
 
+import { texture, min, max, tslFn, uniform, clamp, fwidth, vec4 } from 'three-webgpu';
+
 export default class MSDFShader extends BaseShader {
 
-  static get vertexShader2() {
+  static get vertexShader() {
       return `
         in vec2 uv;
         in vec4 position;
@@ -16,13 +18,13 @@ export default class MSDFShader extends BaseShader {
       `;
   }
 
-  static discarOnAlphaTest2(alphaTest) {
+  static discarOnAlphaTest(alphaTest) {
     return (alphaTest > 0 ? ` if (outColor.a < ${alphaTest}) discard;` : "");
   }
 
-  static fragmentShader2(precision, alphaTest) { 
+  static fragmentShader(precision, alphaTest) { 
 
-    const discard = this.discarOnAlphaTest2(alphaTest);
+    const discard = this.discarOnAlphaTest(alphaTest);
        
     return `
       precision ${precision || 'highp'} float;
@@ -46,7 +48,63 @@ export default class MSDFShader extends BaseShader {
     `
   }
 
-  static fragmentShader(precision, alphaTest) { 
+  static createWebGPUColorShader() {
+    return tslFn( ( input ) => {
+
+      //const tex = texture(input.texture);
+      const color = uniform(input.color);
+      //const opacity = uniform(input.opacity);
+
+      //const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b));
+
+      //const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+      return color;
+      //return vec4(color.xyz, opacity);
+      //return vec4(color.xyz, alpha.mul(opacity));
+    });
+
+  }
+
+  static createWebGPUOpacityShader() {
+    return tslFn( ( input ) => {
+
+      const tex = texture(input.texture);
+      //const color = uniform(input.color);
+      const opacity = uniform(input.opacity);
+
+      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b)).sub(0.5);
+
+      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+   
+      return alpha.mul(opacity);
+      //return vec4(color.xyz, opacity);
+      //return vec4(color.xyz, alpha.mul(opacity));
+    });
+
+  }
+
+
+  static createWebGPUShader() {
+    return tslFn( ( input ) => {
+
+      const tex = texture(input.texture);
+      const color = uniform(input.color);
+      const opacity = uniform(input.opacity);
+
+      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b));
+
+      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+   
+      //return vec4(color.xyz, 1);
+      return vec4(color.xyz, alpha.mul(opacity));
+    });
+
+  }
+
+ /* static fragmentShader(precision, alphaTest) { 
 
     const discard = BaseShader.discarOnAlphaTest(alphaTest);
        
@@ -72,7 +130,7 @@ export default class MSDFShader extends BaseShader {
         ${discard}
       }
     `
-  }
+  }*/
 }
 
 /*

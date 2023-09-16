@@ -1,4 +1,5 @@
-import { Texture, Color, BufferGeometry, Box3, BufferAttribute, DoubleSide, GLSL3, GLSL1, RawShaderMaterial, Mesh, Group, BoxGeometry, LinearMipMapLinearFilter, LinearFilter } from 'three';
+import { Texture, Color, BufferGeometry, Box3, BufferAttribute, DoubleSide, GLSL3, RawShaderMaterial, Mesh, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
+import { tslFn, uniform, texture, max, min, clamp, fwidth, vec4, MeshBasicNodeMaterial } from 'three-webgpu';
 
 class BaseShader {
 
@@ -28,7 +29,7 @@ class BaseShader {
 		return (alphaTest > 0 ? ` if (gl_FragColor.a < ${alphaTest}) discard;` : "");
 	}
 
-	static createShader(opt) {
+	/*static createShader(opt) {
 
 	    opt = opt || {};
 	    const shader = this,
@@ -49,16 +50,16 @@ class BaseShader {
 	      vertexShader: shader.vertexShader,
 	      fragmentShader: shader.fragmentShader(precision, alphaTest)
 	    }, opt);
-	}
+	}*/
 
-	static createShader2(opt) {
+	static createShader(opt) {
 
 	    opt = opt || {};
 	    const shader = this,
 	    color = opt.color,
 	    map = opt.map,
 	    precision = opt.precision,
-	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
+	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1.0,
 	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
 
 	    // remove to satisfy r73
@@ -69,15 +70,15 @@ class BaseShader {
 
 	    return Object.assign({
 	      uniforms: shader.uniforms(map, color, opacity),
-	      vertexShader: shader.vertexShader2,
-	      fragmentShader: shader.fragmentShader2(precision, alphaTest)
+	      vertexShader: shader.vertexShader,
+	      fragmentShader: shader.fragmentShader(precision, alphaTest)
 	    }, opt);
 	}
 }
 
 class MSDFShader extends BaseShader {
 
-  static get vertexShader2() {
+  static get vertexShader() {
       return `
         in vec2 uv;
         in vec4 position;
@@ -91,13 +92,13 @@ class MSDFShader extends BaseShader {
       `;
   }
 
-  static discarOnAlphaTest2(alphaTest) {
+  static discarOnAlphaTest(alphaTest) {
     return (alphaTest > 0 ? ` if (outColor.a < ${alphaTest}) discard;` : "");
   }
 
-  static fragmentShader2(precision, alphaTest) { 
+  static fragmentShader(precision, alphaTest) { 
 
-    const discard = this.discarOnAlphaTest2(alphaTest);
+    const discard = this.discarOnAlphaTest(alphaTest);
        
     return `
       precision ${precision || 'highp'} float;
@@ -121,7 +122,63 @@ class MSDFShader extends BaseShader {
     `
   }
 
-  static fragmentShader(precision, alphaTest) { 
+  static createWebGPUColorShader() {
+    return tslFn( ( input ) => {
+
+      //const tex = texture(input.texture);
+      const color = uniform(input.color);
+      //const opacity = uniform(input.opacity);
+
+      //const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b));
+
+      //const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+      return color;
+      //return vec4(color.xyz, opacity);
+      //return vec4(color.xyz, alpha.mul(opacity));
+    });
+
+  }
+
+  static createWebGPUOpacityShader() {
+    return tslFn( ( input ) => {
+
+      const tex = texture(input.texture);
+      //const color = uniform(input.color);
+      const opacity = uniform(input.opacity);
+
+      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b)).sub(0.5);
+
+      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+   
+      return alpha.mul(opacity);
+      //return vec4(color.xyz, opacity);
+      //return vec4(color.xyz, alpha.mul(opacity));
+    });
+
+  }
+
+
+  static createWebGPUShader() {
+    return tslFn( ( input ) => {
+
+      const tex = texture(input.texture);
+      const color = uniform(input.color);
+      const opacity = uniform(input.opacity);
+
+      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b));
+
+      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+   
+      //return vec4(color.xyz, 1);
+      return vec4(color.xyz, alpha.mul(opacity));
+    });
+
+  }
+
+ /* static fragmentShader(precision, alphaTest) { 
 
     const discard = BaseShader.discarOnAlphaTest(alphaTest);
        
@@ -147,38 +204,12 @@ class MSDFShader extends BaseShader {
         ${discard}
       }
     `
-  }
+  }*/
 }
 
 /*
 export function createShader(opt) {
   return MSDFShader.createShader(opt);
-};*/
-
-class BasicShader extends BaseShader {
-
-  static fragmentShader(precision, alphaTest) { 
-
-    const discard = BaseShader.discarOnAlphaTest(alphaTest);
-       
-    return `
-      precision ${precision || 'highp'} float;
-      uniform float opacity;
-      uniform vec3 color;
-      uniform sampler2D map;
-      varying vec2 vUv;
-
-      void main() {
-        gl_FragColor = texture2D(map, vUv) * vec4(color, opacity);
-        ${discard}
-      }
-    `
-  }
-}
-
-/*
-export function createShader(opt) {
-  return BasicShader.createShader(BasicShader, opt);
 };*/
 
 class Vertices {
@@ -554,7 +585,7 @@ class TextGeometry extends BufferGeometry {
         //set the current indices.
         this.setIndex(new BufferAttribute(this.layout.indices, 1));
         //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
-        this.setDrawRange(0, this.layout.drawRange);
+        //this.setDrawRange(0, this.layout.drawRange);
         //set the positions and uvs
         const positions = new BufferAttribute(this.layout.positions, 3),
             uvs = new BufferAttribute(this.layout.uvs, 2);
@@ -600,8 +631,8 @@ class TextBitmap {
 
     init(config, renderer) {
         const geometry = this.geometry = this.createGeometry(),
-        texture = config.texture,
-        webgl2 = renderer.capabilities.isWebGL2;
+        texture = config.texture;
+        //webgl2 = renderer.capabilities.isWebGL2;
 
         this.initTexture(texture, renderer);
 
@@ -612,14 +643,31 @@ class TextBitmap {
                 map: texture,
                 //depthWrite: false,
                 color: config.color,
-                glslVersion: webgl2 ? GLSL3 : GLSL1
+                glslVersion: GLSL3
+                //glslVersion: webgl2 ? GLSL3 : GLSL1
         };
 
 
-        const material = new RawShaderMaterial(webgl2 ? MSDFShader.createShader2(shaderConf) : MSDFShader.createShader(shaderConf));
+        //const material = new RawShaderMaterial(webgl2 ? MSDFShader.createShader2(shaderConf) : MSDFShader.createShader(shaderConf));
+        let material;
 
-        material.extensions.derivatives = true;
+        if (renderer.isWebGPURenderer) {
+            material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
+            const colorNode = MSDFShader.createWebGPUColorShader();
+            material.colorNode = colorNode( { color: material.color });
+            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
 
+            const opacityNode = MSDFShader.createWebGPUOpacityShader();
+            material.opacityNode = opacityNode( { texture: texture, color: material.color, opacity: material.opacity });
+
+            //const colorNode = MSDFShader.createWebGPUShader();
+            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
+        } else {
+            material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
+            material.extensions.derivatives = true;
+        }
+      
+        
         const mesh = this.mesh = new Mesh(geometry, material),
             group = this.group = new Group();
         mesh.renderOrder = 1;
@@ -640,13 +688,16 @@ class TextBitmap {
 
     createHitBox(config) {
         const boxGeo = new BoxGeometry(1, 1, 1),
-            boxMat = new RawShaderMaterial(BasicShader.createShader({
+            //boxMat = new RawShaderMaterial(BasicShader.createShader({
+            boxMat = new MeshBasicMaterial({
               color: 0xff0000,
-              transparent: false,
-               opacity: 1
+              transparent: true,
+               opacity: 0,
+               alphaTest: 0.0001,
 //              opacity: config.showHitBox ? 1 : 0,
               //wireframe: true
-            })),
+            }),
+            //  })),
             /*boxMat = new MeshBasicMaterial({
                 //color: 0x000000,
                 transparent: false,
@@ -656,6 +707,7 @@ class TextBitmap {
             }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this.mesh;
+       // boxMat.alphaTest = 0.0001;
         this.group.add(hitBox);
     }
 
@@ -664,7 +716,7 @@ class TextBitmap {
         texture.minFilter = LinearMipMapLinearFilter;
         texture.magFilter = LinearFilter;
         texture.generateMipmaps = true;
-        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        texture.anisotropy = renderer.capabilities && renderer.capabilities.getMaxAnisotropy() || 6;
     }
 
     update() {

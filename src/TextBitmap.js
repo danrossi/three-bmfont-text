@@ -6,6 +6,7 @@ import TextGeometry from './TextGeometry';
 
 import { 
     RawShaderMaterial,
+    MeshBasicMaterial,
     BoxGeometry,
     Mesh,
     Group,
@@ -13,8 +14,10 @@ import {
     LinearFilter,
     DoubleSide,
     GLSL3,
-    GLSL1
+    Color
  } from 'three';
+ 
+ import { MeshBasicNodeMaterial } from 'three-webgpu';
 
 
 export default class TextBitmap {
@@ -33,8 +36,8 @@ export default class TextBitmap {
 
     init(config, renderer) {
         const geometry = this.geometry = this.createGeometry(),
-        texture = config.texture,
-        webgl2 = renderer.capabilities.isWebGL2;
+        texture = config.texture;
+        //webgl2 = renderer.capabilities.isWebGL2;
 
         this.initTexture(texture, renderer);
 
@@ -45,14 +48,31 @@ export default class TextBitmap {
                 map: texture,
                 //depthWrite: false,
                 color: config.color,
-                glslVersion: webgl2 ? GLSL3 : GLSL1
+                glslVersion: GLSL3
+                //glslVersion: webgl2 ? GLSL3 : GLSL1
         };
 
 
-        const material = new RawShaderMaterial(webgl2 ? MSDFShader.createShader2(shaderConf) : MSDFShader.createShader(shaderConf));
+        //const material = new RawShaderMaterial(webgl2 ? MSDFShader.createShader2(shaderConf) : MSDFShader.createShader(shaderConf));
+        let material;
 
-        material.extensions.derivatives = true;
+        if (renderer.isWebGPURenderer) {
+            material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
+            const colorNode = MSDFShader.createWebGPUColorShader();
+            material.colorNode = colorNode( { color: material.color });
+            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
 
+            const opacityNode = MSDFShader.createWebGPUOpacityShader();
+            material.opacityNode = opacityNode( { texture: texture, color: material.color, opacity: material.opacity });
+
+            //const colorNode = MSDFShader.createWebGPUShader();
+            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
+        } else {
+            material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
+            material.extensions.derivatives = true;
+        }
+      
+        
         const mesh = this.mesh = new Mesh(geometry, material),
             group = this.group = new Group();
         mesh.renderOrder = 1;
@@ -73,13 +93,16 @@ export default class TextBitmap {
 
     createHitBox(config) {
         const boxGeo = new BoxGeometry(1, 1, 1),
-            boxMat = new RawShaderMaterial(BasicShader.createShader({
+            //boxMat = new RawShaderMaterial(BasicShader.createShader({
+            boxMat = new MeshBasicMaterial({
               color: 0xff0000,
-              transparent: false,
-               opacity: 1
+              transparent: true,
+               opacity: 0,
+               alphaTest: 0.0001,
 //              opacity: config.showHitBox ? 1 : 0,
               //wireframe: true
-            })),
+            }),
+            //  })),
             /*boxMat = new MeshBasicMaterial({
                 //color: 0x000000,
                 transparent: false,
@@ -89,6 +112,7 @@ export default class TextBitmap {
             }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this.mesh;
+       // boxMat.alphaTest = 0.0001;
         this.group.add(hitBox);
     }
 
@@ -97,7 +121,7 @@ export default class TextBitmap {
         texture.minFilter = LinearMipMapLinearFilter;
         texture.magFilter = LinearFilter;
         texture.generateMipmaps = true;
-        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        texture.anisotropy = renderer.capabilities && renderer.capabilities.getMaxAnisotropy() || 6;
     }
 
     update() {

@@ -27,7 +27,7 @@ export default class TextGeometry extends BufferGeometry {
         //set the current indices.
         this.setIndex(new BufferAttribute(this.layout.indices, 1));
         //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
-        this.setDrawRange(0, this.layout.drawRange);
+        //this.setDrawRange(0, this.layout.drawRange);
         //set the positions and uvs
         const positions = new BufferAttribute(this.layout.positions, 3),
             uvs = new BufferAttribute(this.layout.uvs, 2);

@@ -29,7 +29,7 @@ export default class BaseShader {
 		return (alphaTest > 0 ? ` if (gl_FragColor.a < ${alphaTest}) discard;` : "");
 	}
 
-	static createShader(opt) {
+	/*static createShader(opt) {
 
 	    opt = opt || {};
 	    const shader = this,
@@ -50,16 +50,16 @@ export default class BaseShader {
 	      vertexShader: shader.vertexShader,
 	      fragmentShader: shader.fragmentShader(precision, alphaTest)
 	    }, opt);
-	}
+	}*/
 
-	static createShader2(opt) {
+	static createShader(opt) {
 
 	    opt = opt || {};
 	    const shader = this,
 	    color = opt.color,
 	    map = opt.map,
 	    precision = opt.precision,
-	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
+	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1.0,
 	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
 
 	    // remove to satisfy r73
@@ -70,8 +70,8 @@ export default class BaseShader {
 
 	    return Object.assign({
 	      uniforms: shader.uniforms(map, color, opacity),
-	      vertexShader: shader.vertexShader2,
-	      fragmentShader: shader.fragmentShader2(precision, alphaTest)
+	      vertexShader: shader.vertexShader,
+	      fragmentShader: shader.fragmentShader(precision, alphaTest)
 	    }, opt);
 	}
 }
