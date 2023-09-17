@@ -1,6 +1,6 @@
 import BaseShader from './BaseShader';
 
-import { texture, min, max, tslFn, uniform, clamp, fwidth, vec4 } from 'three-webgpu';
+import { texture, color, min, max, tslFn, uniform, clamp, fwidth, vec4 } from 'three-webgpu';
 
 export default class MSDFShader extends BaseShader {
 
@@ -52,14 +52,15 @@ export default class MSDFShader extends BaseShader {
     return tslFn( ( input ) => {
 
       //const tex = texture(input.texture);
-      const color = uniform(input.color);
+      //const color = uniform(input.color);
       //const opacity = uniform(input.opacity);
 
       //const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b));
 
       //const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
 
-      return color;
+      return color(input.color);
+      //return color;
       //return vec4(color.xyz, opacity);
       //return vec4(color.xyz, alpha.mul(opacity));
     });
