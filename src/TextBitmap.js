@@ -90,6 +90,11 @@ export default class TextBitmap extends Mesh {
         //if (config.hitbox) this.createHitBox();
     }
 
+    set minWidth(width) {
+        this.geometry.minWidth = width;
+    }
+
+
     rotateMesh() {
       this.rotation.x = Math.PI;
     }

@@ -324,6 +324,12 @@ class TextLayout {
         this._indices = new Uint16Array(text.length * 6);
     }
 
+    set minWidth(width) {
+        this._opt.minWidth = width;
+        this.update(this._opt);
+    }
+    
+
     update(opt, attributes) {
         opt.align = opt.align || "left";
         this._opt.measure = (text, start, end, width) => this.computeMetrics(text, start, end, width);
@@ -554,6 +560,10 @@ class TextGeometry extends BufferGeometry {
             }
         }
     }
+
+    set minWidth(width) {
+        this.layout.minWidth = width;
+    }
 }
 
 class TextBitmap extends Mesh {
@@ -621,6 +631,11 @@ class TextBitmap extends Mesh {
         this.update();
         //if (config.hitbox) this.createHitBox();
     }
+
+    set minWidth(width) {
+        this.geometry.minWidth = width;
+    }
+
 
     rotateMesh() {
       this.rotation.x = Math.PI;

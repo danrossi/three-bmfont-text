@@ -55,4 +55,8 @@ export default class TextGeometry extends BufferGeometry {
             }
         }
     }
+
+    set minWidth(width) {
+        this.layout.minWidth = width;
+    }
 }
