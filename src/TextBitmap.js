@@ -1,5 +1,5 @@
 import MSDFShader from './shaders/MSDFShader';
-import BasicShader from './shaders/BasicShader';
+//import BasicShader from './shaders/BasicShader';
 import TextGeometry from './TextGeometry';
 
 
@@ -17,7 +17,7 @@ import {
     Color
  } from 'three';
  
- import { MeshBasicNodeMaterial } from 'three-webgpu';
+ import { MeshBasicNodeMaterial } from 'three-webgpu-renderer';
 
 
 export default class TextBitmap extends Mesh {

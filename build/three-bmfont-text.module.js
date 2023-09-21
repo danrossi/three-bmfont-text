@@ -1,5 +1,5 @@
 import { Texture, Color, BufferGeometry, Box3, BufferAttribute, Mesh, DoubleSide, GLSL3, RawShaderMaterial, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
-import { tslFn, color, texture, uniform, max, min, clamp, fwidth, MeshBasicNodeMaterial } from 'three-webgpu';
+import { tslFn, color, texture, uniform, max, min, clamp, fwidth, MeshBasicNodeMaterial } from 'three-webgpu-renderer';
 
 class BaseShader {
 

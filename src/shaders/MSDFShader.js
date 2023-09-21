@@ -1,6 +1,6 @@
 import BaseShader from './BaseShader';
 
-import { texture, color, min, max, tslFn, uniform, clamp, fwidth } from 'three-webgpu';
+import { texture, color, min, max, tslFn, uniform, clamp, fwidth } from 'three-webgpu-renderer';
 
 export default class MSDFShader extends BaseShader {
 
