@@ -2,8 +2,7 @@
   "name": "three-bmfont-text",
   "version": "2.2.1",
   "description": "renders BMFont files in ThreeJS with word-wrapping",
-  "main": "index.js",
-  "module": "build/three-bmfont-text.js",
+  "module": "build/three-bmfont-text.module.js",
   "type": "module",
   "license": "MIT",
   "author": {
