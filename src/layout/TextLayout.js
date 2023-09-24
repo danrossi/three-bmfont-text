@@ -21,7 +21,7 @@ export default class TextLayout {
     }
 
     set minWidth(width) {
-        this._opt.minWidth = width;
+        this._opt.width = width;
         this.update(this._opt);
     }
     
