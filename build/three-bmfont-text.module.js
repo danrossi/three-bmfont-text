@@ -663,7 +663,7 @@ class TextBitmap extends Mesh {
                 //wireframe: true
             }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
-        hitBox.mesh = this.mesh;
+        hitBox.mesh = this;
        // boxMat.alphaTest = 0.0001;
         this.group.add(hitBox);
     }
