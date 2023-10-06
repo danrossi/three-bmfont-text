@@ -1,10 +1,10 @@
-import TextBitmap from './TextBitmap';
+import TextBitmap from './LegacyTextBitmap';
 import SingleTextGeometry from './SingleTextGeometry';
 
 export default class SingleTextBitmap extends TextBitmap {
 
-	constructor(opt, isWebGPU = false) {
-		super(opt, isWebGPU);
+	constructor(opt, renderer) {
+		super(opt, renderer);
 	}
 
 	createGeometry() {

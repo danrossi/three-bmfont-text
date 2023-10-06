@@ -1,5 +1,4 @@
 import { Texture, Color, BufferGeometry, Box3, BufferAttribute, Mesh, DoubleSide, GLSL3, RawShaderMaterial, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
-import { tslFn, color, texture, uniform, max, min, clamp, fwidth, MeshBasicNodeMaterial } from 'three-webgpu-renderer';
 
 class BaseShader {
 
@@ -76,6 +75,8 @@ class BaseShader {
 	}
 }
 
+//import { texture, color, min, max, tslFn, uniform, clamp, fwidth } from 'three-webgpu-renderer';
+
 class MSDFShader extends BaseShader {
 
   static get vertexShader() {
@@ -122,30 +123,6 @@ class MSDFShader extends BaseShader {
     `
   }
 
-  static createWebGPUColorShader() {
-    return tslFn( ( input ) => {
-      //const color = uniform(input.color);
-    
-      return color(input.color);
-    });
-
-  }
-
-  static createWebGPUOpacityShader() {
-    return tslFn( ( input ) => {
-
-      const tex = texture(input.texture);
-      const opacity = uniform(input.opacity);
-
-      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b)).sub(0.5);
-
-      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
-
-   
-      return alpha.mul(opacity);
-    });
-
-  }
 }
 
 /*
@@ -566,9 +543,12 @@ class TextGeometry extends BufferGeometry {
     }
 }
 
+//import { MeshBasicNodeMaterial } from 'three-webgpu-renderer';
+
+
 class TextBitmap extends Mesh {
 
-    constructor(config, isWebGPU = false) {
+    constructor(config, isWebGPU) {
         config.color = config.color || '#fff';
         config.lineHeight = config.lineHeight ? config.font.common.lineHeight + config.lineHeight : config.font.common.lineHeight;
 
@@ -601,7 +581,7 @@ class TextBitmap extends Mesh {
                 //glslVersion: webgl2 ? GLSL3 : GLSL1
         };
 
-        if (isWebGPU) {
+        /*if (isWebGPU) {
             this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
             const colorNode = MSDFShader.createWebGPUColorShader();
             this.material.colorNode = colorNode( { color: this.material.color });
@@ -615,7 +595,10 @@ class TextBitmap extends Mesh {
         } else {
             this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
             this.material.extensions.derivatives = true;
-        }
+        }*/
+
+        this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
+        this.material.extensions.derivatives = true;
       
         
         //const mesh = this.mesh = new Mesh(geometry, material),
@@ -746,8 +729,8 @@ class SingleTextGeometry extends TextGeometry {
 
 class SingleTextBitmap extends TextBitmap {
 
-	constructor(opt, isWebGPU = false) {
-		super(opt, isWebGPU);
+	constructor(opt, renderer) {
+		super(opt, renderer);
 	}
 
 	createGeometry() {

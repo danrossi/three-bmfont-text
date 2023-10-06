@@ -1,4 +1,4 @@
-import MSDFShader from './shaders/MSDFShader';
+import MSDFShader from './shaders/LegacyMSDFShader';
 //import BasicShader from './shaders/BasicShader';
 import TextGeometry from './TextGeometry';
 
@@ -17,12 +17,12 @@ import {
     Color
  } from 'three';
  
- import { MeshBasicNodeMaterial } from 'three-webgpu-renderer';
+ //import { MeshBasicNodeMaterial } from 'three-webgpu-renderer';
 
 
 export default class TextBitmap extends Mesh {
 
-    constructor(config, isWebGPU = false) {
+    constructor(config, isWebGPU) {
         config.color = config.color || '#fff';
         config.lineHeight = config.lineHeight ? config.font.common.lineHeight + config.lineHeight : config.font.common.lineHeight;
 
@@ -59,7 +59,7 @@ export default class TextBitmap extends Mesh {
         //const material = new RawShaderMaterial(webgl2 ? MSDFShader.createShader2(shaderConf) : MSDFShader.createShader(shaderConf));
         let material;
 
-        if (isWebGPU) {
+        /*if (isWebGPU) {
             this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
             const colorNode = MSDFShader.createWebGPUColorShader();
             this.material.colorNode = colorNode( { color: this.material.color });
@@ -73,7 +73,10 @@ export default class TextBitmap extends Mesh {
         } else {
             this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
             this.material.extensions.derivatives = true;
-        }
+        }*/
+
+        this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
+        this.material.extensions.derivatives = true;
       
         
         //const mesh = this.mesh = new Mesh(geometry, material),
