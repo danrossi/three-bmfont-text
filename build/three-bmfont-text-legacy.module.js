@@ -600,7 +600,8 @@ class TextBitmap extends Mesh {
         this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
         this.material.extensions.derivatives = true;
       
-        
+        //legacy reference
+        this.mesh = this;
         //const mesh = this.mesh = new Mesh(geometry, material),
         const  group = this.group = new Group();
         this.renderOrder = 1;
