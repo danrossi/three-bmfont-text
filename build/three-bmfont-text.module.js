@@ -619,6 +619,9 @@ class TextBitmap extends Mesh {
       
         
         //const mesh = this.mesh = new Mesh(geometry, material),
+        //legacy reference
+        this.mesh = this;
+        
         const  group = this.group = new Group();
         this.renderOrder = 1;
 
