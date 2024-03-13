@@ -740,6 +740,12 @@ class SingleTextBitmap extends TextBitmap {
 
   	rotateMesh() {
     }
+
+	update() {
+		super.update();
+		this.position.x += this.config.xOffset;
+		this.position.y += this.config.yOffset;
+	}
 }
 
 export { SingleTextBitmap, TextBitmap };
