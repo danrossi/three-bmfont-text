@@ -757,8 +757,8 @@ class SingleTextBitmap extends TextBitmap {
     	return new SingleTextGeometry(this.config);
   	}
 
-  	rotateMesh() {
-    }
+  	/*rotateMesh() {
+    }*/
 
 	update() {
 		super.update();
