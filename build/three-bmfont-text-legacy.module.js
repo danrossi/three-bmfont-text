@@ -1,4 +1,4 @@
-import { Texture, Color, BufferGeometry, Box3, BufferAttribute, Mesh, DoubleSide, GLSL3, RawShaderMaterial, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
+import { Color, Texture, BufferGeometry, Box3, BufferAttribute, Mesh, RawShaderMaterial, GLSL3, DoubleSide, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
 
 class BaseShader {
 

@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 export default [
 	{
 		input: 'src/three-bmfont-text.js',
-		external: ['three', 'three-webgpu-renderer'],
+		external: ['three', 'three/webgpu', 'three/tsl'],
 		plugins: [
 			nodeResolve({
 				module: true,
@@ -27,7 +27,7 @@ export default [
 	},
 	{
 		input: 'src/three-bmfont-text-legacy.js',
-		external: ['three', 'three-webgpu-renderer'],
+		external: ['three', 'three/webgpu', 'three/tsl'],
 		plugins: [
 			nodeResolve({
 				module: true,

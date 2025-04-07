@@ -13,7 +13,7 @@
 import  * as THREE  from 'three';
 //import { default as createOrbitViewer } from 'three-orbit-viewer';
 
-import createControls from 'three-orbit-controls';
+import { WebGPURenderer } from 'three/webgpu';
 
 import shuffle from 'array-shuffle';
 
@@ -24,7 +24,8 @@ import { palettes } from './palettes';
 import wrap from 'word-wrap';
 import wordWrap from 'word-wrapper';
 
-var OrbitControls = createControls(THREE);
+import { OrbitControls } from "three-vr-orbitcontrols";
+//var OrbitControls = createControls(THREE);
 
 var palette = palettes[5]
 var background = palette.shift();
@@ -100,7 +101,7 @@ let scene, renderer, camera, container, clock;
 
 function onEnableVr(presenting) {
         console.log(" presenting", presenting);
-        renderer.vr.enabled = true;
+        renderer.xr.enabled = true;
 
         
       }
@@ -109,9 +110,14 @@ function start (font, texture) {
 
       scene = new THREE.Scene();
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      
+
+      //renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new WebGPURenderer({ antialias: true, forceWebGL: false });
       renderer.setClearColor( background, 1 );
-      renderer.vr.enabled = true;
+      renderer.xr.enabled = true;
+
+      console.log(renderer.xr);
 
       document.body.appendChild(renderer.domElement);
 
@@ -168,10 +174,8 @@ uiObject.position.z = -1
    window.addEventListener('resize', resize, false);
   resize();
 
-  renderer.animate( loop );
 
-
- 
+  renderer.setAnimationLoop( loop );
   // update orthographic
   function loop() {
 
@@ -211,7 +215,7 @@ uiObject.position.z = -1
      }, 5000);
 
 
-      text.group.position.set( 0, 0, - 1);
+      text.group.position.set( 0, 0, - 50);
       text.group.visible = true;
 
 //container.add(text.group);

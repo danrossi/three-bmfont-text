@@ -1,157 +1,6 @@
-import { Texture, Color, BufferGeometry, Box3, BufferAttribute, Mesh, DoubleSide, GLSL3, RawShaderMaterial, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
-import { tslFn, color, texture, uniform, max, min, clamp, fwidth, MeshBasicNodeMaterial } from 'three-webgpu-renderer';
-
-class BaseShader {
-
-	static uniforms(map, color, opacity) {
-	    return {
-	      opacity: { type: 'f', value: opacity },
-	      map: { type: 't', value: map || new Texture() },
-	      color: { type: 'c', value: new Color(color) }
-	    };
-	}
-
-	static get vertexShader() {
-	    return `
-	      attribute vec2 uv;
-	      attribute vec4 position;
-	      uniform mat4 projectionMatrix;
-	      uniform mat4 modelViewMatrix;
-	      varying vec2 vUv;
-	      void main() {
-	        vUv = uv;
-	        gl_Position = projectionMatrix * modelViewMatrix * position;
-	      }
-	    `;
-	}
-
-	static discarOnAlphaTest(alphaTest) {
-		return (alphaTest > 0 ? ` if (gl_FragColor.a < ${alphaTest}) discard;` : "");
-	}
-
-	/*static createShader(opt) {
-
-	    opt = opt || {};
-	    const shader = this,
-	    color = opt.color,
-	    map = opt.map,
-	    precision = opt.precision,
-	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1,
-	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
-
-	    // remove to satisfy r73
-	    delete opt.map;
-	    delete opt.color;
-	    delete opt.precision;
-	    delete opt.opacity;
-
-	    return Object.assign({
-	      uniforms: shader.uniforms(map, color, opacity),
-	      vertexShader: shader.vertexShader,
-	      fragmentShader: shader.fragmentShader(precision, alphaTest)
-	    }, opt);
-	}*/
-
-	static createShader(opt) {
-
-	    opt = opt || {};
-	    const shader = this,
-	    color = opt.color,
-	    map = opt.map,
-	    precision = opt.precision,
-	    opacity = typeof opt.opacity === 'number' ? opt.opacity : 1.0,
-	    alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
-
-	    // remove to satisfy r73
-	    delete opt.map;
-	    delete opt.color;
-	    delete opt.precision;
-	    delete opt.opacity;
-
-	    return Object.assign({
-	      uniforms: shader.uniforms(map, color, opacity),
-	      vertexShader: shader.vertexShader,
-	      fragmentShader: shader.fragmentShader(precision, alphaTest)
-	    }, opt);
-	}
-}
-
-class MSDFShader extends BaseShader {
-
-  static get vertexShader() {
-      return `
-        in vec2 uv;
-        in vec4 position;
-        uniform mat4 projectionMatrix;
-        uniform mat4 modelViewMatrix;
-        out vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * position;
-        }
-      `;
-  }
-
-  static discarOnAlphaTest(alphaTest) {
-    return (alphaTest > 0 ? ` if (outColor.a < ${alphaTest}) discard;` : "");
-  }
-
-  static fragmentShader(precision, alphaTest) { 
-
-    const discard = this.discarOnAlphaTest(alphaTest);
-       
-    return `
-      precision ${precision || 'highp'} float;
-      uniform float opacity;
-      uniform vec3 color;
-      uniform sampler2D map;
-      in vec2 vUv;
-      out vec4 outColor;
-
-      float median(float r, float g, float b) {
-        return max(min(r, g), min(max(r, g), b));
-      }
-
-      void main() {
-        vec3 sample1 = texture(map, vUv).rgb;
-        float sigDist = median(sample1.r, sample1.g, sample1.b) - 0.5;
-        float alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);
-        outColor = vec4(color.xyz, alpha * opacity);
-        ${discard}
-      }
-    `
-  }
-
-  static createWebGPUColorShader() {
-    return tslFn( ( input ) => {
-      //const color = uniform(input.color);
-    
-      return color(input.color);
-    });
-
-  }
-
-  static createWebGPUOpacityShader() {
-    return tslFn( ( input ) => {
-
-      const tex = texture(input.texture);
-      const opacity = uniform(input.opacity);
-
-      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b)).sub(0.5);
-
-      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
-
-   
-      return alpha.mul(opacity);
-    });
-
-  }
-}
-
-/*
-export function createShader(opt) {
-  return MSDFShader.createShader(opt);
-};*/
+import { BufferGeometry, Box3, BufferAttribute, Mesh, DoubleSide, Color, Group, BoxGeometry, MeshBasicMaterial, LinearMipMapLinearFilter, LinearFilter } from 'three';
+import { MeshBasicNodeMaterial } from 'three/webgpu';
+import { Fn, color, texture, uniform, max, min, clamp, fwidth } from 'three/tsl';
 
 class Vertices {
     static pages(glyph, pages, pagesOffset) {
@@ -566,6 +415,34 @@ class TextGeometry extends BufferGeometry {
     }
 }
 
+class WebGPUtils {
+
+    static createWebGPUColorShader() {
+        return Fn((input) => {
+            //const color = uniform(input.color);
+
+            return color(input.color);
+        });
+
+    }
+
+    static createWebGPUOpacityShader() {
+        return Fn((input) => {
+
+            const tex = texture(input.texture);
+            const opacity = uniform(input.opacity);
+
+            const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b)).sub(0.5);
+
+            const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
+
+
+            return alpha.mul(opacity);
+        });
+
+    }
+}
+
 class TextBitmap extends Mesh {
 
     constructor(config, isWebGPU = false) {
@@ -590,51 +467,32 @@ class TextBitmap extends Mesh {
 
         this.initTexture(texture, config.maxAnisotropy);
 
-        const shaderConf = {
-                side: DoubleSide,
-                transparent: true,
-                depthTest: false,
-                map: texture,
-                //depthWrite: false,
-                color: config.color,
-                glslVersion: GLSL3
-                //glslVersion: webgl2 ? GLSL3 : GLSL1
-        };
+        ({
+            //depthWrite: false,
+            color: config.color});
 
-        if (isWebGPU) {
-            this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
-            const colorNode = MSDFShader.createWebGPUColorShader();
-            this.material.colorNode = colorNode( { color: this.material.color });
-            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
 
-            const opacityNode = MSDFShader.createWebGPUOpacityShader();
-            this.material.opacityNode = opacityNode( { texture: texture, color: this.material.color, opacity: this.material.opacity });
+        this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
+        const colorNode = WebGPUtils.createWebGPUColorShader();
+        this.material.colorNode = colorNode({ color: this.material.color });
 
-            //const colorNode = MSDFShader.createWebGPUShader();
-            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
-        } else {
-            this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
-            this.material.extensions.derivatives = true;
-        }
-      
-        
-        //const mesh = this.mesh = new Mesh(geometry, material),
-        //legacy reference
+        const opacityNode = WebGPUtils.createWebGPUOpacityShader();
+        this.material.opacityNode = opacityNode({ texture: texture, color: this.material.color, opacity: this.material.opacity });
+
         this.mesh = this;
-        
-        const  group = this.group = new Group();
+
+        const group = this.group = new Group();
         this.renderOrder = 1;
 
         this.rotateMesh();
-        
+
         const groupScale = config.groupScale || 1;
-        config.scale || 1;
+            config.scale || 1;
         group.scale.set(groupScale, groupScale, groupScale);
         //this.scale.set(scale, scale, scale);
         group.add(this);
         this.createHitBox(config);
         this.update();
-        //if (config.hitbox) this.createHitBox();
     }
 
     set minWidth(width) {
@@ -643,19 +501,19 @@ class TextBitmap extends Mesh {
 
 
     rotateMesh() {
-      this.rotation.x = Math.PI;
+        this.rotation.x = Math.PI;
     }
 
     createHitBox(config) {
         const boxGeo = new BoxGeometry(1, 1, 1),
             //boxMat = new RawShaderMaterial(BasicShader.createShader({
             boxMat = new MeshBasicMaterial({
-              color: 0xff0000,
-              transparent: true,
-               opacity: 0,
-               alphaTest: 0.0001,
-//              opacity: config.showHitBox ? 1 : 0,
-              //wireframe: true
+                color: 0xff0000,
+                transparent: true,
+                opacity: 0,
+                alphaTest: 0.0001,
+                //              opacity: config.showHitBox ? 1 : 0,
+                //wireframe: true
             }),
             //  })),
             /*boxMat = new MeshBasicMaterial({
@@ -667,7 +525,7 @@ class TextBitmap extends Mesh {
             }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this;
-       // boxMat.alphaTest = 0.0001;
+        // boxMat.alphaTest = 0.0001;
         this.group.add(hitBox);
     }
 
@@ -688,7 +546,7 @@ class TextBitmap extends Mesh {
         //this.hitBox.geometry.computeBoundingSphere();
         this.position.x = -geometry.layout.width / 2;
         this.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
-        
+
         //console.log(geometry.boundingSphere);
         //console.log(this.hitBox.geometry.boundingSphere);
         this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);

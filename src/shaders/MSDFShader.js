@@ -1,6 +1,5 @@
 import BaseShader from './BaseShader';
 
-import { texture, color, min, max, tslFn, uniform, clamp, fwidth } from 'three-webgpu-renderer';
 
 export default class MSDFShader extends BaseShader {
 
@@ -48,35 +47,5 @@ export default class MSDFShader extends BaseShader {
     `
   }
 
-  static createWebGPUColorShader() {
-    return tslFn( ( input ) => {
-      //const color = uniform(input.color);
-    
-      return color(input.color);
-    });
-
-  }
-
-  static createWebGPUOpacityShader() {
-    return tslFn( ( input ) => {
-
-      const tex = texture(input.texture);
-      const opacity = uniform(input.opacity);
-
-      const sigDist = max(min(tex.r, tex.g), min(max(tex.r, tex.g), tex.b)).sub(0.5);
-
-      const alpha = clamp(sigDist.div(fwidth(sigDist)).add(0.5), 0.0, 1.0);
-
-   
-      return alpha.mul(opacity);
-    });
-
-  }
+ 
 }
-
-/*
-export function createShader(opt) {
-  return MSDFShader.createShader(opt);
-};*/
-
-

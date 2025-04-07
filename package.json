@@ -16,16 +16,22 @@
     ]
   },
   "dependencies": {
-    "@rollup/plugin-commonjs": "^25.0.0",
-    "rollup": "^3.23.0"
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "rollup": "^4.39.0",
+    "three-vr-orbitcontrols": "github:danrossi/three-vr-orbitcontrols"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.0.2"
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "array-shuffle": "^3.0.0",
+    "rollup-plugin-serve": "^3.0.0",
+    "three": "^0.175.0",
+    "word-wrap": "^1.2.5",
+    "word-wrapper": "^1.0.7"
   },
   "scripts": {
     "build": "rollup -c",
-    "test-msdf": " rollup --config rollup.serve.config.js -i test/test-msdf.js",
-    "test-icons": " rollup --config rollup.serve.config.js -i test/test-icons.js",
+    "msdf": "rollup -c rollup.serve.config.js",
+    "test-icons": "rollup -c rollup.serve.config.js -i test/test-icons.js",
     "test": "standard"
   },
   "keywords": [
