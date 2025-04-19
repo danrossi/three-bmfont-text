@@ -3,7 +3,6 @@ import TextGeometry from './TextGeometry';
 
 
 import {
-    RawShaderMaterial,
     MeshBasicMaterial,
     BoxGeometry,
     Mesh,
@@ -37,28 +36,22 @@ export default class TextBitmap extends Mesh {
         return new TextGeometry(this.config);
     }
 
-    init(config, isWebGPU) {
-        //const geometry = this.geometry = this.createGeometry(),
+    /**
+     * Setter to set an updated color on the colorNode
+     */
+    set color(val) {
+		const colorNode = WebGPUtils.createWebGPUColorShader();
+		this.material.colorNode = colorNode({ color: val });
+	}
+
+    init(config) {
         const texture = config.texture;
-        //webgl2 = renderer.capabilities.isWebGL2;
 
         this.initTexture(texture, config.maxAnisotropy);
 
-        const shaderConf = {
-            side: DoubleSide,
-            transparent: true,
-            depthTest: false,
-            map: texture,
-            //depthWrite: false,
-            color: config.color,
-            glslVersion: GLSL3
-            //glslVersion: webgl2 ? GLSL3 : GLSL1
-        };
-
-
         this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
-        const colorNode = WebGPUtils.createWebGPUColorShader();
-        this.material.colorNode = colorNode({ color: this.material.color });
+        
+        this.color = this.material.color;
 
         const opacityNode = WebGPUtils.createWebGPUOpacityShader();
         this.material.opacityNode = opacityNode({ texture: texture, color: this.material.color, opacity: this.material.opacity });
@@ -73,7 +66,6 @@ export default class TextBitmap extends Mesh {
         const groupScale = config.groupScale || 1,
             scale = config.scale || 1;
         group.scale.set(groupScale, groupScale, groupScale);
-        //this.scale.set(scale, scale, scale);
         group.add(this);
         this.createHitBox(config);
         this.update();
@@ -90,26 +82,14 @@ export default class TextBitmap extends Mesh {
 
     createHitBox(config) {
         const boxGeo = new BoxGeometry(1, 1, 1),
-            //boxMat = new RawShaderMaterial(BasicShader.createShader({
             boxMat = new MeshBasicMaterial({
                 color: 0xff0000,
                 transparent: true,
                 opacity: 0,
-                alphaTest: 0.0001,
-                //              opacity: config.showHitBox ? 1 : 0,
-                //wireframe: true
+                alphaTest: 0.0001
             }),
-            //  })),
-            /*boxMat = new MeshBasicMaterial({
-                //color: 0x000000,
-                transparent: false,
-                opacity: 1,
-                //opacity: config.showHitBox ? 1 : 0,
-                //wireframe: true
-            }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this;
-        // boxMat.alphaTest = 0.0001;
         this.group.add(hitBox);
     }
 
@@ -123,19 +103,11 @@ export default class TextBitmap extends Mesh {
 
     update() {
         const geometry = this.geometry;
-        //geometry.update( this.config );
         // centering
         geometry.computeBoundingBox();
-        //geometry.computeBoundingSphere();
-        //this.hitBox.geometry.computeBoundingSphere();
         this.position.x = -geometry.layout.width / 2;
         this.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
-
-        //console.log(geometry.boundingSphere);
-        //console.log(this.hitBox.geometry.boundingSphere);
         this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);
-        // mesh.position.y = - ( geometry.boundingBox.max.y - geometry.boundingBox.min.y ); // valign top
-        //this.hitBox.position.y = - geometry.layout.height / 2; // valign top
         this.height = geometry.layout.height * this.config.scale; // for html-like flow / positioning
     }
 
