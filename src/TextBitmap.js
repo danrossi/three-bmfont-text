@@ -103,8 +103,10 @@ export default class TextBitmap extends Mesh {
 
     update() {
         const geometry = this.geometry;
+
         // centering
         geometry.computeBoundingBox();
+	    geometry.computeBoundingSphere();	
         this.position.x = -geometry.layout.width / 2;
         this.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
         this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);
@@ -119,5 +121,6 @@ export default class TextBitmap extends Mesh {
         this._text = value;
         this.geometry.update(value);
         this.update();
+        //this.material.needsUpdate = true;
     }
 }

@@ -13,16 +13,13 @@
 import  * as THREE  from 'three';
 
 
-import { WebGPURenderer } from 'three/webgpu';
-
-
 import { OrbitControls } from "three-vr-orbitcontrols";
 
 
 
-import TextBitmap from '../src/TextBitmap';
-import { fontLoader } from './fontLoader';
 
+import {default as TextBitmap} from '../src/LegacyTextBitmap';
+import { fontLoader } from './fontLoader';
 
 
 
@@ -44,11 +41,13 @@ function start (font, texture) {
 
       scene = new THREE.Scene();
 
-      renderer = new WebGPURenderer({ antialias: true, forceWebGL: true });
-      renderer.setClearColor( 0x000000, 1 );
+      
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+    
+      //renderer.setClearColor( 0xffffff, 1 );
       renderer.xr.enabled = true;
 
-      console.log(renderer);
 
       document.body.appendChild(renderer.domElement);
 

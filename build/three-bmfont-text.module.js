@@ -68,6 +68,9 @@ class Vertices {
         positions[offset + 9] = x + w;
         positions[offset + 10] = y;
         positions[offset + 11] = 0;
+
+        //geometry.attributes.color.updateRange.offset = 0; // where to start updating
+        //    geometry.attributes.color.updateRange.count = 14000; 
     }
 }
 
@@ -156,21 +159,16 @@ class TextLayoutUtils {
 
 class TextLayout {
   
-    constructor(opt) {
+    constructor(opt, geometry) {
         this._glyphs = [];
-        this._positions = [];
-        this._uvs = [];
+        this._positions = geometry.attributes.position.array;
+        this._uvs = geometry.attributes.uv.array;
+        this._indices = geometry.index.array;
         this._pages = [];
         this._opt = opt;
         this.update(opt);
-    }
 
-    initBuffers(text) {
-        text.length * 8;
-        //this._positions = [];
-        this._positions = new Float32Array(text.length * 12);
-        this._uvs = new Float32Array(text.length * 8);
-        this._indices = new Uint16Array(text.length * 6);
+ 
     }
 
     set minWidth(width) {
@@ -195,8 +193,6 @@ class TextLayout {
             indicesOffset = 0,
             indicesValueOffset = 0,
             pagesOffset = 0;
-        //init position, uv and indices buffers
-        this.initBuffers(text);
         if (opt.multipage) this._pages = new Uint16Array(text.length * 4);
         this._glyphCount = 0;
         //get max line width
@@ -207,6 +203,7 @@ class TextLayout {
             y = 0;
         //draw text along baseline
         y = -this._height;
+
         //layout each glyph
         lines.forEach((line, lineIndex) => {
             const start = line.start,
@@ -239,6 +236,8 @@ class TextLayout {
                         uvOffset += 8;
                         positionOffset += 12;
                         this._drawRange = positionOffset;
+                        this.indexOffset = indicesOffset;
+                        this.uvOffset = uvOffset;
                     }
                     //move pen forward
                     x += glyph.xadvance + letterSpacing;
@@ -253,6 +252,8 @@ class TextLayout {
     }
 
     updateVertices(glyph, x, y, positionOffset = 0,  uvOffset = 0, indicesOffset = 0, indicesValueOffset = 0) {
+
+        
         Vertices.positions(glyph, this._positions, positionOffset, x, y);
         Vertices.uvs(glyph, this._uvs, uvOffset, this.font, this._opt.flipY);
         Vertices.index(this._indices, indicesOffset, indicesValueOffset);
@@ -364,37 +365,41 @@ class TextGeometry extends BufferGeometry {
         super();
         //THREE.js already polyfills assign.
         this._opt = Object.assign({
-            flipY: true
+            flipY: true,
+            buffersLength: 100
         }, opt);
         this.boundingBox = new Box3();
+
+   
+        this.setIndex(new BufferAttribute(new Uint16Array(this._opt.buffersLength * 6), 1));
+        this.setAttribute('position', new BufferAttribute(new Float32Array(this._opt.buffersLength * 12), 3));
+        this.setAttribute('uv', new BufferAttribute(new Float32Array(this._opt.buffersLength * 8), 2));
+
         this.update(opt.text);
     }
 
     creatTextLayout() {
-        return new TextLayout(this._opt);
+        return new TextLayout(this._opt, this);
     }
 
     update(text) {
         const opt = this._opt;
         opt.text = text;
         this.layout = this.creatTextLayout();
-        //set the current indices.
-        this.setIndex(new BufferAttribute(this.layout.indices, 1));
         //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
-        //this.setDrawRange(0, this.layout.drawRange);
-        //set the positions and uvs
-        const positions = new BufferAttribute(this.layout.positions, 3),
-            uvs = new BufferAttribute(this.layout.uvs, 2);
-        if (this.attributes.position) {
-            this.attributes.position = positions;
-            this.attributes.uv = uvs;
-            this.index.needsUpdate = true;
-            this.attributes.position.needsUpdate = true;
-            this.attributes.uv.needsUpdate = true;
-        } else {
-            this.setAttribute('position', positions);
-            this.setAttribute('uv', uvs);
-        }
+        this.setDrawRange(0, this.layout.drawRange);
+
+
+        this.attributes.position.updateRanges = [{ start:  0, count: this.layout.drawRange }]; 
+     
+        this.attributes.uv.updateRanges = [{ start:  0, count: this.layout.uvOffset}]; 
+
+        this.index.updateRanges = [{ start:  0, count: this.layout.indexOffset}];  
+      
+
+        this.index.needsUpdate = true;
+        this.attributes.position.needsUpdate = true;
+        this.attributes.uv.needsUpdate = true;
 
 
         //multipage support if enabled
@@ -527,8 +532,10 @@ class TextBitmap extends Mesh {
 
     update() {
         const geometry = this.geometry;
+
         // centering
         geometry.computeBoundingBox();
+	    geometry.computeBoundingSphere();	
         this.position.x = -geometry.layout.width / 2;
         this.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
         this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);
@@ -543,6 +550,7 @@ class TextBitmap extends Mesh {
         this._text = value;
         this.geometry.update(value);
         this.update();
+        //this.material.needsUpdate = true;
     }
 }
 

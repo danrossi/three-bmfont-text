@@ -64,5 +64,8 @@ export default class Vertices {
         positions[offset + 9] = x + w;
         positions[offset + 10] = y;
         positions[offset + 11] = 0;
+
+        //geometry.attributes.color.updateRange.offset = 0; // where to start updating
+        //    geometry.attributes.color.updateRange.count = 14000; 
     }
 }

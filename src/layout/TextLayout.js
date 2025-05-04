@@ -3,21 +3,16 @@ import TextLayoutUtils from './TextLayoutUtils';
 
 export default class TextLayout {
   
-    constructor(opt) {
+    constructor(opt, geometry) {
         this._glyphs = [];
-        this._positions = [];
-        this._uvs = [];
+        this._positions = geometry.attributes.position.array;
+        this._uvs = geometry.attributes.uv.array;
+        this._indices = geometry.index.array;
         this._pages = [];
         this._opt = opt;
         this.update(opt);
-    }
 
-    initBuffers(text) {
-        const bufferLength = text.length * 8;
-        //this._positions = [];
-        this._positions = new Float32Array(text.length * 12);
-        this._uvs = new Float32Array(text.length * 8);
-        this._indices = new Uint16Array(text.length * 6);
+ 
     }
 
     set minWidth(width) {
@@ -43,8 +38,6 @@ export default class TextLayout {
             indicesValueOffset = 0,
             pagesOffset = 0;
         pages = [0, 0, 0, 0];
-        //init position, uv and indices buffers
-        this.initBuffers(text);
         if (opt.multipage) this._pages = new Uint16Array(text.length * 4);
         this._glyphCount = 0;
         //get max line width
@@ -55,6 +48,7 @@ export default class TextLayout {
             y = 0;
         //draw text along baseline
         y = -this._height;
+
         //layout each glyph
         lines.forEach((line, lineIndex) => {
             const start = line.start,
@@ -87,6 +81,8 @@ export default class TextLayout {
                         uvOffset += 8;
                         positionOffset += 12;
                         this._drawRange = positionOffset;
+                        this.indexOffset = indicesOffset;
+                        this.uvOffset = uvOffset;
                     }
                     //move pen forward
                     x += glyph.xadvance + letterSpacing;
@@ -101,6 +97,8 @@ export default class TextLayout {
     }
 
     updateVertices(glyph, x, y, positionOffset = 0,  uvOffset = 0, indicesOffset = 0, indicesValueOffset = 0) {
+
+        
         Vertices.positions(glyph, this._positions, positionOffset, x, y);
         Vertices.uvs(glyph, this._uvs, uvOffset, this.font, this._opt.flipY);
         Vertices.index(this._indices, indicesOffset, indicesValueOffset);

@@ -100111,289 +100111,6 @@ class WebGPURenderer extends Renderer {
 
 }
 
-function arrayShuffle(array) {
-	if (!Array.isArray(array)) {
-		throw new TypeError(`Expected an array, got ${typeof array}`);
-	}
-
-	array = [...array];
-
-	for (let index = array.length - 1; index > 0; index--) {
-		const newIndex = Math.floor(Math.random() * (index + 1));
-		[array[index], array[newIndex]] = [array[newIndex], array[index]];
-	}
-
-	return array;
-}
-
-const suntzuquotes = [
-  "The general who wins the battle makes many calculations in his temple before the battle is fought. The general who loses makes but few calculations beforehand.",
-  "A leader leads by example not by force.",
-  "The control of a large force is the same principle as the control of a few men: it is merely a question of dividing up their numbers.",
-  "The ultimate in disposing one's troops is to be without ascertainable shape. Then the most penetrating spies cannot pry in nor can the wise lay plans against you.",
-  "If words of command are not clear and distinct, if orders are not thoroughly understood, the general is to blame. But if his orders ARE clear, and the soldiers nevertheless disobey, then it is the fault of their officers.",
-  "Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat.",
-  "All warfare is based on deception.",
-  "If fighting is sure to result in victory, then you must fight.",
-  "One defends when his strength is inadaquate, he attacks when it is abundant.",
-  "The quality of decision is like the well-timed swoop of a falcon which enables it to strike and destroy its victim.",
-  "When the enemy is at ease, be able to weary him; when well fed, to starve him; when at rest, to make him move. Appear at places to which he must hasten; move swiftly where he does not expect you.",
-  "If you know your enemy and you know yourself you need not fear the results of a hundred battles. If you know yourself but not the enemy for every victory gained you will also suffer a defeat. If you know neither the enemy nor yourself you will succumb in every battle.",
-  "The general who advances without coveting fame and retreats without fearing disgrace, whose only thought is to protect his country and do good service for his sovereign, is the jewel of the kingdom.",
-  "For to win one hundred victories in one hundred battles is not the acme of skill. To subdue the enemy without fighting is the acme of skill.",
-  "What the ancients called a clever fighter is one who not only wins, but excels in winning with ease.",
-  "To a surrounded enemy, you must leave a way of escape.",
-  "To know your Enemy, you must become your Enemy.",
-  "Thus, what is of supreme importance in war is to attack the enemy's strategy.",
-  "A leader leads by example, not force.",
-  "Too frequent rewards indicate that the general is at the end of his resources; too frequent punishments that he is in acute distress.",
-  "Pretend inferiority and encourage his arrogance.",
-  "All men can see these tactics whereby I conquer, but what none can see is the strategy out of which victory is evolved.",
-  "If we do not wish to fight, we can prevent the enemy from engaging us even though the lines of our encampment be merely traced out on the ground. All we need to do is to throw something odd and unaccountable in his way.",
-  "A military operation involves deception. Even though you are competent, appear to be incompetent. Though effective, appear to be ineffective.",
-  "Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win.",
-  "The best victory is when the opponent surrenders of its own accord before there are any actual hostilities... It is best to win without fighting.",
-  "Opportunities multiply as they are seized.",
-  "Speed is the essence of war. Take advantage of the enemy's unpreparedness; travel by unexpected routes and strike him where he has taken no precautions.",
-  "If your opponent is of choleric temperament, seek to irritate him.",
-  "Management of many is the same as management of few. It is a matter of organization.",
-  "The good fighters of old first put themselves beyond the possibility of defeat, and then waited for an opportunity of defeating the enemy.",
-  "Build your opponent a golden bridge to retreat across.",
-  "Swift as the wind. Quiet as the forest. Conquer like the fire. Steady as the mountain.",
-  "It is essential to seek out enemy agents who have come to conduct espionage against you and to bribe them to serve you. Give them instructions and care for them. Thus doubled agents are recruited and used.",
-  "Now the reason the enlightened prince and the wise general conquer the enemy whenever they move and their achievements surpass those of ordinary men is foreknowledge.",
-  "And therefore those skilled in war bring the enemy to the field of battle and are not brought there by him.",
-  "There is no instance of a nation benefitting from prolonged warfare.",
-  "When able to attack, we must seem unable; when using our forces, we must seem inactive; when we are near, we must make the enemy believe we are far away; when far away, we must make him believe we are near.",
-  "When torrential water tosses boulders, it is because of its momentum. When the strike of a hawk breaks the body of its prey, it is because of timing.",
-  "Secret operations are essential in war; upon them the army relies to make its every move.",
-  "It is said that if you know your enemies and know yourself, you will not be imperilled in a hundred battles; if you do not know your enemies but do know yourself, you will win one and lose one; if you do not know your enemies nor yourself, you will be imperilled in every single battle.",
-  "He who knows when he can fight and when he cannot will be victorious.",
-  "Subtle and insubstantial, the expert leaves no trace; divinely mysterious, he is inaudible. Thus he is master of his enemy's fate.",
-  "A skilled commander seeks victory from the situation and does not demand it of his subordinates."
-];
-
-const palettes = [["#69d2e7","#a7dbd8","#e0e4cc","#f38630","#fa6900"],["#fe4365","#fc9d9a","#f9cdad","#c8c8a9","#83af9b"],["#ecd078","#d95b43","#c02942","#542437","#53777a"],["#556270","#4ecdc4","#c7f464","#ff6b6b","#c44d58"],["#774f38","#e08e79","#f1d4af","#ece5ce","#c5e0dc"],["#e8ddcb","#cdb380","#036564","#033649","#031634"],["#490a3d","#bd1550","#e97f02","#f8ca00","#8a9b0f"],["#594f4f","#547980","#45ada8","#9de0ad","#e5fcc2"],["#00a0b0","#6a4a3c","#cc333f","#eb6841","#edc951"],["#e94e77","#d68189","#c6a49a","#c6e5d9","#f4ead5"],["#3fb8af","#7fc7af","#dad8a7","#ff9e9d","#ff3d7f"],["#d9ceb2","#948c75","#d5ded9","#7a6a53","#99b2b7"],["#ffffff","#cbe86b","#f2e9e1","#1c140d","#cbe86b"],["#efffcd","#dce9be","#555152","#2e2633","#99173c"],["#343838","#005f6b","#008c9e","#00b4cc","#00dffc"],["#413e4a","#73626e","#b38184","#f0b49e","#f7e4be"],["#99b898","#fecea8","#ff847c","#e84a5f","#2a363b"],["#ff4e50","#fc913a","#f9d423","#ede574","#e1f5c4"],["#655643","#80bca3","#f6f7bd","#e6ac27","#bf4d28"],["#351330","#424254","#64908a","#e8caa4","#cc2a41"],["#00a8c6","#40c0cb","#f9f2e7","#aee239","#8fbe00"],["#554236","#f77825","#d3ce3d","#f1efa5","#60b99a"],["#ff9900","#424242","#e9e9e9","#bcbcbc","#3299bb"],["#8c2318","#5e8c6a","#88a65e","#bfb35a","#f2c45a"],["#fad089","#ff9c5b","#f5634a","#ed303c","#3b8183"],["#5d4157","#838689","#a8caba","#cad7b2","#ebe3aa"],["#ff4242","#f4fad2","#d4ee5e","#e1edb9","#f0f2eb"],["#d1e751","#ffffff","#000000","#4dbce9","#26ade4"],["#f8b195","#f67280","#c06c84","#6c5b7b","#355c7d"],["#bcbdac","#cfbe27","#f27435","#f02475","#3b2d38"],["#5e412f","#fcebb6","#78c0a8","#f07818","#f0a830"],["#1b676b","#519548","#88c425","#bef202","#eafde6"],["#eee6ab","#c5bc8e","#696758","#45484b","#36393b"],["#452632","#91204d","#e4844a","#e8bf56","#e2f7ce"],["#f0d8a8","#3d1c00","#86b8b1","#f2d694","#fa2a00"],["#f04155","#ff823a","#f2f26f","#fff7bd","#95cfb7"],["#2a044a","#0b2e59","#0d6759","#7ab317","#a0c55f"],["#bbbb88","#ccc68d","#eedd99","#eec290","#eeaa88"],["#b9d7d9","#668284","#2a2829","#493736","#7b3b3b"],["#67917a","#170409","#b8af03","#ccbf82","#e33258"],["#a3a948","#edb92e","#f85931","#ce1836","#009989"],["#b3cc57","#ecf081","#ffbe40","#ef746f","#ab3e5b"],["#e8d5b7","#0e2430","#fc3a51","#f5b349","#e8d5b9"],["#ab526b","#bca297","#c5ceae","#f0e2a4","#f4ebc3"],["#607848","#789048","#c0d860","#f0f0d8","#604848"],["#aab3ab","#c4cbb7","#ebefc9","#eee0b7","#e8caaf"],["#300030","#480048","#601848","#c04848","#f07241"],["#a8e6ce","#dcedc2","#ffd3b5","#ffaaa6","#ff8c94"],["#3e4147","#fffedf","#dfba69","#5a2e2e","#2a2c31"],["#515151","#ffffff","#00b4ff","#eeeeee"],["#fc354c","#29221f","#13747d","#0abfbc","#fcf7c5"],["#1c2130","#028f76","#b3e099","#ffeaad","#d14334"],["#b6d8c0","#c8d9bf","#dadabd","#ecdbbc","#fedcba"],["#edebe6","#d6e1c7","#94c7b6","#403b33","#d3643b"],["#fdf1cc","#c6d6b8","#987f69","#e3ad40","#fcd036"],["#cc0c39","#e6781e","#c8cf02","#f8fcc1","#1693a7"],["#5c323e","#a82743","#e15e32","#c0d23e","#e5f04c"],["#dad6ca","#1bb0ce","#4f8699","#6a5e72","#563444"],["#230f2b","#f21d41","#ebebbc","#bce3c5","#82b3ae"],["#b9d3b0","#81bda4","#b28774","#f88f79","#f6aa93"],["#3a111c","#574951","#83988e","#bcdea5","#e6f9bc"],["#a7c5bd","#e5ddcb","#eb7b59","#cf4647","#524656"],["#5e3929","#cd8c52","#b7d1a3","#dee8be","#fcf7d3"],["#1c0113","#6b0103","#a30006","#c21a01","#f03c02"],["#8dccad","#988864","#fea6a2","#f9d6ac","#ffe9af"],["#c1b398","#605951","#fbeec2","#61a6ab","#accec0"],["#382f32","#ffeaf2","#fcd9e5","#fbc5d8","#f1396d"],["#e3dfba","#c8d6bf","#93ccc6","#6cbdb5","#1a1f1e"],["#5e9fa3","#dcd1b4","#fab87f","#f87e7b","#b05574"],["#4e395d","#827085","#8ebe94","#ccfc8e","#dc5b3e"],["#000000","#9f111b","#b11623","#292c37","#cccccc"],["#cfffdd","#b4dec1","#5c5863","#a85163","#ff1f4c"],["#9dc9ac","#fffec7","#f56218","#ff9d2e","#919167"],["#413d3d","#040004","#c8ff00","#fa023c","#4b000f"],["#951f2b","#f5f4d7","#e0dfb1","#a5a36c","#535233"],["#1b325f","#9cc4e4","#e9f2f9","#3a89c9","#f26c4f"],["#a8a7a7","#cc527a","#e8175d","#474747","#363636"],["#eff3cd","#b2d5ba","#61ada0","#248f8d","#605063"],["#2d2d29","#215a6d","#3ca2a2","#92c7a3","#dfece6"],["#ffedbf","#f7803c","#f54828","#2e0d23","#f8e4c1"],["#9d7e79","#ccac95","#9a947c","#748b83","#5b756c"],["#f6f6f6","#e8e8e8","#333333","#990100","#b90504"],["#0ca5b0","#4e3f30","#fefeeb","#f8f4e4","#a5b3aa"],["#edf6ee","#d1c089","#b3204d","#412e28","#151101"],["#d1313d","#e5625c","#f9bf76","#8eb2c5","#615375"],["#fffbb7","#a6f6af","#66b6ab","#5b7c8d","#4f2958"],["#4e4d4a","#353432","#94ba65","#2790b0","#2b4e72"],["#f38a8a","#55443d","#a0cab5","#cde9ca","#f1edd0"],["#a70267","#f10c49","#fb6b41","#f6d86b","#339194"],["#fcfef5","#e9ffe1","#cdcfb7","#d6e6c3","#fafbe3"],["#4d3b3b","#de6262","#ffb88c","#ffd0b3","#f5e0d3"],["#c2412d","#d1aa34","#a7a844","#a46583","#5a1e4a"],["#046d8b","#309292","#2fb8ac","#93a42a","#ecbe13"],["#f8edd1","#d88a8a","#474843","#9d9d93","#c5cfc6"],["#9cddc8","#bfd8ad","#ddd9ab","#f7af63","#633d2e"],["#ffefd3","#fffee4","#d0ecea","#9fd6d2","#8b7a5e"],["#30261c","#403831","#36544f","#1f5f61","#0b8185"],["#75616b","#bfcff7","#dce4f7","#f8f3bf","#d34017"],["#a1dbb2","#fee5ad","#faca66","#f7a541","#f45d4c"],["#ff003c","#ff8a00","#fabe28","#88c100","#00c176"]];
-
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-/*!
- * word-wrap <https://github.com/jonschlinkert/word-wrap>
- *
- * Copyright (c) 2014-2023, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-var wordWrap$1;
-var hasRequiredWordWrap;
-
-function requireWordWrap () {
-	if (hasRequiredWordWrap) return wordWrap$1;
-	hasRequiredWordWrap = 1;
-	function trimEnd(str) {
-	  let lastCharPos = str.length - 1;
-	  let lastChar = str[lastCharPos];
-	  while(lastChar === ' ' || lastChar === '\t') {
-	    lastChar = str[--lastCharPos];
-	  }
-	  return str.substring(0, lastCharPos + 1);
-	}
-
-	function trimTabAndSpaces(str) {
-	  const lines = str.split('\n');
-	  const trimmedLines = lines.map((line) => trimEnd(line));
-	  return trimmedLines.join('\n');
-	}
-
-	wordWrap$1 = function(str, options) {
-	  options = options || {};
-	  if (str == null) {
-	    return str;
-	  }
-
-	  var width = options.width || 50;
-	  var indent = (typeof options.indent === 'string')
-	    ? options.indent
-	    : '  ';
-
-	  var newline = options.newline || '\n' + indent;
-	  var escape = typeof options.escape === 'function'
-	    ? options.escape
-	    : identity;
-
-	  var regexString = '.{1,' + width + '}';
-	  if (options.cut !== true) {
-	    regexString += '([\\s\u200B]+|$)|[^\\s\u200B]+?([\\s\u200B]+|$)';
-	  }
-
-	  var re = new RegExp(regexString, 'g');
-	  var lines = str.match(re) || [];
-	  var result = indent + lines.map(function(line) {
-	    if (line.slice(-1) === '\n') {
-	      line = line.slice(0, line.length - 1);
-	    }
-	    return escape(line);
-	  }).join(newline);
-
-	  if (options.trim === true) {
-	    result = trimTabAndSpaces(result);
-	  }
-	  return result;
-	};
-
-	function identity(str) {
-	  return str;
-	}
-	return wordWrap$1;
-}
-
-var wordWrapExports = requireWordWrap();
-var wrap = /*@__PURE__*/getDefaultExportFromCjs(wordWrapExports);
-
-var wordWrapper = {exports: {}};
-
-var hasRequiredWordWrapper;
-
-function requireWordWrapper () {
-	if (hasRequiredWordWrapper) return wordWrapper.exports;
-	hasRequiredWordWrapper = 1;
-	(function (module) {
-		var newline = /\n/;
-		var newlineChar = '\n';
-		var whitespace = /\s/;
-
-		module.exports = function(text, opt) {
-		    var lines = module.exports.lines(text, opt);
-		    return lines.map(function(line) {
-		        return text.substring(line.start, line.end)
-		    }).join('\n')
-		};
-
-		module.exports.lines = function wordwrap(text, opt) {
-		    opt = opt||{};
-
-		    //zero width results in nothing visible
-		    if (opt.width === 0 && opt.mode !== 'nowrap') 
-		        return []
-
-		    text = text||'';
-		    var width = typeof opt.width === 'number' ? opt.width : Number.MAX_VALUE;
-		    var start = Math.max(0, opt.start||0);
-		    var end = typeof opt.end === 'number' ? opt.end : text.length;
-		    var mode = opt.mode;
-
-		    var measure = opt.measure || monospace;
-		    if (mode === 'pre')
-		        return pre(measure, text, start, end, width)
-		    else
-		        return greedy(measure, text, start, end, width, mode)
-		};
-
-		function idxOf(text, chr, start, end) {
-		    var idx = text.indexOf(chr, start);
-		    if (idx === -1 || idx > end)
-		        return end
-		    return idx
-		}
-
-		function isWhitespace(chr) {
-		    return whitespace.test(chr)
-		}
-
-		function pre(measure, text, start, end, width) {
-		    var lines = [];
-		    var lineStart = start;
-		    for (var i=start; i<end && i<text.length; i++) {
-		        var chr = text.charAt(i);
-		        var isNewline = newline.test(chr);
-
-		        //If we've reached a newline, then step down a line
-		        //Or if we've reached the EOF
-		        if (isNewline || i===end-1) {
-		            var lineEnd = isNewline ? i : i+1;
-		            var measured = measure(text, lineStart, lineEnd, width);
-		            lines.push(measured);
-		            
-		            lineStart = i+1;
-		        }
-		    }
-		    return lines
-		}
-
-		function greedy(measure, text, start, end, width, mode) {
-		    //A greedy word wrapper based on LibGDX algorithm
-		    //https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
-		    var lines = [];
-
-		    var testWidth = width;
-		    //if 'nowrap' is specified, we only wrap on newline chars
-		    if (mode === 'nowrap')
-		        testWidth = Number.MAX_VALUE;
-
-		    while (start < end && start < text.length) {
-		        //get next newline position
-		        var newLine = idxOf(text, newlineChar, start, end);
-
-		        //eat whitespace at start of line
-		        while (start < newLine) {
-		            if (!isWhitespace( text.charAt(start) ))
-		                break
-		            start++;
-		        }
-
-		        //determine visible # of glyphs for the available width
-		        var measured = measure(text, start, newLine, testWidth);
-
-		        var lineEnd = start + (measured.end-measured.start);
-		        var nextStart = lineEnd + newlineChar.length;
-
-		        //if we had to cut the line before the next newline...
-		        if (lineEnd < newLine) {
-		            //find char to break on
-		            while (lineEnd > start) {
-		                if (isWhitespace(text.charAt(lineEnd)))
-		                    break
-		                lineEnd--;
-		            }
-		            if (lineEnd === start) {
-		                if (nextStart > start + newlineChar.length) nextStart--;
-		                lineEnd = nextStart; // If no characters to break, show all.
-		            } else {
-		                nextStart = lineEnd;
-		                //eat whitespace at end of line
-		                while (lineEnd > start) {
-		                    if (!isWhitespace(text.charAt(lineEnd - newlineChar.length)))
-		                        break
-		                    lineEnd--;
-		                }
-		            }
-		        }
-		        if (lineEnd >= start) {
-		            var result = measure(text, start, lineEnd, testWidth);
-		            lines.push(result);
-		        }
-		        start = nextStart;
-		    }
-		    return lines
-		}
-
-		//determines the visible number of glyphs within a given width
-		function monospace(text, start, end, width) {
-		    var glyphs = Math.min(width, end-start);
-		    return {
-		        start: start,
-		        end: start+glyphs
-		    }
-		} 
-	} (wordWrapper));
-	return wordWrapper.exports;
-}
-
-var wordWrapperExports = requireWordWrapper();
-var wordWrap = /*@__PURE__*/getDefaultExportFromCjs(wordWrapperExports);
-
 /**
  * OrbitControls for mouse and keyboard controls.
  * Changes to turn it into a js module for bundling.
@@ -101714,6 +101431,9 @@ class Vertices {
         positions[offset + 9] = x + w;
         positions[offset + 10] = y;
         positions[offset + 11] = 0;
+
+        //geometry.attributes.color.updateRange.offset = 0; // where to start updating
+        //    geometry.attributes.color.updateRange.count = 14000; 
     }
 }
 
@@ -101802,21 +101522,16 @@ class TextLayoutUtils {
 
 class TextLayout {
   
-    constructor(opt) {
+    constructor(opt, geometry) {
         this._glyphs = [];
-        this._positions = [];
-        this._uvs = [];
+        this._positions = geometry.attributes.position.array;
+        this._uvs = geometry.attributes.uv.array;
+        this._indices = geometry.index.array;
         this._pages = [];
         this._opt = opt;
         this.update(opt);
-    }
 
-    initBuffers(text) {
-        text.length * 8;
-        //this._positions = [];
-        this._positions = new Float32Array(text.length * 12);
-        this._uvs = new Float32Array(text.length * 8);
-        this._indices = new Uint16Array(text.length * 6);
+ 
     }
 
     set minWidth(width) {
@@ -101841,8 +101556,6 @@ class TextLayout {
             indicesOffset = 0,
             indicesValueOffset = 0,
             pagesOffset = 0;
-        //init position, uv and indices buffers
-        this.initBuffers(text);
         if (opt.multipage) this._pages = new Uint16Array(text.length * 4);
         this._glyphCount = 0;
         //get max line width
@@ -101853,6 +101566,7 @@ class TextLayout {
             y = 0;
         //draw text along baseline
         y = -this._height;
+
         //layout each glyph
         lines.forEach((line, lineIndex) => {
             const start = line.start,
@@ -101885,6 +101599,8 @@ class TextLayout {
                         uvOffset += 8;
                         positionOffset += 12;
                         this._drawRange = positionOffset;
+                        this.indexOffset = indicesOffset;
+                        this.uvOffset = uvOffset;
                     }
                     //move pen forward
                     x += glyph.xadvance + letterSpacing;
@@ -101899,6 +101615,8 @@ class TextLayout {
     }
 
     updateVertices(glyph, x, y, positionOffset = 0,  uvOffset = 0, indicesOffset = 0, indicesValueOffset = 0) {
+
+        
         Vertices.positions(glyph, this._positions, positionOffset, x, y);
         Vertices.uvs(glyph, this._uvs, uvOffset, this.font, this._opt.flipY);
         Vertices.index(this._indices, indicesOffset, indicesValueOffset);
@@ -102010,37 +101728,41 @@ class TextGeometry extends BufferGeometry {
         super();
         //THREE.js already polyfills assign.
         this._opt = Object.assign({
-            flipY: true
+            flipY: true,
+            buffersLength: 100
         }, opt);
         this.boundingBox = new Box3();
+
+   
+        this.setIndex(new BufferAttribute(new Uint16Array(this._opt.buffersLength * 6), 1));
+        this.setAttribute('position', new BufferAttribute(new Float32Array(this._opt.buffersLength * 12), 3));
+        this.setAttribute('uv', new BufferAttribute(new Float32Array(this._opt.buffersLength * 8), 2));
+
         this.update(opt.text);
     }
 
     creatTextLayout() {
-        return new TextLayout(this._opt);
+        return new TextLayout(this._opt, this);
     }
 
     update(text) {
         const opt = this._opt;
         opt.text = text;
         this.layout = this.creatTextLayout();
-        //set the current indices.
-        this.setIndex(new BufferAttribute(this.layout.indices, 1));
         //buffer especially indices buffer is a little bigger to prevent detecting glyph length. Set a draw range just in case. 
-        //this.setDrawRange(0, this.layout.drawRange);
-        //set the positions and uvs
-        const positions = new BufferAttribute(this.layout.positions, 3),
-            uvs = new BufferAttribute(this.layout.uvs, 2);
-        if (this.attributes.position) {
-            this.attributes.position = positions;
-            this.attributes.uv = uvs;
-            this.index.needsUpdate = true;
-            this.attributes.position.needsUpdate = true;
-            this.attributes.uv.needsUpdate = true;
-        } else {
-            this.setAttribute('position', positions);
-            this.setAttribute('uv', uvs);
-        }
+        this.setDrawRange(0, this.layout.drawRange);
+
+
+        this.attributes.position.updateRanges = [{ start:  0, count: this.layout.drawRange }]; 
+     
+        this.attributes.uv.updateRanges = [{ start:  0, count: this.layout.uvOffset}]; 
+
+        this.index.updateRanges = [{ start:  0, count: this.layout.indexOffset}];  
+      
+
+        this.index.needsUpdate = true;
+        this.attributes.position.needsUpdate = true;
+        this.attributes.uv.needsUpdate = true;
 
 
         //multipage support if enabled
@@ -102656,51 +102378,39 @@ class TextBitmap extends Mesh {
         return new TextGeometry(this.config);
     }
 
-    init(config, isWebGPU) {
-        //const geometry = this.geometry = this.createGeometry(),
+    /**
+     * Setter to set an updated color on the colorNode
+     */
+    set color(val) {
+		const colorNode = WebGPUtils.createWebGPUColorShader();
+		this.material.colorNode = colorNode({ color: val });
+	}
+
+    init(config) {
         const texture = config.texture;
-        //webgl2 = renderer.capabilities.isWebGL2;
 
         this.initTexture(texture, config.maxAnisotropy);
 
-        ({
-                //depthWrite: false,
-                color: config.color});
-
-       // if (isWebGPU) {
-            this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
-            const colorNode = WebGPUtils.createWebGPUColorShader();
-            this.material.colorNode = colorNode( { color: this.material.color });
-            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
-
-            const opacityNode = WebGPUtils.createWebGPUOpacityShader();
-            this.material.opacityNode = opacityNode( { texture: texture, color: this.material.color, opacity: this.material.opacity });
-
-            //const colorNode = MSDFShader.createWebGPUShader();
-            //material.colorNode = colorNode( { texture: texture, color: material.color, opacity: material.opacity });
-       // } //else {
-           // this.material = new RawShaderMaterial(MSDFShader.createShader(shaderConf));
-           // this.material.extensions.derivatives = true;
-       // }
-      
+        this.material = new MeshBasicNodeMaterial({ map: texture, color: new Color(config.color), opacity: 1.0, transparent: true, depthTest: false, side: DoubleSide, alphaTest: 0.0001 });
         
-        //const mesh = this.mesh = new Mesh(geometry, material),
-        //legacy reference
+        this.color = this.material.color;
+
+        const opacityNode = WebGPUtils.createWebGPUOpacityShader();
+        this.material.opacityNode = opacityNode({ texture: texture, color: this.material.color, opacity: this.material.opacity });
+
         this.mesh = this;
-        
-        const  group = this.group = new Group();
+
+        const group = this.group = new Group();
         this.renderOrder = 1;
 
         this.rotateMesh();
-        
+
         const groupScale = config.groupScale || 1;
-        config.scale || 1;
+            config.scale || 1;
         group.scale.set(groupScale, groupScale, groupScale);
-        //this.scale.set(scale, scale, scale);
         group.add(this);
         this.createHitBox(config);
         this.update();
-        //if (config.hitbox) this.createHitBox();
     }
 
     set minWidth(width) {
@@ -102709,31 +102419,19 @@ class TextBitmap extends Mesh {
 
 
     rotateMesh() {
-      this.rotation.x = Math.PI;
+        this.rotation.x = Math.PI;
     }
 
     createHitBox(config) {
         const boxGeo = new BoxGeometry(1, 1, 1),
-            //boxMat = new RawShaderMaterial(BasicShader.createShader({
             boxMat = new MeshBasicMaterial({
-              color: 0xff0000,
-              transparent: true,
-               opacity: 0,
-               alphaTest: 0.0001,
-//              opacity: config.showHitBox ? 1 : 0,
-              //wireframe: true
+                color: 0xff0000,
+                transparent: true,
+                opacity: 0,
+                alphaTest: 0.0001
             }),
-            //  })),
-            /*boxMat = new MeshBasicMaterial({
-                //color: 0x000000,
-                transparent: false,
-                opacity: 1,
-                //opacity: config.showHitBox ? 1 : 0,
-                //wireframe: true
-            }),*/
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this;
-       // boxMat.alphaTest = 0.0001;
         this.group.add(hitBox);
     }
 
@@ -102747,19 +102445,13 @@ class TextBitmap extends Mesh {
 
     update() {
         const geometry = this.geometry;
-        //geometry.update( this.config );
+
         // centering
         geometry.computeBoundingBox();
-        //geometry.computeBoundingSphere();
-        //this.hitBox.geometry.computeBoundingSphere();
+	    geometry.computeBoundingSphere();	
         this.position.x = -geometry.layout.width / 2;
         this.position.y = -(geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2; // valign center
-        
-        //console.log(geometry.boundingSphere);
-        //console.log(this.hitBox.geometry.boundingSphere);
         this.hitBox.scale.set(geometry.layout.width, geometry.layout.height, 1);
-        // mesh.position.y = - ( geometry.boundingBox.max.y - geometry.boundingBox.min.y ); // valign top
-        //this.hitBox.position.y = - geometry.layout.height / 2; // valign top
         this.height = geometry.layout.height * this.config.scale; // for html-like flow / positioning
     }
 
@@ -102771,6 +102463,7 @@ class TextBitmap extends Mesh {
         this._text = value;
         this.geometry.update(value);
         this.update();
+        //this.material.needsUpdate = true;
     }
 }
 
@@ -102803,59 +102496,8 @@ function fontLoader(opt, cb) {
   })
  */
 
-//var OrbitControls = createControls(THREE);
-
-var palette = palettes[5];
-var background = palette.shift();
-
-arrayShuffle(suntzuquotes);
 
 
-var text = "Text Change Text Change Text Change Text Change Text Change Text Change Text Change Text Change";
-
-var a = performance.now();
-
-//console.log(wordWrap.lines(text, { width: 100 }));
-console.log(wordWrap(text, { width: 100 }));
-//console.log(wordWrap(text, { width: 100 }));
-
-//console.log(wrap(text, { width: 100, trim: true }));
-
-var b = performance.now();
-
-console.log('It took ' + (b - a) + ' ms.');
-
-a = performance.now();
-
-//wrap(text, { width: 100, trim: true });
-console.log(wrap(text, { width: 100, trim: true }));
-
-//console.log(wordWrap(text, { width: 100 }));
-
-b = performance.now();
-
-console.log('It took ' + (b - a) + ' ms.');
-
-function wordwrap1(a, b, c, d, e) {
-    b = b || 75;
-    d = d || false;
-    e = '.{1,' + b + '}(\\s|$)' + (d ? '|.{' + b + '}|.+$' : '|\\S+?(\\s|$)');
-    return a.match(RegExp(e, 'g'));
-    //return a.match(RegExp(e, 'g')).join(c);
-} 
-
-a = performance.now();
-
-//wrap(text, { width: 100, trim: true });
-//wordWrap(text, { width: 100 });
-console.log(wordwrap1(text, 100));
-//console.log(wrap(text, { width: 100, trim: true }));
-
-//console.log(wordwrap1(text, 50));
-
-b = performance.now();
-
-console.log('It took ' + (b - a) + ' ms.');
 
 
 fontLoader({
@@ -102869,26 +102511,15 @@ function start (font, texture) {
 
       scene = new Scene();
 
-      
-
-      //renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer = new WebGPURenderer({ antialias: true, forceWebGL: false });
-      renderer.setClearColor( background, 1 );
+      renderer = new WebGPURenderer({ antialias: true, forceWebGL: true });
+      renderer.setClearColor( 0x000000, 1 );
       renderer.xr.enabled = true;
 
-      console.log(renderer.xr);
+      console.log(renderer);
 
       document.body.appendChild(renderer.domElement);
 
-      /* WEBVR.getVRDisplay( function ( display, displays ) {
-
-          renderer.vr.setDevice( display );
-
-        
-
-          document.body.appendChild( WEBVR.getButton( display, renderer.domElement, onEnableVr ) );
-
-        } );*/
+    
 
    camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .01, 100000 );
 
@@ -102949,7 +102580,7 @@ uiObject.position.z = -1;
   function createGlyph (font, texture) {
 
      const text = new TextBitmap({
-          text: 'Tap to reposition',
+          text: 'Tap',
           width: 1000,
           align: 'center',
           font: font,
@@ -102962,10 +102593,10 @@ uiObject.position.z = -1;
         }, renderer);
 
      
-     text.text = "Text Change";
+     text.text = "Text";
 
      setTimeout(function() {
-         text.text = "Text Change Text Change Text Change Text Change Text Change Text Change Text ChangeText Change";
+         text.text = "Text 2";
          
      }, 5000);
 
@@ -102977,4 +102608,5 @@ uiObject.position.z = -1;
      //camera.add(text.group);
       scene.add(text.group);
   }
+
 }

@@ -31,8 +31,8 @@
   "scripts": {
     "build": "rollup -c",
     "msdf": "rollup -c rollup.serve.config.js",
-    "test-icons": "rollup -c rollup.serve.config.js -i test/test-icons.js",
-    "test": "standard"
+    "msdf-webgl": "rollup -c rollup.serve.config.js -i test/test-msdf-webgl.js",
+    "test-icons": "rollup -c rollup.serve.config.js -i test/test-icons.js"
   },
   "keywords": [
     "bmfont",
