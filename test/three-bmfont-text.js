@@ -102384,6 +102384,7 @@ class TextBitmap extends Mesh {
     set color(val) {
 		const colorNode = WebGPUtils.createWebGPUColorShader();
 		this.material.colorNode = colorNode({ color: val });
+        this.material.needsUpdate = true;
 	}
 
     init(config) {
@@ -102423,7 +102424,7 @@ class TextBitmap extends Mesh {
     }
 
     createHitBox(config) {
-        const boxGeo = new BoxGeometry(1, 1, 1),
+        const boxGeo = new BoxGeometry(1.1, 1.1, 1.1),
             boxMat = new MeshBasicMaterial({
                 color: 0xff0000,
                 transparent: true,
@@ -102596,7 +102597,9 @@ uiObject.position.z = -1;
      text.text = "Text";
 
      setTimeout(function() {
-         text.text = "Text 2";
+      text.color = new Color(0x000000);
+      text.text = "Text 2";
+        
          
      }, 5000);
 

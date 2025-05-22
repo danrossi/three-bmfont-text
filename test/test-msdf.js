@@ -133,7 +133,9 @@ uiObject.position.z = -1
      text.text = "Text";
 
      setTimeout(function() {
-         text.text = "Text 2";
+      text.color = new THREE.Color(0x000000);
+      text.text = "Text 2";
+        
          
      }, 5000);
 

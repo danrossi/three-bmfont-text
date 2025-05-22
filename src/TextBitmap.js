@@ -16,6 +16,10 @@ import {
 
 import { MeshBasicNodeMaterial } from 'three/webgpu';
 
+import { uniform } from 'three/tsl';
+
+
+
 import WebGPUtils from './util/WebGPUtils';
 
 
@@ -42,6 +46,7 @@ export default class TextBitmap extends Mesh {
     set color(val) {
 		const colorNode = WebGPUtils.createWebGPUColorShader();
 		this.material.colorNode = colorNode({ color: val });
+        this.material.needsUpdate = true;
 	}
 
     init(config) {

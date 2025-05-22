@@ -471,6 +471,7 @@ class TextBitmap extends Mesh {
     set color(val) {
 		const colorNode = WebGPUtils.createWebGPUColorShader();
 		this.material.colorNode = colorNode({ color: val });
+        this.material.needsUpdate = true;
 	}
 
     init(config) {
