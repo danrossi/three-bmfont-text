@@ -452,6 +452,7 @@ class TextBitmap extends Mesh {
 
     constructor(config, isWebGPU = false) {
         config.color = config.color || '#fff';
+        config.name = config.name || "";
         config.lineHeight = config.lineHeight ? config.font.common.lineHeight + config.lineHeight : config.font.common.lineHeight;
 
         const geometry = new TextGeometry(config);
@@ -475,6 +476,9 @@ class TextBitmap extends Mesh {
 	}
 
     init(config) {
+
+        this.name = config.name;
+
         const texture = config.texture;
 
         this.initTexture(texture, config.maxAnisotropy);
@@ -520,6 +524,7 @@ class TextBitmap extends Mesh {
             }),
             hitBox = this.hitBox = new Mesh(boxGeo, boxMat);
         hitBox.mesh = this;
+        hitBox.name = `${this.name}-hit`;
         this.group.add(hitBox);
     }
 
