@@ -10,7 +10,6 @@ import {
     LinearMipMapLinearFilter,
     LinearFilter,
     DoubleSide,
-    GLSL3,
     Color
 } from 'three';
 
@@ -90,7 +89,7 @@ export default class TextBitmap extends Mesh {
     }
 
     createHitBox(config) {
-        const boxGeo = new BoxGeometry(1.1, 1.1, 1.1),
+        const boxGeo = new BoxGeometry(1.1, 1.2, 1.1),
             boxMat = new MeshBasicMaterial({
                 color: 0xff0000,
                 transparent: true,
