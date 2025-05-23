@@ -67,7 +67,7 @@ export default class TextBitmap extends Mesh {
         this.mesh = this;
 
         const group = this.group = new Group();
-        this.renderOrder = 1;
+        this.renderOrder = 100;
 
         this.rotateMesh();
 
